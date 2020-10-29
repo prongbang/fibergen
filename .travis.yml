@@ -4,6 +4,7 @@ go:
   - tip
 env:
   - GO111MODULE=on
+  - CODECOV_TOKEN="6344253f-7188-4981-8c17-419b753d7386"
 install:
   - go get -v golang.org/x/lint/golint
 after_success:
