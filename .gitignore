@@ -1,4 +1,9 @@
+# IntelliJ
 .idea
+
+# Coverage
+coverage.html
+cover.out
 
 # General
 .DS_Store

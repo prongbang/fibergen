@@ -1,10 +1,11 @@
-package main
+package genx
 
 import (
 	"fmt"
 	"log"
-	"os"
 	"strings"
+
+	"github.com/prongbang/fibergen/pkg/filex"
 )
 
 // Generator is the interface
@@ -24,7 +25,7 @@ type Generator interface {
 }
 
 type generator struct {
-	Fx FileX
+	Fx filex.FileX
 }
 
 func (f *generator) Templates(pkg string) map[string]string {
@@ -49,19 +50,21 @@ func (f *generator) GenerateAll(feature string) {
 
 func (f *generator) Generate(feature string, filename string) {
 	template := f.GetTemplate(feature, filename)
-	currentDir, err := os.Getwd()
+	currentDir, err := f.Fx.Getwd()
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return
 	}
 	currentDir = fmt.Sprintf("%s/%s", currentDir, feature)
 	if f.Fx.EnsureDir(currentDir) != nil {
-		log.Fatal("Create directory error")
+		log.Println("Create directory error")
+		return
 	}
 	target := fmt.Sprintf("%s/%s", currentDir, filename)
 	if err := f.Fx.WriteFile(target, []byte(template)); err != nil {
 		log.Println("Generate file error", err)
 	} else {
-		log.Println(fmt.Sprintf("Generate file %s \tsuccess", filename))
+		log.Println(fmt.Sprintf("Generate file %s success", filename))
 	}
 }
 
@@ -168,7 +171,7 @@ func (f *generator) ModelName(feature string) string {
 }
 
 // NewGenerator is new instance with func
-func NewGenerator(fx FileX) Generator {
+func NewGenerator(fx filex.FileX) Generator {
 	return &generator{
 		Fx: fx,
 	}

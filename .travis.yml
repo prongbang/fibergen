@@ -1,0 +1,13 @@
+language: go
+go:
+  - 1.11.x
+  - tip
+env:
+  - GO111MODULE=on
+install:
+  - go get -v golang.org/x/lint/golint
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
+matrix:
+  allow_failures:
+    - go: tip
