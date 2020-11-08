@@ -69,11 +69,14 @@ func (f *generator) Generate(feature string, filename string) {
 
 func (f *generator) DataSourceTemplate(pkg string) string {
 	return fmt.Sprintf(`package %s
+
 type DataSource interface {
 }
+
 type dataSource struct {
 	Driver database.Drivers
 }
+
 func NewDataSource(driver database.Drivers) DataSource {
 	return &dataSource{
 		Driver: driver,
@@ -83,11 +86,14 @@ func NewDataSource(driver database.Drivers) DataSource {
 
 func (f *generator) HandlerTemplate(pkg string) string {
 	return fmt.Sprintf(`package %s
+
 type Handler interface {
 }
+
 type handler struct {
 	Uc UseCase
 }
+
 func NewHandler(uc UseCase) Handler {
 	return &handler{
 		Uc: uc,
@@ -97,7 +103,9 @@ func NewHandler(uc UseCase) Handler {
 
 func (f *generator) ProviderTemplate(pkg string) string {
 	return fmt.Sprintf(`package %s
+
 import "github.com/google/wire"
+
 var ProviderSet = wire.NewSet(
 	NewDataSource,
 	NewRepository,
@@ -109,11 +117,14 @@ var ProviderSet = wire.NewSet(
 
 func (f *generator) RepositoryTemplate(pkg string) string {
 	return fmt.Sprintf(`package %s
+
 type Repository interface {
 }
+
 type repository struct {
 	Ds DataSource
 }
+
 func NewRepository(ds DataSource) Repository {
 	return &repository{
 		Ds: ds,
@@ -123,15 +134,20 @@ func NewRepository(ds DataSource) Repository {
 
 func (f *generator) RouterTemplate(pkg string) string {
 	return fmt.Sprintf(`package %s
+
 import "github.com/gofiber/fiber/v2"
+
 type Router interface {
 	core.Router
 }
+
 type router struct {
 	Handle Handler
 }
+
 func (r *router) Initial(app *fiber.App) {
 }
+
 func NewRouter(handle Handler) Router {
 	return &router{Handle: handle}
 }`, pkg)
@@ -139,11 +155,14 @@ func NewRouter(handle Handler) Router {
 
 func (f *generator) UseCaseTemplate(pkg string) string {
 	return fmt.Sprintf(`package %s
+	
 type UseCase interface {
 }
+
 type useCase struct {
 	Repo Repository
 }
+
 func NewUseCase(repo Repository) UseCase {
 	return &useCase{
 		Repo: repo,
@@ -154,6 +173,7 @@ func NewUseCase(repo Repository) UseCase {
 func (f *generator) ModelTemplate(pkg string) string {
 	model := f.ModelName(pkg)
 	return fmt.Sprintf(`package %s
+	
 type %s struct  {
 }`, pkg, model)
 }
