@@ -2,7 +2,6 @@ package genx
 
 import (
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/prongbang/fibergen/pkg/filex"
@@ -41,30 +40,30 @@ func (f *generator) Templates(pkg string) map[string]string {
 }
 
 func (f *generator) GenerateAll(feature string) {
-	log.Println("--> START")
+	fmt.Println("--> START")
 	for filename := range f.Templates(feature) {
 		f.Generate(feature, filename)
 	}
-	log.Println("<-- END")
+	fmt.Println("<-- END")
 }
 
 func (f *generator) Generate(feature string, filename string) {
 	template := f.GetTemplate(feature, filename)
 	currentDir, err := f.Fx.Getwd()
 	if err != nil {
-		log.Println(err)
+		fmt.Println(err)
 		return
 	}
 	currentDir = fmt.Sprintf("%s/%s", currentDir, feature)
 	if f.Fx.EnsureDir(currentDir) != nil {
-		log.Println("Create directory error")
+		fmt.Println("Create directory error")
 		return
 	}
 	target := fmt.Sprintf("%s/%s", currentDir, filename)
 	if err := f.Fx.WriteFile(target, []byte(template)); err != nil {
-		log.Println("Generate file error", err)
+		fmt.Println("Generate file error", err)
 	} else {
-		log.Println(fmt.Sprintf("Generate file %s success", filename))
+		fmt.Println(fmt.Sprintf("Generate file %s success", filename))
 	}
 }
 
