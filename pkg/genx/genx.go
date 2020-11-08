@@ -72,11 +72,11 @@ func (f *generator) DataSourceTemplate(pkg string) string {
 type DataSource interface {
 }
 type dataSource struct {
-	DbSource database.DataSource
+	Driver database.Drivers
 }
-func NewDataSource(dbSource database.DataSource) DataSource {
+func NewDataSource(driver database.Drivers) DataSource {
 	return &dataSource{
-		DbSource: dbSource,
+		Driver: driver,
 	}
 }`, pkg)
 }
