@@ -231,7 +231,10 @@ func NewRepository(ds DataSource) Repository {
 func (f *generator) RouterTemplate(pkg Pkg) string {
 	return fmt.Sprintf(`package %s
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"github.com/gofiber/fiber/v2"
+	"%s/pkg/core"
+)
 
 type Router interface {
 	core.Router
@@ -248,7 +251,7 @@ func NewRouter(handle Handler) Router {
 	return &router{
 		Handle: handle,
 	}
-}`, pkg.Name)
+}`, pkg.Name, pkg.Module.Module)
 }
 
 func (f *generator) UseCaseTemplate(pkg Pkg) string {
