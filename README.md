@@ -8,14 +8,25 @@ Golang Generate Clean Architecture for REST API support Fiber Web Framework
 
 ## Install
 
-```shell script
-$ go get -u github.com/prongbang/fibergen
-$ go install github.com/prongbang/fibergen
+```shell
+go install github.com/prongbang/fibergen
 ```
 
 ## Requirement
 
-1. Project name in module
+1. New Project
+
+`-new`  project name
+
+`-mod`  module name
+
+```shell
+fibergen -new test -mod github.com/prongbang/testapi
+```
+
+3. Project name in module
+
+- go.mod
 
 ```
 module innotechdev.co.th/[customer]/[project-name]
@@ -99,7 +110,7 @@ func NewRouters(
 `-f`  feature name
 
 ```shell script
-$ fibergen -f user
+fibergen -f user
 ```
 OR
 
@@ -117,5 +128,6 @@ user
 ├── repository.go
 ├── router.go
 ├── usecase.go
-└── user.go
+├── user.go
+└── validate.go
 ```

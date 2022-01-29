@@ -2,6 +2,7 @@ package genx_test
 
 import (
 	"fmt"
+	"github.com/prongbang/fibergen/pkg/option"
 	"testing"
 
 	"github.com/prongbang/fibergen/pkg/filex"
@@ -171,8 +172,12 @@ func TestTemplates(t *testing.T) {
 }
 
 func TestGenerateAll(t *testing.T) {
-	feature := "hello"
-	genX.GenerateAll(feature)
+	opt := option.Options{
+		Project: "",
+		Module:  "",
+		Feature: "hello",
+	}
+	genX.GenerateAll(opt)
 }
 
 func TestGenerate(t *testing.T) {
@@ -262,6 +267,19 @@ func TestUseCaseTemplate(t *testing.T) {
 		},
 	}
 	if genX.UseCaseTemplate(pkg) == "" {
+		t.Error("Error")
+	}
+}
+
+func TestValidateTemplate(t *testing.T) {
+	pkg := genx.Pkg{
+		Name: "hello",
+		Module: genx.Mod{
+			Module:  module,
+			AppPath: appPath,
+		},
+	}
+	if genX.ValidateTemplate(pkg) == "" {
 		t.Error("Error")
 	}
 }
