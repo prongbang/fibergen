@@ -557,7 +557,9 @@ func (f *generator) GetModule() Mod {
 		}
 		pj := mod[i:]
 		ign := "/api"
-		c := strings.LastIndex(pwd, pj)
+		c := strings.Index(pwd, pj)
+
+		// Find internal/project-name
 		ap := pwd[c+len(pj)+1 : len(pwd)-len(ign)]
 
 		_ = f.Fx.Chdir("./" + ap + ign)
