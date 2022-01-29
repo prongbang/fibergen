@@ -557,7 +557,7 @@ func (f *generator) GetModule() Mod {
 		}
 		pj := mod[i:]
 		ign := "/api"
-		c := strings.Index(pwd, pj)
+		c := strings.Index(pwd, fmt.Sprintf("%s/internal/", pj))
 
 		// Find internal/project-name
 		ap := pwd[c+len(pj)+1 : len(pwd)-len(ign)]
