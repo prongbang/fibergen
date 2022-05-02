@@ -368,7 +368,7 @@ func (f *generator) AutoBinding(pkg Pkg) {
 }
 
 func (f *generator) Generate(pkg Pkg, filename string) {
-	template := f.GetTemplate(pkg, filename)
+	tmpl := f.GetTemplate(pkg, filename)
 	currentDir, err := f.Fx.Getwd()
 	if err != nil {
 		fmt.Println(err)
@@ -380,7 +380,7 @@ func (f *generator) Generate(pkg Pkg, filename string) {
 		return
 	}
 	target := fmt.Sprintf("%s/%s", currentDir, filename)
-	if err := f.Fx.WriteFile(target, []byte(template)); err != nil {
+	if err := f.Fx.WriteFile(target, []byte(tmpl)); err != nil {
 		fmt.Println("Generate file error", err)
 	} else {
 		fmt.Println(fmt.Sprintf("Generate file %s success", filename))
@@ -525,9 +525,13 @@ func (f *generator) GetTemplate(pkg Pkg, filename string) string {
 }
 
 func (f *generator) ModelName(feature string) string {
-	first := strings.ToUpper(feature[:1])
-	last := feature[1:]
-	modelName := fmt.Sprintf("%s%s", first, last)
+	names := strings.Split(feature, "_")
+	modelName := ""
+	for _, v := range names {
+		first := strings.ToUpper(v[:1])
+		last := v[1:]
+		modelName += fmt.Sprintf("%s%s", first, last)
+	}
 	return modelName
 }
 

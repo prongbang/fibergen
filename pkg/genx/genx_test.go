@@ -312,8 +312,8 @@ func TestGetTemplate(t *testing.T) {
 }
 
 func TestModelName(t *testing.T) {
-	feature := "hello"
-	if genX.ModelName(feature) != "Hello" {
+	feature := "hello_model"
+	if genX.ModelName(feature) != "HelloModel" {
 		t.Error("Error")
 	}
 }
