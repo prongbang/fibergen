@@ -1,0 +1,7 @@
+make --dry-run --always-make --keep-going --print-directory
+make: Entering directory `/Users/aycap/Development/Golang/src/github.com/prongbang/fibergen'
+go test -cover ./... -coverprofile=cover.out
+go tool cover -html=cover.out -o coverage.html
+open ./coverage.html
+make: Leaving directory `/Users/aycap/Development/Golang/src/github.com/prongbang/fibergen'
+ 
