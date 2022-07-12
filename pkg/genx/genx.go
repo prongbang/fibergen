@@ -2,9 +2,10 @@ package genx
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/prongbang/fibergen/pkg/option"
 	"github.com/prongbang/fibergen/pkg/template"
-	"strings"
 
 	"github.com/prongbang/fibergen/pkg/filex"
 )
@@ -211,7 +212,7 @@ func (f *generator) NewProject(opt option.Options) {
 	_ = f.Fx.WriteFile(casbinModelPath, casbinModelTemplate.Text())
 
 	// policy.csv
-	casbinPolicyPath := fmt.Sprintf("%s/policy.conf", casbinPolicyDir)
+	casbinPolicyPath := fmt.Sprintf("%s/policy.csv", casbinPolicyDir)
 	casbinPolicyTemplate := template.CasbinPolicyTemplate()
 	_ = f.Fx.WriteFile(casbinPolicyPath, casbinPolicyTemplate.Text())
 
