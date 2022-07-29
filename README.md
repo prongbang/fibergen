@@ -21,10 +21,10 @@ go install github.com/prongbang/fibergen
 `-mod`  module name
 
 ```shell
-fibergen -new test -mod github.com/prongbang/testapi
+fibergen -new test -mod github.com/prongbang/test
 ```
 
-3. Project name in module
+Example: Project name in module
 
 - go.mod
 
