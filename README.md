@@ -9,7 +9,7 @@ Golang Generate Clean Architecture for REST API support Fiber Web Framework
 ## Install
 
 ```shell
-go install github.com/prongbang/fibergen
+go install github.com/prongbang/fibergen@v1.0.0
 ```
 
 ## Requirement
