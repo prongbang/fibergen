@@ -35,11 +35,11 @@ module github.com/prongbang/test
 Structure
 
 ```
-[project-name]
+test
 ├── go.mod
 ├── go.sum
 ├── internal
-│   ├── app
+│   ├── test
 │   │   ├── api
 │   │   │   ├── feature/domain
 │   │   │   ├── api.go
