@@ -26,9 +26,10 @@ func main() {
 		return
 	}
 
+	project := strings.ReplaceAll(strings.ReplaceAll(*projectName, " ", "_"), "-", "_")
 	opt := option.Options{
-		Project: strings.ReplaceAll(strings.ReplaceAll(*projectName, " ", "_"), "-", "_"),
-		Module:  *modName,
+		Project: project,
+		Module:  fmt.Sprintf("%s/%s", *modName, project),
 		Feature: *featureName,
 	}
 
