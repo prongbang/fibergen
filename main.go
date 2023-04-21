@@ -3,8 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/prongbang/fibergen/pkg/option"
 	"strings"
+
+	"github.com/prongbang/fibergen/pkg/option"
 
 	"github.com/prongbang/fibergen/pkg/filex"
 	"github.com/prongbang/fibergen/pkg/genx"

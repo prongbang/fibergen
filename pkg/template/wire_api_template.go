@@ -21,7 +21,7 @@ func CreateAPI(dbDriver database.Drivers) API {
 	wire.Build(
 		NewAPI,
 		NewRouters,
-		//+fibergen:func wire:Build
+		//+fibergen:func wire:build
 	)
 	return nil
 }`)

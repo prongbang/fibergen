@@ -9,7 +9,7 @@ Golang Generate Clean Architecture for REST API support Fiber Web Framework
 ## Install
 
 ```shell
-go install github.com/prongbang/fibergen@v1.0.2
+go install github.com/prongbang/fibergen@v1.0.3
 ```
 
 ## Requirement
@@ -38,16 +38,16 @@ Structure
 test
 ├── go.mod
 ├── go.sum
-├── internal
-│   ├── test
-│   │   ├── api
-│   │   │   ├── feature/domain
-│   │   │   ├── api.go
-│   │   │   ├── routers.go
-│   │   │   ├── wire.go
-│   │   │   └── wire_gen.go
-│   │   ├── database
-│   │   │   ├── drivers.go
+└── internal
+    └── test
+        ├── api
+        │   ├── feature/domain
+        │   ├── api.go
+        │   ├── routers.go
+        │   ├── wire.go
+        │   └── wire_gen.go
+        └── database
+            └── drivers.go
 ```
 
 2. mark `+fibergeen`
