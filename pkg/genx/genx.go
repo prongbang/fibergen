@@ -38,7 +38,8 @@ type Generator interface {
 	ValidateTemplate(pkg Pkg) string
 	ModelTemplate(pkg Pkg) string
 	GetTemplate(pkg Pkg, filename string) string
-	ModelName(feature string) string
+	UpperCamelName(name string) string
+	LowerCamelName(name string) string
 	Templates(pkg Pkg) map[string]string
 	GetModule() Mod
 }
@@ -311,19 +312,23 @@ func (f *generator) AutoBinding(pkg Pkg) {
 	wireText := wireB
 
 	// Binding wire
-	wireImpPat := "//+fibergen:import wire:package"
+	wireImpPat1 := "//+fibergen:import wire:package"
+	wireImpPat2 := "// +fibergen:import wire:package"
 	wireImp := fmt.Sprintf(
 		`"%s/%s/api/%s"
-	%s`, pkg.Module.Module, pkg.Module.AppPath, pkg.Name, wireImpPat,
+	%s`, pkg.Module.Module, pkg.Module.AppPath, pkg.Name, wireImpPat1,
 	)
-	wireText = strings.Replace(wireText, wireImpPat, wireImp, 1)
+	wireText = strings.Replace(wireText, wireImpPat1, wireImp, 1)
+	wireText = strings.Replace(wireText, wireImpPat2, wireImp, 1)
 
-	wireBuildPat := "//+fibergen:func wire:build"
+	wireBuildPat1 := "//+fibergen:func wire:build"
+	wireBuildPat2 := "// +fibergen:func wire:build"
 	wireBuild := fmt.Sprintf(
 		`%s.ProviderSet,
-		%s`, pkg.Name, wireBuildPat,
+		%s`, pkg.Name, wireBuildPat1,
 	)
-	wireText = strings.Replace(wireText, wireBuildPat, wireBuild, 1)
+	wireText = strings.Replace(wireText, wireBuildPat1, wireBuild, 1)
+	wireText = strings.Replace(wireText, wireBuildPat2, wireBuild, 1)
 
 	spinnerBindWire, _ := pterm.DefaultSpinner.Start("Binding file wire.go")
 	if err := f.Fx.WriteFile(wirePath, []byte(wireText)); err == nil {
@@ -333,40 +338,50 @@ func (f *generator) AutoBinding(pkg Pkg) {
 	}
 
 	// Binding routers
-	routerImpPat := "//+fibergen:import routers:package"
+	routerImpPat1 := "//+fibergen:import routers:package"
+	routerImpPat2 := "// +fibergen:import routers:package"
 	routerImp := fmt.Sprintf(
 		`"%s/%s/api/%s"
-	%s`, pkg.Module.Module, pkg.Module.AppPath, pkg.Name, routerImpPat,
+	%s`, pkg.Module.Module, pkg.Module.AppPath, pkg.Name, routerImpPat1,
 	)
-	routerText = strings.Replace(routerText, routerImpPat, routerImp, 1)
+	routerText = strings.Replace(routerText, routerImpPat1, routerImp, 1)
+	routerText = strings.Replace(routerText, routerImpPat2, routerImp, 1)
 
-	routerStructPat := "//+fibergen:struct routers"
+	routerStructPat1 := "//+fibergen:struct routers"
+	routerStructPat2 := "// +fibergen:struct routers"
 	routerStruct := fmt.Sprintf(
 		`%sRoute %s.Router
-	%s`, f.ModelName(pkg.Name), pkg.Name, routerStructPat,
+	%s`, f.UpperCamelName(pkg.Name), pkg.Name, routerStructPat1,
 	)
-	routerText = strings.Replace(routerText, routerStructPat, routerStruct, 1)
+	routerText = strings.Replace(routerText, routerStructPat1, routerStruct, 1)
+	routerText = strings.Replace(routerText, routerStructPat2, routerStruct, 1)
 
-	routerInitPat := "//+fibergen:func initials"
+	routerInitPat1 := "//+fibergen:func initials"
+	routerInitPat2 := "// +fibergen:func initials"
 	routerInit := fmt.Sprintf(
 		`r.%sRoute.Initial(app)
-	%s`, f.ModelName(pkg.Name), routerInitPat,
+	%s`, f.UpperCamelName(pkg.Name), routerInitPat1,
 	)
-	routerText = strings.Replace(routerText, routerInitPat, routerInit, 1)
+	routerText = strings.Replace(routerText, routerInitPat1, routerInit, 1)
+	routerText = strings.Replace(routerText, routerInitPat2, routerInit, 1)
 
-	routerNewPat := "//+fibergen:func new:routers"
+	routerNewPat1 := "//+fibergen:func new:routers"
+	routerNewPat2 := "// +fibergen:func new:routers"
 	routerNew := fmt.Sprintf(
 		`%sRoute %s.Router,
-	%s`, pkg.Name, pkg.Name, routerNewPat,
+	%s`, f.LowerCamelName(pkg.Name), pkg.Name, routerNewPat1,
 	)
-	routerText = strings.Replace(routerText, routerNewPat, routerNew, 1)
+	routerText = strings.Replace(routerText, routerNewPat1, routerNew, 1)
+	routerText = strings.Replace(routerText, routerNewPat2, routerNew, 1)
 
-	routerBindPat := "//+fibergen:return &routers"
+	routerBindPat1 := "//+fibergen:return &routers"
+	routerBindPat2 := "// +fibergen:return &routers"
 	routerBind := fmt.Sprintf(
 		`%sRoute: %sRoute,
-		%s`, f.ModelName(pkg.Name), pkg.Name, routerBindPat,
+		%s`, f.UpperCamelName(pkg.Name), pkg.Name, routerBindPat1,
 	)
-	routerText = strings.Replace(routerText, routerBindPat, routerBind, 1)
+	routerText = strings.Replace(routerText, routerBindPat1, routerBind, 1)
+	routerText = strings.Replace(routerText, routerBindPat2, routerBind, 1)
 
 	spinnerBindRouter, _ := pterm.DefaultSpinner.Start("Binding file routers.go")
 	if err := f.Fx.WriteFile(routerPath, []byte(routerText)); err == nil {
@@ -481,15 +496,17 @@ type Router interface {
 }
 
 type router struct {
-	Handle Handler
+	Handle   Handler
+	Validate Validate
 }
 
 func (r *router) Initial(app *fiber.App) {
 }
 
-func NewRouter(handle Handler) Router {
+func NewRouter(handle Handler, validate Validate) Router {
 	return &router{
-		Handle: handle,
+		Handle:   handle,
+		Validate: validate,
 	}
 }`, pkg.Name, pkg.Module.Module)
 }
@@ -527,7 +544,7 @@ func NewValidate() Validate {
 }
 
 func (f *generator) ModelTemplate(pkg Pkg) string {
-	model := f.ModelName(pkg.Name)
+	model := f.UpperCamelName(pkg.Name)
 	return fmt.Sprintf(`package %s
 	
 type %s struct  {
@@ -538,12 +555,29 @@ func (f *generator) GetTemplate(pkg Pkg, filename string) string {
 	return f.Templates(pkg)[filename]
 }
 
-func (f *generator) ModelName(feature string) string {
-	names := strings.Split(feature, "_")
+func (f *generator) UpperCamelName(name string) string {
+	names := strings.Split(name, "_")
 	modelName := ""
 	for _, v := range names {
 		first := strings.ToUpper(v[:1])
 		last := v[1:]
+		modelName += fmt.Sprintf("%s%s", first, last)
+	}
+	return modelName
+}
+
+func (f *generator) LowerCamelName(name string) string {
+	names := strings.Split(name, "_")
+	modelName := ""
+	first := ""
+	last := ""
+	for i, v := range names {
+		if i == 0 {
+			first = strings.ToLower(v[:1])
+		} else {
+			first = strings.ToUpper(v[:1])
+		}
+		last = v[1:]
 		modelName += fmt.Sprintf("%s%s", first, last)
 	}
 	return modelName

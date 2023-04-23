@@ -311,10 +311,18 @@ func TestGetTemplate(t *testing.T) {
 	}
 }
 
-func TestModelName(t *testing.T) {
+func TestUpperCamelName(t *testing.T) {
 	feature := "hello_model"
-	if genX.ModelName(feature) != "HelloModel" {
+	if genX.UpperCamelName(feature) != "HelloModel" {
 		t.Error("Error")
+	}
+}
+
+func TestLowerCamelName(t *testing.T) {
+	feature := "hello_model_test"
+	actual := genX.LowerCamelName(feature)
+	if actual != "helloModelTest" {
+		t.Error("Error", actual)
 	}
 }
 
