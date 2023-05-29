@@ -378,7 +378,7 @@ func (f *generator) AutoBinding(pkg Pkg) {
 	routerBindPat2 := "// +fibergen:return &routers"
 	routerBind := fmt.Sprintf(
 		`%sRoute: %sRoute,
-		%s`, f.UpperCamelName(pkg.Name), pkg.Name, routerBindPat1,
+		%s`, f.UpperCamelName(pkg.Name), f.LowerCamelName(pkg.Name), routerBindPat1,
 	)
 	routerText = strings.Replace(routerText, routerBindPat1, routerBind, 1)
 	routerText = strings.Replace(routerText, routerBindPat2, routerBind, 1)
