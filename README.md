@@ -1,6 +1,6 @@
 # FiberGen
 
-Golang Generate Clean Architecture for REST API support Fiber Web Framework
+Generate a Clean Architecture for REST API with support for the Fiber Web Framework in Golang
 
 [![Build Status](http://img.shields.io/travis/prongbang/fibergen.svg)](https://travis-ci.org/prongbang/fibergen)
 [![Codecov](https://img.shields.io/codecov/c/github/prongbang/fibergen.svg)](https://codecov.io/gh/prongbang/fibergen)
