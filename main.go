@@ -8,9 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/prongbang/fibergen/pkg/filex"
-	"github.com/prongbang/fibergen/pkg/genx"
-	"github.com/prongbang/fibergen/pkg/option"
+	"github.com/prongbang/fibergen/pkg/tools"
 	"github.com/urfave/cli/v2"
 )
 
@@ -76,9 +74,12 @@ func main() {
 				return errors.New("please use: fibergen -n project-name -m github.com/prongbang/module-name")
 			}
 
-			opt := option.Options{Project: flags.Project(), Module: flags.Module(), Feature: flags.Feature()}
-			gen := genx.NewGenerator(filex.NewFileX())
-			gen.GenerateAll(opt)
+			//opt := option.Options{Project: flags.Project(), Module: flags.Module(), Feature: flags.Feature()}
+			//gen := genx.NewGenerator(filex.NewFileX())
+			//gen.GenerateAll(opt)
+
+			t := tools.New()
+			t.Install()
 
 			return nil
 		},
