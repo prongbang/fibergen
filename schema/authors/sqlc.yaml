@@ -1,0 +1,10 @@
+version: "2"
+sql:
+  - engine: "postgresql" # mysql
+    queries: "queries.sql"
+    schema: "schema.sql"
+    gen:
+      go:
+        package: "authors"
+        out: "authors"
+        sql_package: "pgx/v5"
