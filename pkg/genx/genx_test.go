@@ -2,8 +2,9 @@ package genx_test
 
 import (
 	"fmt"
-	"github.com/prongbang/fibergen/pkg/option"
 	"testing"
+
+	"github.com/prongbang/fibergen/pkg/option"
 
 	"github.com/prongbang/fibergen/pkg/filex"
 	"github.com/prongbang/fibergen/pkg/genx"

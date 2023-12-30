@@ -6,6 +6,7 @@ import (
 
 	"github.com/prongbang/fibergen/pkg/option"
 	"github.com/prongbang/fibergen/pkg/template"
+	"github.com/prongbang/fibergen/pkg/tools"
 	"github.com/pterm/pterm"
 
 	"github.com/prongbang/fibergen/pkg/filex"
@@ -45,7 +46,8 @@ type Generator interface {
 }
 
 type generator struct {
-	Fx filex.FileX
+	Fx    filex.FileX
+	Tools tools.Tools
 }
 
 func (f *generator) NewProject(opt option.Options) {
@@ -296,6 +298,19 @@ func (f *generator) GenerateAll(opt option.Options) {
 			f.Generate(pkg, filename)
 		}
 		f.AutoBinding(pkg)
+	} else if opt.Crud != "" {
+		// Install library
+		if err := f.Tools.Install(); err == nil {
+			mod := f.GetModule()
+			pkg := Pkg{
+				Name:   opt.Crud,
+				Module: mod,
+			}
+			for filename := range f.Templates(pkg) {
+				f.Generate(pkg, filename)
+			}
+			f.AutoBinding(pkg)
+		}
 	} else {
 		fmt.Println("Not Supported")
 	}
@@ -625,8 +640,9 @@ func (f *generator) GetModule() Mod {
 }
 
 // NewGenerator is new instance with func
-func NewGenerator(fx filex.FileX) Generator {
+func NewGenerator(fx filex.FileX, t tools.Tools) Generator {
 	return &generator{
-		Fx: fx,
+		Fx:    fx,
+		Tools: t,
 	}
 }

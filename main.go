@@ -1,21 +1,24 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"os"
 	"strings"
 	"time"
 
+	"github.com/prongbang/fibergen/pkg/filex"
+	"github.com/prongbang/fibergen/pkg/genx"
+	"github.com/prongbang/fibergen/pkg/option"
 	"github.com/prongbang/fibergen/pkg/tools"
 	"github.com/urfave/cli/v2"
 )
 
 type Flags struct {
-	N string
-	M string
-	F string
+	N    string
+	M    string
+	F    string
+	CRUD string
 }
 
 func (f Flags) Project() string {
@@ -64,22 +67,21 @@ func main() {
 				Usage:       "-f auth",
 				Destination: &flags.F,
 			},
+			&cli.StringFlag{
+				Name:        "crud",
+				Usage:       "-crud auth",
+				Destination: &flags.CRUD,
+			},
 		},
 		Action: func(*cli.Context) error {
-			if flags.F == "" && flags.N == "" && flags.M == "" {
-				return errors.New("please use: fibergen -f feature-name")
+			opt := option.Options{
+				Project: flags.Project(),
+				Module:  flags.Module(),
+				Feature: flags.Feature(),
+				Crud:    flags.CRUD,
 			}
-
-			if flags.N == "" && flags.M == "" && flags.F == "" {
-				return errors.New("please use: fibergen -n project-name -m github.com/prongbang/module-name")
-			}
-
-			//opt := option.Options{Project: flags.Project(), Module: flags.Module(), Feature: flags.Feature()}
-			//gen := genx.NewGenerator(filex.NewFileX())
-			//gen.GenerateAll(opt)
-
-			t := tools.New()
-			t.Install()
+			gen := genx.NewGenerator(filex.NewFileX(), tools.New())
+			gen.GenerateAll(opt)
 
 			return nil
 		},

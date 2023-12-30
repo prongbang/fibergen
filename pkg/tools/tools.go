@@ -3,6 +3,7 @@ package tools
 import (
 	"github.com/prongbang/fibergen/pkg/arch"
 	"github.com/prongbang/fibergen/pkg/command"
+	"github.com/pterm/pterm"
 )
 
 type Tools interface {
@@ -17,6 +18,7 @@ func (*tool) Install() error {
 	arc := arch.New()
 
 	// Install sqlc
+	spinnerSqlc, _ := pterm.DefaultSpinner.Start("Install sqlc")
 	_, err := cmd.Run("sqlc", "version")
 	if err != nil {
 		if arc.IsDarwinArm64() {
@@ -24,6 +26,13 @@ func (*tool) Install() error {
 		} else {
 			_, err = cmd.Run("brew", "install", "sqlc")
 		}
+		if err != nil {
+			spinnerSqlc.Fail()
+		} else {
+			spinnerSqlc.Success()
+		}
+	} else {
+		spinnerSqlc.Success()
 	}
 
 	return err
