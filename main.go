@@ -7,6 +7,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/prongbang/fibergen/pkg/arch"
+	"github.com/prongbang/fibergen/pkg/command"
 	"github.com/prongbang/fibergen/pkg/filex"
 	"github.com/prongbang/fibergen/pkg/genx"
 	"github.com/prongbang/fibergen/pkg/option"
@@ -80,7 +82,20 @@ func main() {
 				Feature: flags.Feature(),
 				Crud:    flags.CRUD,
 			}
-			gen := genx.NewGenerator(filex.NewFileX(), tools.New())
+			cmd := command.New()
+			arc := arch.New()
+			wireInstaller := tools.NewWireInstaller(cmd)
+			wireRunner := tools.NewWireRunner(cmd)
+			gen := genx.NewGenerator(
+				filex.NewFileX(),
+				tools.New(
+					wireInstaller,
+					tools.NewSqlcInstaller(cmd, arc),
+					tools.NewDbmlInstaller(cmd, arc),
+				),
+				wireInstaller,
+				wireRunner,
+			)
 			gen.GenerateAll(opt)
 
 			return nil

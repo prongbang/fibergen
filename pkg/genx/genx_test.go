@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/prongbang/fibergen/pkg/option"
+	"github.com/prongbang/fibergen/pkg/tools"
 
 	"github.com/prongbang/fibergen/pkg/filex"
 	"github.com/prongbang/fibergen/pkg/genx"
@@ -54,6 +55,29 @@ func NewFileXMock() filex.FileX {
 type fileXMockError struct {
 }
 
+type installerMock struct {
+}
+
+// Install implements tools.Installer.
+func (*installerMock) Install() error {
+	return nil
+}
+
+func NewInstallerMock() tools.Installer {
+	return &installerMock{}
+}
+
+type runnerMock struct{}
+
+// Run implements tools.Runner.
+func (*runnerMock) Run() error {
+	return nil
+}
+
+func NewRunnerMock() tools.Runner {
+	return &runnerMock{}
+}
+
 var ensureDir error = fmt.Errorf("%s", "Error")
 var writeFile error = nil
 var changeDir error = nil
@@ -89,10 +113,12 @@ var genX genx.Generator
 var genXError genx.Generator
 
 func init() {
+	tl := NewInstallerMock()
+	runner := NewRunnerMock()
 	fx := NewFileXMock()
 	fxError := NewFileXMockError()
-	genX = genx.NewGenerator(fx)
-	genXError = genx.NewGenerator(fxError)
+	genX = genx.NewGenerator(fx, tl, tl, runner)
+	genXError = genx.NewGenerator(fxError, tl, tl, runner)
 }
 
 func TestGenerateWriteFileError(t *testing.T) {

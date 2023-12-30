@@ -46,8 +46,10 @@ type Generator interface {
 }
 
 type generator struct {
-	Fx    filex.FileX
-	Tools tools.Tools
+	Fx            filex.FileX
+	Installer     tools.Installer
+	WireInstaller tools.Installer
+	WireRunner    tools.Runner
 }
 
 func (f *generator) NewProject(opt option.Options) {
@@ -289,6 +291,9 @@ func (f *generator) GenerateAll(opt option.Options) {
 	if opt.Project != "" && opt.Module != "" {
 		f.NewProject(opt)
 	} else if opt.Feature != "" {
+		// Install library
+		_ = f.WireInstaller.Install()
+
 		mod := f.GetModule()
 		pkg := Pkg{
 			Name:   opt.Feature,
@@ -298,9 +303,11 @@ func (f *generator) GenerateAll(opt option.Options) {
 			f.Generate(pkg, filename)
 		}
 		f.AutoBinding(pkg)
+
+		_ = f.WireRunner.Run()
 	} else if opt.Crud != "" {
 		// Install library
-		if err := f.Tools.Install(); err == nil {
+		if err := f.Installer.Install(); err == nil {
 			mod := f.GetModule()
 			pkg := Pkg{
 				Name:   opt.Crud,
@@ -310,6 +317,8 @@ func (f *generator) GenerateAll(opt option.Options) {
 				f.Generate(pkg, filename)
 			}
 			f.AutoBinding(pkg)
+
+			_ = f.WireRunner.Run()
 		}
 	} else {
 		fmt.Println("Not Supported")
@@ -640,9 +649,11 @@ func (f *generator) GetModule() Mod {
 }
 
 // NewGenerator is new instance with func
-func NewGenerator(fx filex.FileX, t tools.Tools) Generator {
+func NewGenerator(fx filex.FileX, installer tools.Installer, wireInstaller tools.Installer, wireRunner tools.Runner) Generator {
 	return &generator{
-		Fx:    fx,
-		Tools: t,
+		Fx:            fx,
+		Installer:     installer,
+		WireInstaller: wireInstaller,
+		WireRunner:    wireRunner,
 	}
 }

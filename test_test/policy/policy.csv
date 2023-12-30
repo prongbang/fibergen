@@ -1,0 +1,4 @@
+p, anonymous, /swagger, (GET)|(OPTIONS)
+p, anonymous, /v1/login, (GET)|(OPTIONS)
+p, admin, /v1/*, (GET)|(POST)|(PUT)|(DELETE)|(OPTIONS)
+p, user, /v1/user/me, (GET)|(OPTIONS)
