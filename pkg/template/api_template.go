@@ -35,13 +35,13 @@ func (a *api) Register() {
 	app.Use(logger.New())
 	app.Use(recover.New())
 	app.Use(requestid.New())
-	app.Use(casbinx.New())
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: "*",
 		AllowHeaders: "X-Platform, X-Api-Key, Authorization, Access-Control-Allow-Credentials, Access-Control-Allow-Origin, Access-Control-Allow-Headers, Origin, Content-Type, Accept",
 		AllowMethods: "GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS",
 	}))
 	app.Use("/swagger", swagger.Handler)
+	app.Use(casbinx.New())
 
 	// Routers
 	a.Router.Initials(app)

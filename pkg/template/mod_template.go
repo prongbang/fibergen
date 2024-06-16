@@ -20,8 +20,9 @@ require (
 	github.com/innotechdevops/mgo-driver v1.0.0
 	github.com/jmoiron/sqlx v1.3.4
 	github.com/pkg/errors v0.9.1
-	github.com/prongbang/callx v1.2.3
-	github.com/prongbang/fiber-casbinrest v1.0.4
+	github.com/prongbang/callx v1.2.5
+	github.com/prongbang/fiber-casbinrest v1.0.5
+	github.com/prongbang/fibererror v1.1.1
 	github.com/spf13/viper v1.10.1
 	github.com/urfave/cli/v2 v2.3.0
 	go.mongodb.org/mongo-driver v1.8.2

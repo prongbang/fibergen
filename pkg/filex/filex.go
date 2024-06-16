@@ -3,7 +3,6 @@
 package filex
 
 import (
-	"io/ioutil"
 	"os"
 )
 
@@ -28,11 +27,11 @@ func (f *fileX) EnsureDir(dir string) error {
 }
 
 func (f *fileX) WriteFile(filename string, data []byte) error {
-	return ioutil.WriteFile(filename, data, 0755)
+	return os.WriteFile(filename, data, 0755)
 }
 
 func (f *fileX) ReadFile(filename string) string {
-	if text, err := ioutil.ReadFile(filename); err == nil {
+	if text, err := os.ReadFile(filename); err == nil {
 		return string(text)
 	}
 	return ""

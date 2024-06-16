@@ -21,14 +21,14 @@ func (t *installer) Install() error {
 	}
 
 	// Install sqlc
-	if e2 := t.SqlcInstaller.Install(); e2 != nil {
-		err = e2
-	}
-
+	// if e2 := t.SqlcInstaller.Install(); e2 != nil {
+	// 	err = e2
+	// }
+	//
 	// Install dbml-cli
-	if e3 := t.DbmlInstaller.Install(); e3 != nil {
-		err = e3
-	}
+	// if e3 := t.DbmlInstaller.Install(); e3 != nil {
+	// 	err = e3
+	// }
 
 	return err
 }
