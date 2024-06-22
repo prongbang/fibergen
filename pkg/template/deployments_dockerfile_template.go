@@ -18,8 +18,8 @@ RUN mkdir -p /go/src/` + d.Module + `
 WORKDIR /go/src/` + d.Module + `
 COPY . .
 
-# Using go mod with go 1.11
-RUN go mod vendor
+# Download all dependencies
+RUN go mod download
 
 # With go ≥ 1.10
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -ldflags="-w -s" -o /go/bin/` + d.Project + ` cmd/` + d.Project + `/main.go
