@@ -9,7 +9,7 @@ func (a *apiTemplate) Text() []byte {
 
 import (
 	"fmt"
-	""os""
+	os"
 	"os/signal"
 	"syscall"
 	_ "time/tzdata"
