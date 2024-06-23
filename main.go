@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ettle/strcase"
 	"github.com/prongbang/fibergen/pkg/arch"
 	"github.com/prongbang/fibergen/pkg/command"
 	"github.com/prongbang/fibergen/pkg/filex"
@@ -17,22 +18,27 @@ import (
 )
 
 type Flags struct {
-	N    string
-	M    string
-	F    string
-	CRUD string
+	ProjectName string
+	ModuleName  string
+	FeatureName string
+	Crud        string
+	Spec        string
+	Driver      string
 }
 
 func (f Flags) Project() string {
-	return strings.ReplaceAll(strings.ReplaceAll(f.N, " ", "_"), "-", "_")
+	return strcase.ToKebab(strings.ReplaceAll(f.ProjectName, " ", "_"))
 }
 
 func (f Flags) Module() string {
-	return fmt.Sprintf("%s/%s", f.M, f.Project())
+	return fmt.Sprintf("%s/%s", f.ModuleName, f.Project())
 }
 
 func (f Flags) Feature() string {
-	return strings.ReplaceAll(strings.ReplaceAll(f.F, " ", "_"), "-", "_")
+	if f.FeatureName != "" {
+		return strings.ReplaceAll(strings.ReplaceAll(f.FeatureName, " ", "_"), "-", "_")
+	}
+	return ""
 }
 
 func main() {
@@ -55,24 +61,36 @@ func main() {
 				Name:        "new",
 				Aliases:     []string{"n"},
 				Usage:       "-n project-name",
-				Destination: &flags.N,
+				Destination: &flags.ProjectName,
 			},
 			&cli.StringFlag{
 				Name:        "mod",
 				Aliases:     []string{"m"},
 				Usage:       "-m github.com/prongbang/module-name",
-				Destination: &flags.M,
+				Destination: &flags.ModuleName,
 			},
 			&cli.StringFlag{
 				Name:        "feature",
 				Aliases:     []string{"f"},
 				Usage:       "-f auth",
-				Destination: &flags.F,
+				Destination: &flags.FeatureName,
 			},
 			&cli.StringFlag{
 				Name:        "crud",
 				Usage:       "-crud auth",
-				Destination: &flags.CRUD,
+				Destination: &flags.Crud,
+			},
+			&cli.StringFlag{
+				Name:        "spec",
+				Aliases:     []string{"s"},
+				Usage:       "-s auth.json",
+				Destination: &flags.Spec,
+			},
+			&cli.StringFlag{
+				Name:        "driver",
+				Aliases:     []string{"d"},
+				Usage:       "-d mariadb",
+				Destination: &flags.Driver,
 			},
 		},
 		Action: func(*cli.Context) error {
@@ -80,7 +98,9 @@ func main() {
 				Project: flags.Project(),
 				Module:  flags.Module(),
 				Feature: flags.Feature(),
-				Crud:    flags.CRUD,
+				Crud:    flags.Crud,
+				Spec:    flags.Spec,
+				Driver:  flags.Driver,
 			}
 			cmd := command.New()
 			arc := arch.New()
@@ -96,7 +116,7 @@ func main() {
 				wireInstaller,
 				wireRunner,
 			)
-			gen.GenerateAll(opt)
+			gen.Generate(opt)
 
 			return nil
 		},

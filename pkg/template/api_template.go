@@ -9,15 +9,20 @@ func (a *apiTemplate) Text() []byte {
 
 import (
 	"fmt"
+	""os""
+	"os/signal"
+	"syscall"
+	_ "time/tzdata"
 	swagger "github.com/arsmn/fiber-swagger/v2"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/log"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/fiber/v2/middleware/requestid"
-	"` + a.Module + `/internal/pkg/casbinx"
 	"github.com/spf13/viper"
-	_ "time/tzdata"
+	"` + a.Module + `/configuration"
+	"` + a.Module + `/internal/pkg/casbinx"
 )
 
 type API interface {
@@ -43,11 +48,36 @@ func (a *api) Register() {
 	app.Use("/swagger", swagger.Handler)
 	app.Use(casbinx.New())
 
+	app.Hooks().OnShutdown(func() error {
+		log.Info("On server shutting down")
+		return nil
+	})
+
 	// Routers
 	a.Router.Initials(app)
 
 	// Serve
-	_ = app.Listen(fmt.Sprintf(":%d", viper.GetInt("api.port")))
+	go func() {
+		log.Fatal(app.Listen(fmt.Sprintf(":%d", configuration.Config.API.Port)))
+	}()
+
+	wait(func(sig os.Signal) {
+		log.Info("Gracefully shutting down...")
+		log.Info("Waiting for all request to finish")
+		err := app.Shutdown()
+		if err != nil {
+			log.Fatal(err)
+		}
+		log.Info("Running cleanup tasks...")
+		log.Info("Server was successful shutdown.")
+	})
+}
+
+func wait(fn func(os.Signal)) {
+	termChan := make(chan os.Signal, 1)
+	signal.Notify(termChan, os.Interrupt, syscall.SIGTERM)
+	sig := <-termChan
+	fn(sig)
 }
 
 func NewAPI(router Routers) API {

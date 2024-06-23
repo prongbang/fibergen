@@ -8,8 +8,9 @@ func (m *modTemplate) Text() []byte {
 	return []byte(`module ` + m.Module + `
 
 require (
-	github.com/casbin/casbin/v2 v2.40.6
-	github.com/arsmn/fiber-swagger/v2 v2.0.0
+	github.com/casbin/casbin/v2 v2.87.1
+	github.com/fsnotify/fsnotify v1.7.0
+	github.com/arsmn/fiber-swagger/v2 v2.31.1
 	github.com/swaggo/swag v1.7.0
 	github.com/go-openapi/spec v0.20.3 // indirect
 	github.com/go-openapi/swag v0.19.15 // indirect

@@ -11,8 +11,8 @@ import (
 )
 
 type Handler interface {
-	GetById(c *fiber.Ctx) error
-	GetList(c *fiber.Ctx) error
+	FindById(c *fiber.Ctx) error
+	FindList(c *fiber.Ctx) error
 	Create(c *fiber.Ctx) error
 	Update(c *fiber.Ctx) error
 	Delete(c *fiber.Ctx) error

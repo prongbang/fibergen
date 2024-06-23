@@ -5,10 +5,14 @@ import (
 	"testing"
 
 	"github.com/prongbang/fibergen/pkg/option"
+	"github.com/prongbang/fibergen/pkg/pkgs"
+	"github.com/prongbang/fibergen/pkg/template"
+	"github.com/prongbang/fibergen/pkg/tocase"
 	"github.com/prongbang/fibergen/pkg/tools"
 
 	"github.com/prongbang/fibergen/pkg/filex"
 	"github.com/prongbang/fibergen/pkg/genx"
+	"github.com/prongbang/fibergen/pkg/mod"
 )
 
 var module string = "github.com/prongbang/fibergen"
@@ -78,15 +82,13 @@ func NewRunnerMock() tools.Runner {
 	return &runnerMock{}
 }
 
-var ensureDir error = fmt.Errorf("%s", "Error")
 var writeFile error = nil
 var changeDir error = nil
 var getwdPath string = ""
 var readFile string = ""
-var getedError error = fmt.Errorf("%s", "Error")
 
 func (f *fileXMockError) EnsureDir(dir string) error {
-	return ensureDir
+	return fmt.Errorf("%s", "Error")
 }
 
 func (f *fileXMockError) WriteFile(filename string, data []byte) error {
@@ -102,7 +104,7 @@ func (f *fileXMockError) ReadFile(filename string) string {
 }
 
 func (f *fileXMockError) Getwd() (string, error) {
-	return getwdPath, getedError
+	return getwdPath, fmt.Errorf("%s", "Error")
 }
 
 func NewFileXMockError() filex.FileX {
@@ -124,57 +126,55 @@ func init() {
 func TestGenerateWriteFileError(t *testing.T) {
 	feature := "hello"
 	filename := "usecase.go"
-	getedError = nil
-	ensureDir = nil
+	tmpl := ""
 	writeFile = fmt.Errorf("%s", "Error")
-	pkg := genx.Pkg{
+	pkg := pkgs.Pkg{
 		Name: feature,
-		Module: genx.Mod{
+		Module: mod.Mod{
 			Module:  module,
 			AppPath: appPath,
 		},
 	}
-	genXError.Generate(pkg, filename)
+	genx.GenerateFeature(NewFileXMock(), pkg, filename, tmpl)
 }
 
 func TestGenerateEnsureDirError(t *testing.T) {
 	feature := "hello"
 	filename := "usecase.go"
-	getedError = nil
-	ensureDir = fmt.Errorf("%s", "Error")
-	pkg := genx.Pkg{
+	tmpl := ""
+	pkg := pkgs.Pkg{
 		Name: feature,
-		Module: genx.Mod{
+		Module: mod.Mod{
 			Module:  module,
 			AppPath: appPath,
 		},
 	}
-	genXError.Generate(pkg, filename)
+	genx.GenerateFeature(NewFileXMock(), pkg, filename, tmpl)
 }
 
 func TestGenerateGetwdError(t *testing.T) {
 	feature := "hello"
 	filename := "usecase.go"
-	getedError = fmt.Errorf("%s", "Error")
-	pkg := genx.Pkg{
+	tmpl := ""
+	pkg := pkgs.Pkg{
 		Name: feature,
-		Module: genx.Mod{
+		Module: mod.Mod{
 			Module:  module,
 			AppPath: appPath,
 		},
 	}
-	genXError.Generate(pkg, filename)
+	genx.GenerateFeature(NewFileXMock(), pkg, filename, tmpl)
 }
 
 func TestTemplates(t *testing.T) {
-	pkg := genx.Pkg{
+	pkg := pkgs.Pkg{
 		Name: "user",
-		Module: genx.Mod{
+		Module: mod.Mod{
 			Module:  module,
 			AppPath: appPath,
 		},
 	}
-	m := genX.Templates(pkg)
+	m := template.FeatureTemplates(pkg)
 	if m["datasource.go"] == "" {
 		t.Error("Error")
 	}
@@ -204,157 +204,158 @@ func TestGenerateAll(t *testing.T) {
 		Module:  "",
 		Feature: "hello",
 	}
-	genX.GenerateAll(opt)
+	genX.Generate(opt)
 }
 
 func TestGenerate(t *testing.T) {
 	feature := "hello"
 	filename := "usecase.go"
-	pkg := genx.Pkg{
+	tmpl := ""
+	pkg := pkgs.Pkg{
 		Name: feature,
-		Module: genx.Mod{
+		Module: mod.Mod{
 			Module:  module,
 			AppPath: appPath,
 		},
 	}
-	genX.Generate(pkg, filename)
+	genx.GenerateFeature(NewFileXMock(), pkg, filename, tmpl)
 }
 
 func TestDataSourceTemplate(t *testing.T) {
-	pkg := genx.Pkg{
+	pkg := pkgs.Pkg{
 		Name: "hello",
-		Module: genx.Mod{
+		Module: mod.Mod{
 			Module:  module,
 			AppPath: appPath,
 		},
 	}
-	if genX.DataSourceTemplate(pkg) == "" {
+	if template.DataSource(pkg.Name, pkg.Module.Module, pkg.Module.AppPath) == "" {
 		t.Error("Error")
 	}
 }
 
 func TestHandlerTemplate(t *testing.T) {
-	pkg := genx.Pkg{
+	pkg := pkgs.Pkg{
 		Name: "hello",
-		Module: genx.Mod{
+		Module: mod.Mod{
 			Module:  module,
 			AppPath: appPath,
 		},
 	}
-	if genX.HandlerTemplate(pkg) == "" {
+	if template.Handler(pkg.Name) == "" {
 		t.Error("Error")
 	}
 }
 
 func TestProviderTemplate(t *testing.T) {
-	pkg := genx.Pkg{
+	pkg := pkgs.Pkg{
 		Name: "hello",
-		Module: genx.Mod{
+		Module: mod.Mod{
 			Module:  module,
 			AppPath: appPath,
 		},
 	}
-	if genX.ProviderTemplate(pkg) == "" {
+	if template.Provider(pkg.Name) == "" {
 		t.Error("Error")
 	}
 }
 
 func TestRepositoryTemplate(t *testing.T) {
-	pkg := genx.Pkg{
+	pkg := pkgs.Pkg{
 		Name: "hello",
-		Module: genx.Mod{
+		Module: mod.Mod{
 			Module:  module,
 			AppPath: appPath,
 		},
 	}
-	if genX.RepositoryTemplate(pkg) == "" {
+	if template.Repository(pkg.Name) == "" {
 		t.Error("Error")
 	}
 }
 
 func TestRouterTemplate(t *testing.T) {
-	pkg := genx.Pkg{
+	pkg := pkgs.Pkg{
 		Name: "hello",
-		Module: genx.Mod{
+		Module: mod.Mod{
 			Module:  module,
 			AppPath: appPath,
 		},
 	}
-	if genX.RouterTemplate(pkg) == "" {
+	if template.Router(pkg.Name, pkg.Module.Module) == "" {
 		t.Error("Error")
 	}
 }
 
 func TestUseCaseTemplate(t *testing.T) {
-	pkg := genx.Pkg{
+	pkg := pkgs.Pkg{
 		Name: "hello",
-		Module: genx.Mod{
+		Module: mod.Mod{
 			Module:  module,
 			AppPath: appPath,
 		},
 	}
-	if genX.UseCaseTemplate(pkg) == "" {
+	if template.UseCase(pkg.Name) == "" {
 		t.Error("Error")
 	}
 }
 
 func TestValidateTemplate(t *testing.T) {
-	pkg := genx.Pkg{
+	pkg := pkgs.Pkg{
 		Name: "hello",
-		Module: genx.Mod{
+		Module: mod.Mod{
 			Module:  module,
 			AppPath: appPath,
 		},
 	}
-	if genX.ValidateTemplate(pkg) == "" {
+	if template.Validate(pkg.Name) == "" {
 		t.Error("Error")
 	}
 }
 
 func TestModelTemplate(t *testing.T) {
-	pkg := genx.Pkg{
+	pkg := pkgs.Pkg{
 		Name: "hello",
-		Module: genx.Mod{
+		Module: mod.Mod{
 			Module:  module,
 			AppPath: appPath,
 		},
 	}
-	if genX.ModelTemplate(pkg) == "" {
+	if template.Model(pkg.Name) == "" {
 		t.Error("Error")
 	}
 }
 
 func TestGetTemplate(t *testing.T) {
-	pkg := genx.Pkg{
+	pkg := pkgs.Pkg{
 		Name: "hello",
-		Module: genx.Mod{
+		Module: mod.Mod{
 			Module:  module,
 			AppPath: appPath,
 		},
 	}
 	filename := "usecase.go"
-	if genX.GetTemplate(pkg, filename) == "" {
+	if template.FeatureTemplates(pkg)[filename] == "" {
 		t.Error("Error")
 	}
 }
 
 func TestUpperCamelName(t *testing.T) {
 	feature := "hello_model"
-	if genX.UpperCamelName(feature) != "HelloModel" {
+	if tocase.UpperCamelName(feature) != "HelloModel" {
 		t.Error("Error")
 	}
 }
 
 func TestLowerCamelName(t *testing.T) {
 	feature := "hello_model_test"
-	actual := genX.LowerCamelName(feature)
+	actual := tocase.LowerCamelName(feature)
 	if actual != "helloModelTest" {
 		t.Error("Error", actual)
 	}
 }
 
 func TestGetModuleName(t *testing.T) {
-	mod := genX.GetModule()
+	mod := mod.GetModule(NewFileXMock())
 	if mod.Module == "" {
 		t.Error("Error")
 	}
