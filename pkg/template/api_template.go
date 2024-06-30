@@ -44,7 +44,7 @@ func (a *api) Register() {
 		AllowHeaders: "X-Platform, X-Api-Key, Authorization, Access-Control-Allow-Credentials, Access-Control-Allow-Origin, Access-Control-Allow-Headers, Origin, Content-Type, Accept",
 		AllowMethods: "GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS",
 	}))
-	app.Use("/swagger", swagger.Handler)
+	app.Use("/swagger", swagger.HandlerDefault)
 	app.Use(casbinx.New())
 
 	app.Hooks().OnShutdown(func() error {
