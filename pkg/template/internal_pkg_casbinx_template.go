@@ -7,7 +7,7 @@ func (i *internalPkgCasbinxTemplate) Text() []byte {
 	return []byte(`package casbinx
 
 import (
-	"fmt"
+	"log"
 	"github.com/casbin/casbin/v2"
 	"github.com/gofiber/fiber/v2"
 	fibercasbinrest "github.com/prongbang/fiber-casbinrest"
@@ -19,7 +19,7 @@ func New() fiber.Handler {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("Policy api loaded.")
+	log.Println("Policy API loaded.")
 	return fibercasbinrest.NewDefault(e, viper.GetString("jwt.secret"))
 }
 `)
