@@ -13,8 +13,8 @@ package api
 
 import (
 	"github.com/google/wire"
-	"github.com/prongbang/fibererror"
 	"` + w.Module + `/internal/` + w.Project + `/database"
+	"` + w.Module + `/internal/pkg/response"
 	//+fibergen:import wire:package
 )
 
@@ -22,7 +22,7 @@ func CreateAPI(dbDriver database.Drivers) API {
 	wire.Build(
 		NewAPI,
 		NewRouters,
-		fibererror.New,
+		response.New,
 		//+fibergen:func wire:build
 	)
 	return nil

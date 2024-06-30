@@ -221,7 +221,16 @@ func NewProject(fx filex.FileX, opt option.Options) {
 	// casbinx.go
 	internalPkgCasbinxPath := fmt.Sprintf("%s/casbinx.go", internalPkgCasbinxDir)
 	internalPkgCasbinxTemplate := template.InternalPkgCasbinxTemplate()
-	err := fx.WriteFile(internalPkgCasbinxPath, internalPkgCasbinxTemplate.Text())
+	_ = fx.WriteFile(internalPkgCasbinxPath, internalPkgCasbinxTemplate.Text())
+
+	// Create internal/pkg/response
+	internalPkgResponseDir := fmt.Sprintf("%s/internal/pkg/response", currentDir)
+	_ = fx.EnsureDir(internalPkgResponseDir)
+
+	// response.go
+	internalPkgResponsePath := fmt.Sprintf("%s/response.go", internalPkgResponseDir)
+	internalPkgResponseTemplate := template.InternalPkgResponseTemplate()
+	err := fx.WriteFile(internalPkgResponsePath, internalPkgResponseTemplate.Text())
 
 	// Update status
 	if err == nil {
