@@ -23,8 +23,8 @@ func DataSourceCrudMariaDb(
 	import (
 		"fmt"
 		"{module}/{path}/database"
+		"{module}/internal/pkg/response"
 		"github.com/prongbang/sqlxwrapper/mrwrapper"
-		"github.com/prongbang/goerror"
 	)
 	
 	type DataSource interface {
@@ -85,11 +85,11 @@ func DataSourceCrudMariaDb(
 		tx, err := mrwrapper.Create(conn, sql, []any{&data.Id}, args...)
 		if err == nil {
 			if e := tx.Commit(); e != nil {
-				return goerror.NewError(goerror.Body{Code: "DTB001", Message: "Cannot add a child row"})
+				return response.NewCommitError()
 			}
 			return nil
 		}
-		return err
+		return response.NewInsertError()
 	}
 	
 	func (d *dataSource) Update(data *Update{model}) error {
@@ -105,11 +105,11 @@ func DataSourceCrudMariaDb(
 		tx, err := mrwrapper.Update(conn, sql, set, params)
 		if err == nil {
 			if e := tx.Commit(); e != nil {
-				return goerror.NewError(goerror.Body{Code: "DTB001", Message: "Cannot add a child row"})
+				return response.NewCommitError()
 			}
 			return nil
 		}
-		return err
+		return response.NewUpdateError()
 	}
 	
 	func (d *dataSource) Delete(id {pk}) error {
@@ -119,11 +119,11 @@ func DataSourceCrudMariaDb(
 		tx, err := mrwrapper.Delete(conn, sql, id)
 		if err == nil {
 			if e := tx.Commit(); e != nil {
-				return goerror.NewError(goerror.Body{Code: "DTB001", Message: "Cannot add a child row"})
+				return response.NewCommitError()
 			}
 			return nil
 		}
-		return err
+		return response.NewDeleteError()
 	}
 	
 	func NewDataSource(driver database.Drivers) DataSource {

@@ -14,19 +14,74 @@ import (
 	"github.com/prongbang/goerror"
 )
 
-type CustomError struct {
+type CommitError struct {
 	goerror.Body
 }
 
 // Error implements error.
-func (c *CustomError) Error() string {
+func (c *CommitError) Error() string {
 	return c.Message
 }
 
-func NewCustomError() error {
-	return &CustomError{
+func NewCommitError() error {
+	return &CommitError{
 		Body: goerror.Body{
-			Code: "CUS001",
+			Code:    "DTB001",
+			Message: "Transaction commit failed",
+		},
+	}
+}
+
+type InsertError struct {
+	goerror.Body
+}
+
+// Error implements error.
+func (c *InsertError) Error() string {
+	return c.Message
+}
+
+func NewInsertError() error {
+	return &InsertError{
+		Body: goerror.Body{
+			Code:    "DTB002",
+			Message: "Failed to insert a child row",
+		},
+	}
+}
+
+type UpdateError struct {
+	goerror.Body
+}
+
+// Error implements error.
+func (c *UpdateError) Error() string {
+	return c.Message
+}
+
+func NewUpdateError() error {
+	return &UpdateError{
+		Body: goerror.Body{
+			Code:    "DTB003",
+			Message: "Failed to update a child row",
+		},
+	}
+}
+
+type DeleteError struct {
+	goerror.Body
+}
+
+// Error implements error.
+func (c *DeleteError) Error() string {
+	return c.Message
+}
+
+func NewDeleteError() error {
+	return &DeleteError{
+		Body: goerror.Body{
+			Code:    "DTB004",
+			Message: "Failed to delete a child row",
 		},
 	}
 }
@@ -37,7 +92,10 @@ type customResponse struct {
 // Response implements response.Custom.
 func (c *customResponse) Response(ctx *fiber.Ctx, err error) error {
 	switch resp := err.(type) {
-	case *CustomError:
+	case *InsertError:
+	case *UpdateError:
+	case *DeleteError:
+	case *CommitError:
 		return ctx.Status(http.StatusBadRequest).JSON(resp)
 	}
 	return nil

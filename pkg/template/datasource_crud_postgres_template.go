@@ -1,6 +1,7 @@
 package template
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/ettle/strcase"
@@ -23,8 +24,8 @@ func DataSourceCrudPostgrest(
 	import (
 		"fmt"
 		"{module}/{path}/database"
+		"{module}/internal/pkg/response"
 		"github.com/prongbang/sqlxwrapper/pqwrapper"
-		"github.com/prongbang/goerror"
 	)
 	
 	type DataSource interface {
@@ -71,25 +72,25 @@ func DataSourceCrudPostgrest(
 	
 	func (d *dataSource) FindById(id {pk}) {model} {
 		conn := d.Driver.{driver}()
-		sql := "SELECT {columns} FROM {table} {alias} WHERE {alias}.id = ?"
+		sql := "SELECT {columns} FROM {table} {alias} WHERE {alias}.id = $1"
 	
 		return pqwrapper.SelectOne[{model}](conn, sql, id)
 	}
 	
 	func (d *dataSource) Create(data *Create{model}) error {
 		conn := d.Driver.{driver}()
-		sql := "INSERT INTO {table} ({fields}) VALUES ({questions})"
+		sql := "INSERT INTO {table} ({fields}) VALUES ({questions}) RETURNING id"
 		args := []any{
 			{values}
 		}
 		tx, err := pqwrapper.Create(conn, sql, []any{&data.Id}, args...)
 		if err == nil {
 			if e := tx.Commit(); e != nil {
-				return goerror.NewError(goerror.Body{Code: "DTB001", Message: "Cannot add a child row"})
+				return response.NewCommitError()
 			}
 			return nil
 		}
-		return err
+		return response.NewInsertError()
 	}
 	
 	func (d *dataSource) Update(data *Update{model}) error {
@@ -105,25 +106,25 @@ func DataSourceCrudPostgrest(
 		tx, err := pqwrapper.Update(conn, sql, set, params)
 		if err == nil {
 			if e := tx.Commit(); e != nil {
-				return goerror.NewError(goerror.Body{Code: "DTB001", Message: "Cannot add a child row"})
+				return response.NewCommitError()
 			}
 			return nil
 		}
-		return err
+		return response.NewUpdateError()
 	}
 	
 	func (d *dataSource) Delete(id {pk}) error {
 		conn := d.Driver.{driver}()
-		sql := "DELETE FROM {table} WHERE id=?"
+		sql := "DELETE FROM {table} WHERE id = $1"
 	
 		tx, err := pqwrapper.Delete(conn, sql, id)
 		if err == nil {
 			if e := tx.Commit(); e != nil {
-				return goerror.NewError(goerror.Body{Code: "DTB001", Message: "Cannot add a child row"})
+				return response.NewCommitError()
 			}
 			return nil
 		}
-		return err
+		return response.NewDeleteError()
 	}
 	
 	func NewDataSource(driver database.Drivers) DataSource {
@@ -147,7 +148,13 @@ func DataSourceCrudPostgrest(
 	// Insert
 	tmpl = strings.ReplaceAll(tmpl, "{values}", insertValues)
 	tmpl = strings.ReplaceAll(tmpl, "{fields}", insertFields)
-	tmpl = strings.ReplaceAll(tmpl, "{questions}", insertQuestions)
+
+	questions := []string{}
+	qstr := strings.Split(insertQuestions, ",")
+	for i, _ := range qstr {
+		questions = append(questions, fmt.Sprintf("$%d", i+1))
+	}
+	tmpl = strings.ReplaceAll(tmpl, "{questions}", strings.Join(questions, ","))
 
 	// Update
 	tmpl = strings.ReplaceAll(tmpl, "{sets}", updateSets)
