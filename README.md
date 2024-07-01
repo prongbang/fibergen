@@ -134,7 +134,18 @@ user
 └── validate.go
 ```
 
-- CRUD
+## CRUD
+
+- define spec `auth.json`
+
+```json
+{
+   "accessToken": "JWT",
+   "expired": 1234567,
+}
+```
+
+- gen
 
 ```shell
 fibergen -crud auth -s spec/auth.json -d mariadb
