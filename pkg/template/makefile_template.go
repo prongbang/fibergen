@@ -9,10 +9,10 @@ func (m *makefileTemplate) Text() []byte {
 swaggen:
 	swag init -g cmd/` + m.Project + `/main.go -o docs/apispec
 
-dev-api:
+api-dev:
 	go run cmd/` + m.Project + `/main.go -env development
 
-prod-api:
+api-prod:
 	go run cmd/` + m.Project + `/main.go -env production
 `)
 }
