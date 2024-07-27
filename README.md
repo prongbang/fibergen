@@ -11,7 +11,7 @@ Generate a Clean Architecture for REST API with support for the Fiber Web Framew
 ## Install
 
 ```shell
-go install github.com/prongbang/fibergen@v1.0.7
+go install github.com/prongbang/fibergen@v1.0.8
 ```
 
 ## Requirement
