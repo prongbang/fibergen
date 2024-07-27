@@ -12,8 +12,13 @@ func GetModule(fx filex.FileX) Mod {
 	pwd, _ := fx.Getwd()
 
 	// Get root project path
-	changeToRootProject := "../../../"
+	changeToRootProject := "."
+	if !fx.IsExist(fmt.Sprintf("%s/go.mod", pwd)) {
+		changeToRootProject = "../../../"
+	}
+	// Change current directory
 	_ = fx.Chdir(changeToRootProject)
+
 	root, _ := fx.Getwd()
 	if bt := fx.ReadFile(root + "/go.mod"); bt != "" {
 		// Find module
@@ -24,25 +29,25 @@ func GetModule(fx filex.FileX) Mod {
 		if s < 0 && e < 0 {
 			return Mod{}
 		}
-		mod := text[s+len(m) : e]
+		module := text[s+len(m) : e]
 
-		// Find app path
-		i := strings.LastIndex(mod, "/")
-		if i < 0 {
+		mds := strings.Split(module, "/")
+		mdl := len(mds)
+		if mdl <= 0 {
 			return Mod{}
 		}
-		pj := mod[i:]
-		ign := "/api"
-		c := strings.Index(pwd, fmt.Sprintf("%s/internal/", pj))
+		name := mds[mdl-1]
 
 		// Find internal/project-name
-		ap := pwd[c+len(pj)+1 : len(pwd)-len(ign)]
+		appPath := fmt.Sprintf("internal/%s", name)
 
-		_ = fx.Chdir("./" + ap + ign)
+		// Change current directory
+		_ = fx.Chdir(fmt.Sprintf("./%s/api", appPath))
 
 		return Mod{
-			Module:  mod,
-			AppPath: ap,
+			Module:  module,
+			AppPath: appPath,
+			Name:    name,
 		}
 	}
 	return Mod{}

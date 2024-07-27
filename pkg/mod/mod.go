@@ -4,4 +4,5 @@ package mod
 type Mod struct {
 	Module  string
 	AppPath string
+	Name    string
 }

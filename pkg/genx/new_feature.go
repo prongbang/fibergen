@@ -13,8 +13,8 @@ func NewFeature(fx filex.FileX, opt option.Options, wireInstaller tools.Installe
 	// Install library
 	_ = wireInstaller.Install()
 
-	mod := mod.GetModule(fx)
-	pkg := pkgs.Pkg{Name: opt.Feature, Module: mod}
+	module := mod.GetModule(fx)
+	pkg := pkgs.Pkg{Name: opt.Feature, Module: module}
 	for filename, tmpl := range template.FeatureTemplates(pkg) {
 		GenerateFeature(fx, pkg, filename, tmpl)
 	}

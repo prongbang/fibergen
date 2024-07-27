@@ -71,10 +71,10 @@ func NewFeatureCrud(fx filex.FileX, opt option.Options, installer tools.Installe
 
 	// Install library
 	if err := installer.Install(); err == nil {
-		mod := mod.GetModule(fx)
+		module := mod.GetModule(fx)
 		pkg := pkgs.Pkg{
 			Name:   opt.Crud,
-			Module: mod,
+			Module: module,
 			Spec:   spec,
 		}
 		for filename, tmpl := range template.FeatureCrudTemplates(pkg) {

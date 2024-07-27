@@ -25,6 +25,10 @@ var read string = ""
 type fileXMock struct {
 }
 
+func (f *fileXMock) IsExist(filename string) bool {
+	return true
+}
+
 func (f *fileXMock) EnsureDir(dir string) error {
 	return nil
 }
@@ -57,6 +61,10 @@ func NewFileXMock() filex.FileX {
 }
 
 type fileXMockError struct {
+}
+
+func (f *fileXMockError) IsExist(filename string) bool {
+	return true
 }
 
 type installerMock struct {
@@ -355,8 +363,8 @@ func TestLowerCamelName(t *testing.T) {
 }
 
 func TestGetModuleName(t *testing.T) {
-	mod := mod.GetModule(NewFileXMock())
-	if mod.Module == "" {
+	m := mod.GetModule(NewFileXMock())
+	if m.Module == "" {
 		t.Error("Error")
 	}
 }

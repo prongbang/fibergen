@@ -12,8 +12,8 @@ import (
 
 func AutoBinding(fx filex.FileX, pkg pkgs.Pkg) {
 	pwd, _ := fx.Getwd()
-	routerPath := pwd + "/routers.go"
-	wirePath := pwd + "/wire.go"
+	routerPath := "/" + pwd + "/routers.go"
+	wirePath := "/" + pwd + "/wire.go"
 
 	routerB := fx.ReadFile(routerPath)
 	wireB := fx.ReadFile(wirePath)
@@ -77,7 +77,7 @@ func AutoBinding(fx filex.FileX, pkg pkgs.Pkg) {
 	routerNewPat1 := "//+fibergen:func new:routers"
 	routerNewPat2 := "// +fibergen:func new:routers"
 	routerNew := fmt.Sprintf(
-		`%sRoute %s.Router,
+		`	%sRoute %s.Router,
 	%s`, tocase.LowerCamelName(pkg.Name), pkg.Name, routerNewPat1,
 	)
 	routerText = strings.Replace(routerText, routerNewPat1, routerNew, 1)

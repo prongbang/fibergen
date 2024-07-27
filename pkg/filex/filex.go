@@ -1,4 +1,5 @@
-//+build !test
+//go:build !test
+// +build !test
 
 package filex
 
@@ -13,9 +14,18 @@ type FileX interface {
 	ReadFile(filename string) string
 	Getwd() (string, error)
 	Chdir(dir string) error
+	IsExist(filename string) bool
 }
 
 type fileX struct {
+}
+
+func (f *fileX) IsExist(filename string) bool {
+	info, err := os.Stat(filename)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return !info.IsDir()
 }
 
 func (f *fileX) EnsureDir(dir string) error {
