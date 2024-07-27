@@ -43,7 +43,7 @@ func (f *fileXMock) Chdir(dir string) error {
 		read = "module " + module + "\n"
 	} else {
 		pwd = pwdPath
-		read = ""
+		read = "module " + module + "\n"
 	}
 	return nil
 }
