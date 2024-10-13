@@ -3,6 +3,7 @@ package genx
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/prongbang/fibergen/pkg/typer"
 	"log"
 	"strings"
 
@@ -13,7 +14,6 @@ import (
 	"github.com/prongbang/fibergen/pkg/pkgs"
 	"github.com/prongbang/fibergen/pkg/template"
 	"github.com/prongbang/fibergen/pkg/tools"
-	"github.com/prongbang/fibergen/pkg/typeof"
 )
 
 func NewFeatureCrud(fx filex.FileX, opt option.Options, installer tools.Installer, wireRunner tools.Runner) {
@@ -38,7 +38,7 @@ func NewFeatureCrud(fx filex.FileX, opt option.Options, installer tools.Installe
 	for key, value := range result {
 		column := strcase.ToSnake(key)
 		vars := strcase.ToPascal(key)
-		typeValue := typeof.ValueOf(value)
+		typeValue := typer.Get(value)
 
 		// Fields
 		fields = append(fields, fmt.Sprintf("\t%s\t%s `json:\"%s\" db:\"%s\"`", vars, typeValue, column, column))
@@ -56,17 +56,19 @@ func NewFeatureCrud(fx filex.FileX, opt option.Options, installer tools.Installe
 			insertQuestions = append(insertQuestions, "?")
 
 			// Update
-			updateSets = append(updateSets, fmt.Sprintf(`if data.%s != "" {
+			operate := typer.Operate(typeValue)
+			operand := typer.Value(typeValue)
+			updateSets = append(updateSets, fmt.Sprintf(`if data.%s %s %s {
 		set += ", %s=:%s"
 		params["%s"] = data.%s
-	}`, vars, column, column, column, vars))
+	}`, vars, operate, operand, column, column, column, vars))
 		}
 	}
 	spec.QueryColumns = strings.Join(queryColumns, ", ")
 	spec.InsertValues = strings.Join(insertValues, "")
 	spec.InsertFields = strings.Join(insertFields, ", ")
 	spec.InsertQuestions = strings.Join(insertQuestions, ", ")
-	spec.UpdateSets = strings.Join(updateSets, "\n")
+	spec.UpdateSets = strings.Join(updateSets, "\n\t")
 	spec.Fields = strings.Join(fields, "\n")
 
 	// Install library
