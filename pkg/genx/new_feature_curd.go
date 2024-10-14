@@ -3,9 +3,10 @@ package genx
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/prongbang/fibergen/pkg/typer"
 	"log"
 	"strings"
+
+	"github.com/prongbang/fibergen/pkg/typer"
 
 	"github.com/ettle/strcase"
 	"github.com/prongbang/fibergen/pkg/filex"
@@ -36,15 +37,16 @@ func NewFeatureCrud(fx filex.FileX, opt option.Options, installer tools.Installe
 	updateSets := []string{}
 	fields := []string{}
 	for key, value := range result {
-		column := strcase.ToSnake(key)
+		snakeTag := strcase.ToSnake(key)
+		camelTag := strcase.ToCamel(key)
 		vars := strcase.ToPascal(key)
 		typeValue := typer.Get(value)
 
 		// Fields
-		fields = append(fields, fmt.Sprintf("\t%s\t%s `json:\"%s\" db:\"%s\"`", vars, typeValue, column, column))
+		fields = append(fields, fmt.Sprintf("\t%s\t%s `json:\"%s\" db:\"%s\"`", vars, typeValue, camelTag, snakeTag))
 
 		// Query
-		queryColumns = append(queryColumns, fmt.Sprintf("%s.%s", alias, column))
+		queryColumns = append(queryColumns, fmt.Sprintf("%s.%s", alias, snakeTag))
 
 		// Pk
 		if strings.ToUpper(key) == "ID" {
@@ -52,7 +54,7 @@ func NewFeatureCrud(fx filex.FileX, opt option.Options, installer tools.Installe
 		} else {
 			// Insert
 			insertValues = append(insertValues, fmt.Sprintf("\tdata.%s,\n", vars))
-			insertFields = append(insertFields, column)
+			insertFields = append(insertFields, snakeTag)
 			insertQuestions = append(insertQuestions, "?")
 
 			// Update
@@ -61,7 +63,7 @@ func NewFeatureCrud(fx filex.FileX, opt option.Options, installer tools.Installe
 			updateSets = append(updateSets, fmt.Sprintf(`if data.%s %s %s {
 		set += ", %s=:%s"
 		params["%s"] = data.%s
-	}`, vars, operate, operand, column, column, column, vars))
+	}`, vars, operate, operand, snakeTag, snakeTag, snakeTag, vars))
 		}
 	}
 	spec.QueryColumns = strings.Join(queryColumns, ", ")
