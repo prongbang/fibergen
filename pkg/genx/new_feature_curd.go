@@ -26,6 +26,7 @@ func NewFeatureCrud(fx filex.FileX, opt option.Options, installer tools.Installe
 		log.Fatal("JSON format invalid:", err)
 	}
 
+	imports := []string{}
 	spec := option.Spec{
 		Driver: opt.Driver,
 	}
@@ -41,6 +42,19 @@ func NewFeatureCrud(fx filex.FileX, opt option.Options, installer tools.Installe
 		camelTag := strcase.ToCamel(key)
 		vars := strcase.ToPascal(key)
 		typeValue := typer.Get(value)
+
+		// Imports
+		if strings.Contains(typeValue, "time.Time") {
+			if len(imports) == 0 {
+				imports = append(imports, `"time"`)
+			} else {
+				for _, imp := range imports {
+					if imp != `"time"` {
+						imports = append(imports, `"time"`)
+					}
+				}
+			}
+		}
 
 		// Fields
 		fields = append(fields, fmt.Sprintf("\t%s\t%s `json:\"%s\" db:\"%s\"`", vars, typeValue, camelTag, snakeTag))
@@ -77,9 +91,10 @@ func NewFeatureCrud(fx filex.FileX, opt option.Options, installer tools.Installe
 	if err := installer.Install(); err == nil {
 		module := mod.GetModule(fx)
 		pkg := pkgs.Pkg{
-			Name:   opt.Crud,
-			Module: module,
-			Spec:   spec,
+			Imports: imports,
+			Name:    opt.Crud,
+			Module:  module,
+			Spec:    spec,
 		}
 		for filename, tmpl := range template.FeatureCrudTemplates(pkg) {
 			GenerateFeature(fx, pkg, filename, tmpl)

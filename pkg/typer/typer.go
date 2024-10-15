@@ -3,6 +3,7 @@ package typer
 import (
 	"fmt"
 	"strings"
+	"time"
 )
 
 func Get(value any) string {
@@ -12,6 +13,10 @@ func Get(value any) string {
 
 	switch v := value.(type) {
 	case string:
+		t, err := time.Parse("2006-01-02T15:04:05Z", v)
+		if err == nil && t.Day() > 0 {
+			return "*time.Time"
+		}
 		return "string"
 	case int, int8, int16, int32, int64:
 		return "int64"
@@ -28,7 +33,7 @@ func Get(value any) string {
 }
 
 func Value(typ string) string {
-	if typ == "any" {
+	if typ == "any" || typ == "*time.Time" {
 		return "nil"
 	} else if typ == "string" {
 		return `""`
@@ -41,7 +46,7 @@ func Value(typ string) string {
 }
 
 func Operate(typ string) string {
-	if typ == "any" || typ == "string" {
+	if typ == "any" || typ == "string" || typ == "*time.Time" {
 		return `!=`
 	} else if typ == "int64" || typ == "float64" {
 		return ">"

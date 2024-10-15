@@ -7,7 +7,8 @@ import (
 
 // Pkg is struct
 type Pkg struct {
-	Name   string
-	Module mod.Mod
-	Spec   option.Spec
+	Imports []string
+	Name    string
+	Module  mod.Mod
+	Spec    option.Spec
 }

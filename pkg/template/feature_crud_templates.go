@@ -42,6 +42,7 @@ func FeatureCrudTemplates(pkg pkgs.Pkg) map[string]string {
 			pkg.Name,
 		),
 		fmt.Sprintf("%s.go", pkg.Name): ModelCrud(
+			pkg.Imports,
 			pkg.Module.Module,
 			pkg.Spec.Pk,
 			pkg.Name,

@@ -1,16 +1,17 @@
 package template
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/ettle/strcase"
 )
 
-func ModelCrud(module string, pk string, name string, fields string) string {
+func ModelCrud(imports []string, module string, pk string, name string, fields string) string {
 	model := strcase.ToPascal(name)
 	tmpl := `package {name}
 	
-import (
+import ({import}
 	"{module}/pkg/core"
 )
 
@@ -43,6 +44,13 @@ type Params struct {
 	QueryMany
 }
 `
+	if len(imports) == 1 {
+		tmpl = strings.ReplaceAll(tmpl, "{import}", fmt.Sprintf("\n\t%s", imports[0]))
+	} else if len(imports) > 1 {
+		tmpl = strings.ReplaceAll(tmpl, "{import}", strings.Join(imports, "\n\t"))
+	} else {
+		tmpl = strings.ReplaceAll(tmpl, "{import}", "")
+	}
 
 	tmpl = strings.ReplaceAll(tmpl, "{module}", module)
 	tmpl = strings.ReplaceAll(tmpl, "{pk}", pk)
