@@ -92,10 +92,7 @@ type customResponse struct {
 // Response implements response.Custom.
 func (c *customResponse) Response(ctx *fiber.Ctx, err error) error {
 	switch resp := err.(type) {
-	case *InsertError:
-	case *UpdateError:
-	case *DeleteError:
-	case *CommitError:
+	case *UpdateError, *DeleteError, *CommitError, *InsertError:
 		return ctx.Status(http.StatusBadRequest).JSON(resp)
 	}
 	return nil
