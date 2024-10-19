@@ -1,7 +1,6 @@
 package template
 
 type responseTemplate struct {
-	Module string
 }
 
 func (c *responseTemplate) Text() []byte {
@@ -13,7 +12,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/prongbang/fibererror"
 	"github.com/prongbang/goerror"
-	"` + c.Module + `/internal/pkg/response"
 )
 
 type CommitError struct {
@@ -130,8 +128,6 @@ func New() fibererror.Response {
 }`)
 }
 
-func InternalPkgResponseTemplate(module string) Template {
-	return &responseTemplate{
-		Module: module,
-	}
+func InternalPkgResponseTemplate() Template {
+	return &responseTemplate{}
 }
