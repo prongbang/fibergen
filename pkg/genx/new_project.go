@@ -229,7 +229,7 @@ func NewProject(fx filex.FileX, opt option.Options) {
 
 	// response.go
 	internalPkgResponsePath := fmt.Sprintf("%s/response.go", internalPkgResponseDir)
-	internalPkgResponseTemplate := template.InternalPkgResponseTemplate()
+	internalPkgResponseTemplate := template.InternalPkgResponseTemplate(opt.Module)
 	_ = fx.WriteFile(internalPkgResponsePath, internalPkgResponseTemplate.Text())
 
 	// Create internal/pkg/validator

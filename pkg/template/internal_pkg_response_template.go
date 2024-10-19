@@ -1,6 +1,7 @@
 package template
 
 type responseTemplate struct {
+	Module string
 }
 
 func (c *responseTemplate) Text() []byte {
@@ -12,6 +13,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/prongbang/fibererror"
 	"github.com/prongbang/goerror"
+	"` + c.Module + `/internal/pkg/response"
 )
 
 type CommitError struct {
@@ -86,13 +88,31 @@ func NewDeleteError() error {
 	}
 }
 
+type DataInvalidError struct {
+	goerror.Body
+}
+
+// Error implements error.
+func (c *DataInvalidError) Error() string {
+	return c.Message
+}
+
+func NewDataInvalidError() error {
+	return &DataInvalidError{
+		Body: goerror.Body{
+			Code:    "CLE029",
+			Message: "Invalid data provided",
+		},
+	}
+}
+
 type customResponse struct {
 }
 
 // Response implements response.Custom.
 func (c *customResponse) Response(ctx *fiber.Ctx, err error) error {
 	switch resp := err.(type) {
-	case *UpdateError, *DeleteError, *CommitError, *InsertError:
+	case *UpdateError, *DeleteError, *CommitError, *InsertError, *DataInvalidError:
 		return ctx.Status(http.StatusBadRequest).JSON(resp)
 	}
 	return nil
@@ -110,6 +130,8 @@ func New() fibererror.Response {
 }`)
 }
 
-func InternalPkgResponseTemplate() Template {
-	return &responseTemplate{}
+func InternalPkgResponseTemplate(module string) Template {
+	return &responseTemplate{
+		Module: module,
+	}
 }

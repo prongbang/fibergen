@@ -39,6 +39,7 @@ func FeatureCrudTemplates(pkg pkgs.Pkg) map[string]string {
 			pkg.Spec.Pk,
 		),
 		"validate.go": ValidateCrud(
+			pkg.Module.Module,
 			pkg.Name,
 		),
 		fmt.Sprintf("%s.go", pkg.Name): ModelCrud(
