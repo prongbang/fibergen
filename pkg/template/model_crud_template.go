@@ -52,9 +52,14 @@ type Params struct {
 		tmpl = strings.ReplaceAll(tmpl, "{import}", "")
 	}
 
+	validate := ""
+	if strings.Contains(pk, "int") {
+		validate += " validate:\"gt=0\""
+	}
+
 	tmpl = strings.ReplaceAll(tmpl, "{module}", module)
 	tmpl = strings.ReplaceAll(tmpl, "{pk}", pk)
-	tmpl = strings.ReplaceAll(tmpl, "{jsonId}", "`json:\"id\"`")
+	tmpl = strings.ReplaceAll(tmpl, "{jsonId}", fmt.Sprintf("`json:\"id\"%s`", validate))
 	tmpl = strings.ReplaceAll(tmpl, "{page}", "`json:\"page\"`")
 	tmpl = strings.ReplaceAll(tmpl, "{limit}", "`json:\"limit\"`")
 	tmpl = strings.ReplaceAll(tmpl, "{model}", model)

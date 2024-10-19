@@ -11,8 +11,8 @@ func (c *coreParamsTemplate) Text() []byte {
 		"",
 		"type Params struct {",
 		"	Offset int64 `json:\"offset\"`",
-		"	Page   int64 `json:\"page\"`",
-		"	Limit  int64 `json:\"limit\"`",
+		"	Page   int64 `json:\"page\" validate:\"gt=0\"`",
+		"	Limit  int64 `json:\"limit\" validate:\"gt=0\"`",
 		"}",
 	}
 	return []byte(strings.Join(lines, "\n"))
