@@ -15,6 +15,7 @@ import (
 	"github.com/google/wire"
 	"` + w.Module + `/internal/` + w.Project + `/database"
 	"` + w.Module + `/internal/pkg/response"
+	"` + w.Module + `/internal/pkg/validator"
 	//+fibergen:import wire:package
 )
 
@@ -23,6 +24,7 @@ func CreateAPI(dbDriver database.Drivers) API {
 		NewAPI,
 		NewRouters,
 		response.New,
+		validator.New,
 		//+fibergen:func wire:build
 	)
 	return nil

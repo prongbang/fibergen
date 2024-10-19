@@ -230,7 +230,16 @@ func NewProject(fx filex.FileX, opt option.Options) {
 	// response.go
 	internalPkgResponsePath := fmt.Sprintf("%s/response.go", internalPkgResponseDir)
 	internalPkgResponseTemplate := template.InternalPkgResponseTemplate()
-	err := fx.WriteFile(internalPkgResponsePath, internalPkgResponseTemplate.Text())
+	_ = fx.WriteFile(internalPkgResponsePath, internalPkgResponseTemplate.Text())
+
+	// Create internal/pkg/validator
+	internalPkgValidatorDir := fmt.Sprintf("%s/internal/pkg/validator", currentDir)
+	_ = fx.EnsureDir(internalPkgValidatorDir)
+
+	// validator.go
+	internalPkgValidatorPath := fmt.Sprintf("%s/validator.go", internalPkgValidatorDir)
+	internalPkgValidatorTemplate := template.InternalPkgValidatorTemplate()
+	err := fx.WriteFile(internalPkgValidatorPath, internalPkgValidatorTemplate.Text())
 
 	// Update status
 	if err == nil {
