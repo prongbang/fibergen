@@ -26,7 +26,7 @@ require (
 	github.com/prongbang/fiber-casbinrest v1.0.5
 	github.com/prongbang/fibererror v1.1.1
 	github.com/prongbang/goerror v1.0.1
-	github.com/prongbang/sqlxwrapper v1.0.3
+	github.com/prongbang/sqlxwrapper v1.0.4
 	github.com/spf13/viper v1.10.1
 	github.com/urfave/cli/v2 v2.3.0
 	go.mongodb.org/mongo-driver v1.8.2
