@@ -142,6 +142,7 @@ user
 {
    "accessToken": "JWT",
    "expired": 1234567,
+   "date": "2024-10-15T14:30:00Z"
 }
 ```
 
