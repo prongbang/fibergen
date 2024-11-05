@@ -31,7 +31,7 @@ func (f Flags) Project() string {
 }
 
 func (f Flags) Module() string {
-	return fmt.Sprintf("%s/%s", f.ModuleName, f.Project())
+	return fmt.Sprintf("%s/%s", f.ModuleName, strcase.ToSnake(f.Project()))
 }
 
 func (f Flags) Feature() string {

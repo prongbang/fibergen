@@ -2,6 +2,7 @@ package genx
 
 import (
 	"fmt"
+	"github.com/ettle/strcase"
 
 	"github.com/prongbang/fibergen/pkg/filex"
 	"github.com/prongbang/fibergen/pkg/option"
@@ -17,6 +18,9 @@ func NewProject(fx filex.FileX, opt option.Options) {
 	// Create project directory
 	currentDir = fmt.Sprintf("%s/%s", currentDir, opt.Project)
 	_ = fx.EnsureDir(currentDir)
+
+	// Convert to snake
+	opt.Project = strcase.ToSnake(opt.Project)
 
 	// Create go.mod
 	modPath := fmt.Sprintf("%s/go.mod", currentDir)
