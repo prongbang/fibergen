@@ -28,6 +28,7 @@ func (r *router) Initial(app *fiber.App) {
 	{
 		v1.Post("/{route}/one", r.Validate.FindById, r.Handle.FindById)
 		v1.Post("/{route}/many", r.Validate.FindList, r.Handle.FindList)
+		v1.Post("/{route}/many/lite", r.Validate.FindLiteList, r.Handle.FindLiteList)
 		v1.Post("/{route}/create", r.Validate.Create, r.Handle.Create)
 		v1.Post("/{route}/update", r.Validate.Update, r.Handle.Update)
 		v1.Post("/{route}/delete", r.Validate.Delete, r.Handle.Delete)

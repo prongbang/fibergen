@@ -23,6 +23,7 @@ import (
 type Handler interface {
 	FindById(c *fiber.Ctx) error
 	FindList(c *fiber.Ctx) error
+	FindLiteList(c *fiber.Ctx) error
 	Create(c *fiber.Ctx) error
 	Update(c *fiber.Ctx) error
 	Delete(c *fiber.Ctx) error
@@ -84,6 +85,29 @@ func (h *handler) FindList(c *fiber.Ctx) error {
 	r := core.Pagination(q.Page, q.Limit, getCount, getData)
 
 	return h.Response.With(c).Response(goerror.NewOK(r))
+}
+
+// FindLiteList
+// @Tags {name}
+// @Summary Find a lite list of {name}
+// @Accept json
+// @Produce json
+// @Param query body QueryMany true "query"
+// @Success 200 {object} core.Success{data=[]{model}Lite}
+// @Failure 400 {object} core.Error
+// @Security JWTAuth
+// @Router /v1/{route}/many/lite [post]
+func (h *handler) FindLiteList(c *fiber.Ctx) error {
+	q := LiteQueryMany{}
+	_ = c.BodyParser(&q)
+
+	params := LiteParams{
+		LiteQueryMany: q,
+	}
+
+	data := h.Uc.FindLiteList(params)
+
+	return h.Response.With(c).Response(goerror.NewOK(data))
 }
 
 // Create

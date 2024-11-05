@@ -48,6 +48,7 @@ func FeatureCrudTemplates(pkg pkgs.Pkg) map[string]string {
 			pkg.Spec.Pk,
 			pkg.Name,
 			pkg.Spec.Fields,
+			pkg.Spec.Columns,
 		),
 	}
 }

@@ -24,12 +24,15 @@ import (
 	"fmt"
 	"{module}/{path}/database"
 	"{module}/internal/pkg/response"
+	"{module}/pkg/schema"
+	"github.com/innotechdevops/core/finder"
 	"github.com/prongbang/sqlxwrapper/mrwrapper"
 )
 
 type DataSource interface {
 	Count(params Params) int64
 	FindList(params Params) []{model}
+	FindLiteList(params LiteParams) []{model}Lite
 	FindById(id {pk}) {model}
 	Create(data *Create{model}) error
 	Update(data *Update{model}) error
@@ -42,7 +45,7 @@ type dataSource struct {
 
 func (d *dataSource) Count(params Params) int64 {
 	conn := d.Driver.{driver}()
-	sql := "SELECT COUNT(id) FROM {table} WHERE 1=1 %s"
+	sql := "SELECT COUNT({alias}.id) FROM {table} {alias} WHERE 1=1 %s"
 	wheres := ""
 	args := []any{}
 
@@ -53,7 +56,7 @@ func (d *dataSource) Count(params Params) int64 {
 
 func (d *dataSource) FindList(params Params) []{model} {
 	conn := d.Driver.{driver}()
-	sql := "SELECT {columns} FROM {table} {alias} WHERE 1=1 %s ORDER BY {alias}.id"
+	sql := "SELECT {columns} FROM {table} {alias} WHERE 1=1 %s %s "
 	wheres := ""
 	args := []any{}
 
@@ -64,9 +67,36 @@ func (d *dataSource) FindList(params Params) []{model} {
 		args = append(args, params.Offset)
 	}
 
-	sql = fmt.Sprintf(sql, wheres)
+	order := "ORDER BY {alias}.id "
+	if finder.Match(columns, params.Sort) {
+		order = fmt.Sprintf("ORDER BY {alias}.%s ", params.Sort)
+	}
+	if finder.Match(schema.OrderBy, params.Order) {
+		order += fmt.Sprintf(" %s ", params.Order)
+	}
+
+	sql = fmt.Sprintf(sql, wheres, order)
 
 	return mrwrapper.SelectList[{model}](conn, sql, args...)
+}
+
+func (d *dataSource) FindLiteList(params LiteParams) []{model}Lite {
+	conn := d.Driver.{driver}()
+	sql := "SELECT {columns} FROM {table} {alias} WHERE 1=1 %s %s "
+	wheres := ""
+	args := []any{}
+
+	order := "ORDER BY {alias}.id "
+	if finder.Match(columns, params.Sort) {
+		order = fmt.Sprintf("ORDER BY {alias}.%s ", params.Sort)
+	}
+	if finder.Match(schema.OrderBy, params.Order) {
+		order += fmt.Sprintf(" %s ", params.Order)
+	}
+
+	sql = fmt.Sprintf(sql, wheres, order)
+
+	return mrwrapper.SelectList[{model}Lite](conn, sql, args...)
 }
 
 func (d *dataSource) FindById(id {pk}) {model} {

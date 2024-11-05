@@ -162,10 +162,24 @@ func NewProject(fx filex.FileX, opt option.Options) {
 	coreFlagTemplate := template.CoreFlagTemplate()
 	_ = fx.WriteFile(coreFlagPath, coreFlagTemplate.Text())
 
+	// sorting.go
+	coreSortingPath := fmt.Sprintf("%s/sorting.go", coreDir)
+	coreSortingTemplate := template.CoreSortingTemplate()
+	_ = fx.WriteFile(coreSortingPath, coreSortingTemplate.Text())
+
 	// header.go
 	coreHeaderPath := fmt.Sprintf("%s/header.go", coreDir)
 	coreHeaderTemplate := template.CoreHeaderTemplate()
 	_ = fx.WriteFile(coreHeaderPath, coreHeaderTemplate.Text())
+
+	// Create shared pkg/schema
+	schemaDir := fmt.Sprintf("%s/pkg/schema", currentDir)
+	_ = fx.EnsureDir(schemaDir)
+
+	// sql.go
+	schemaSqlPath := fmt.Sprintf("%s/sql.go", schemaDir)
+	schemaSqlTemplate := template.SchemaSqlTemplate()
+	_ = fx.WriteFile(schemaSqlPath, schemaSqlTemplate.Text())
 
 	// Create policy
 	casbinPolicyDir := fmt.Sprintf("%s/policy", currentDir)

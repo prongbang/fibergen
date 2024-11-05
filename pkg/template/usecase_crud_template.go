@@ -15,6 +15,7 @@ func UseCaseCrud(
 type UseCase interface {
 	Count(params Params) int64
 	FindList(params Params) []{model}
+	FindLiteList(params LiteParams) []{model}Lite
 	FindById(id {pk}) {model}
 	Create(data *Create{model}) ({model}, error)
 	Update(data *Update{model}) ({model}, error)
@@ -31,6 +32,10 @@ func (u *useCase) Count(params Params) int64 {
 
 func (u *useCase) FindList(params Params) []{model} {
 	return u.Repo.FindList(params)
+}
+
+func (u *useCase) FindLiteList(params LiteParams) []{model}Lite {
+	return u.Repo.FindLiteList(params)
 }
 
 func (u *useCase) FindById(id {pk}) {model} {

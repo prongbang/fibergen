@@ -37,6 +37,7 @@ func NewFeatureCrud(fx filex.FileX, opt option.Options, installer tools.Installe
 	insertQuestions := []string{}
 	updateSets := []string{}
 	fields := []string{}
+	columns := []string{}
 	for key, value := range result {
 		snakeTag := strcase.ToSnake(key)
 		camelTag := strcase.ToCamel(key)
@@ -55,6 +56,9 @@ func NewFeatureCrud(fx filex.FileX, opt option.Options, installer tools.Installe
 				}
 			}
 		}
+
+		// Columns
+		columns = append(columns, snakeTag)
 
 		// Fields
 		fields = append(fields, fmt.Sprintf("\t%s\t%s `json:\"%s\" db:\"%s\"`", vars, typeValue, camelTag, snakeTag))
@@ -86,6 +90,7 @@ func NewFeatureCrud(fx filex.FileX, opt option.Options, installer tools.Installe
 	spec.InsertQuestions = strings.Join(insertQuestions, ", ")
 	spec.UpdateSets = strings.Join(updateSets, "\n\t")
 	spec.Fields = strings.Join(fields, "\n")
+	spec.Columns = columns
 
 	// Install library
 	if err := installer.Install(); err == nil {

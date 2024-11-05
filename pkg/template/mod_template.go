@@ -19,6 +19,7 @@ require (
 	github.com/goccy/go-json v0.10.3
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/google/wire v0.6.0
+	github.com/innotechdevops/core v1.0.3
 	github.com/innotechdevops/mgo-driver v1.0.0
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/pkg/errors v0.9.1

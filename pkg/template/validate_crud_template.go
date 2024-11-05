@@ -20,6 +20,7 @@ import (
 type Validate interface {
 	FindById(c *fiber.Ctx) error
 	FindList(c *fiber.Ctx) error
+	FindLiteList(c *fiber.Ctx) error
 	Create(c *fiber.Ctx) error
 	Update(c *fiber.Ctx) error
 	Delete(c *fiber.Ctx) error
@@ -45,6 +46,19 @@ func (v *validate) FindById(c *fiber.Ctx) error {
 
 func (v *validate) FindList(c *fiber.Ctx) error {
 	body := QueryMany{}
+
+	if err := c.BodyParser(&body); err != nil {
+		return v.Response.With(c).Response(goerror.NewBadRequest())
+	}
+	if err := v.Validate.Struct(body); err != nil {
+		return v.Response.With(c).Response(response.NewDataInvalidError())
+	}
+	
+	return c.Next()
+}
+
+func (v *validate) FindLiteList(c *fiber.Ctx) error {
+	body := LiteQueryMany{}
 
 	if err := c.BodyParser(&body); err != nil {
 		return v.Response.With(c).Response(goerror.NewBadRequest())

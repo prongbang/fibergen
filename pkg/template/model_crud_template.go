@@ -7,7 +7,7 @@ import (
 	"github.com/ettle/strcase"
 )
 
-func ModelCrud(imports []string, module string, pk string, name string, fields string) string {
+func ModelCrud(imports []string, module string, pk string, name string, fields string, columns []string) string {
 	model := strcase.ToPascal(name)
 	tmpl := `package {name}
 	
@@ -15,7 +15,15 @@ import ({import}
 	"{module}/pkg/core"
 )
 
+var columns = map[string]bool{
+{columns}
+}
+
 type {model} struct {
+{fields}
+}
+
+type {model}Lite struct {
 {fields}
 }
 
@@ -37,11 +45,20 @@ type QueryOne struct {
 
 type QueryMany struct {
 	core.Params
+	core.Sorting
+}
+
+type LiteQueryMany struct {
+	core.Sorting
 }
 
 type Params struct {
 	QueryOne
 	QueryMany
+}
+
+type LiteParams struct {
+	LiteQueryMany
 }
 `
 	if len(imports) == 1 {
@@ -65,6 +82,12 @@ type Params struct {
 	tmpl = strings.ReplaceAll(tmpl, "{model}", model)
 	tmpl = strings.ReplaceAll(tmpl, "{fields}", fields)
 	tmpl = strings.ReplaceAll(tmpl, "{name}", name)
+
+	var colBuilder strings.Builder
+	for _, item := range columns {
+		colBuilder.WriteString(fmt.Sprintf("\t\"%s\": true,\n", item))
+	}
+	tmpl = strings.ReplaceAll(tmpl, "{columns}", colBuilder.String())
 
 	return tmpl
 }

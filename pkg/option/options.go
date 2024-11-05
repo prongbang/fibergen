@@ -14,6 +14,7 @@ type Spec struct {
 	Driver          string
 	QueryColumns    string
 	Fields          string
+	Columns         []string
 	InsertValues    string
 	InsertFields    string
 	InsertQuestions string
