@@ -45,7 +45,6 @@ type QueryOne struct {
 
 type QueryMany struct {
 	core.Params
-	core.Sorting
 }
 
 type LiteQueryMany struct {

@@ -10,11 +10,10 @@ func (c *coreParamsTemplate) Text() []byte {
 		"package core",
 		"",
 		"type Params struct {",
-		"	Offset int64  `json:\"offset\"`",
-		"	Page   int64  `json:\"page\" validate:\"gt=0\"`",
-		"	Limit  int64  `json:\"limit\" validate:\"gt=0,lte=100\"`",
-		"	Sort   string `json:\"sort\"`",
-		"	Order  string `json:\"order\"`",
+		"	Offset 	int64  `json:\"offset\"`",
+		"	Page   	int64  `json:\"page\" validate:\"gt=0\"`",
+		"	Limit  	int64  `json:\"limit\" validate:\"gt=0,lte=100\"`",
+		"	Sorting",
 		"}",
 	}
 	return []byte(strings.Join(lines, "\n"))
