@@ -15,7 +15,7 @@ func RepositoryCrud(
 type Repository interface {
 	Count(params Params) int64
 	FindList(params Params) []{model}
-	FindLiteList(params LiteParams) []{model}Lite
+	FindLiteList(params LiteParams) []Lite{model}
 	FindById(id {pk}) {model}
 	Create(data *Create{model}) error
 	Update(data *Update{model}) error
@@ -34,7 +34,7 @@ func (r *repository) FindList(params Params) []{model} {
 	return r.Ds.FindList(params)
 }
 
-func (r *repository) FindLiteList(params LiteParams) []{model}Lite {
+func (r *repository) FindLiteList(params LiteParams) []Lite{model} {
 	return r.Ds.FindLiteList(params)
 }
 

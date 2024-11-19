@@ -93,7 +93,7 @@ func (h *handler) FindList(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Param query body QueryMany true "query"
-// @Success 200 {object} core.Success{data=[]{model}Lite}
+// @Success 200 {object} core.Success{data=[]Lite{model}}
 // @Failure 400 {object} core.Error
 // @Security JWTAuth
 // @Router /v1/{route}/many/lite [post]

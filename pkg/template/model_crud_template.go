@@ -23,7 +23,7 @@ type {model} struct {
 {fields}
 }
 
-type {model}Lite struct {
+type Lite{model} struct {
 {fields}
 }
 

@@ -32,7 +32,7 @@ import (
 type DataSource interface {
 	Count(params Params) int64
 	FindList(params Params) []{model}
-	FindLiteList(params LiteParams) []{model}Lite
+	FindLiteList(params LiteParams) []Lite{model}
 	FindById(id {pk}) {model}
 	Create(data *Create{model}) error
 	Update(data *Update{model}) error
@@ -80,7 +80,7 @@ func (d *dataSource) FindList(params Params) []{model} {
 	return mrwrapper.SelectList[{model}](conn, sql, args...)
 }
 
-func (d *dataSource) FindLiteList(params LiteParams) []{model}Lite {
+func (d *dataSource) FindLiteList(params LiteParams) []Lite{model} {
 	conn := d.Driver.{driver}()
 	sql := "SELECT {columns} FROM {table} {alias} WHERE 1=1 %s %s "
 	wheres := ""
@@ -96,7 +96,7 @@ func (d *dataSource) FindLiteList(params LiteParams) []{model}Lite {
 
 	sql = fmt.Sprintf(sql, wheres, order)
 
-	return mrwrapper.SelectList[{model}Lite](conn, sql, args...)
+	return mrwrapper.SelectList[Lite{model}](conn, sql, args...)
 }
 
 func (d *dataSource) FindById(id {pk}) {model} {
