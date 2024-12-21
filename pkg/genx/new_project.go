@@ -2,6 +2,7 @@ package genx
 
 import (
 	"fmt"
+
 	"github.com/ettle/strcase"
 
 	"github.com/prongbang/fibergen/pkg/filex"
@@ -175,6 +176,24 @@ func NewProject(fx filex.FileX, opt option.Options) {
 	coreHeaderPath := fmt.Sprintf("%s/header.go", coreDir)
 	coreHeaderTemplate := template.CoreHeaderTemplate()
 	_ = fx.WriteFile(coreHeaderPath, coreHeaderTemplate.Text())
+
+	// Create shared pkg/requestx
+	requestxDir := fmt.Sprintf("%s/pkg/requestx", currentDir)
+	_ = fx.EnsureDir(requestxDir)
+
+	// request.go
+	requestXRequestPath := fmt.Sprintf("%s/request.go", requestxDir)
+	requestXRequestTemplate := template.RequestXRequest(opt.Module)
+	_ = fx.WriteFile(requestXRequestPath, []byte(requestXRequestTemplate))
+
+	// Create shared pkg/structx
+	structxDir := fmt.Sprintf("%s/pkg/structx", currentDir)
+	_ = fx.EnsureDir(structxDir)
+
+	// struct.go
+	structXstructPath := fmt.Sprintf("%s/struct.go", structxDir)
+	structXstructTemplate := template.StructXStruct()
+	_ = fx.WriteFile(structXstructPath, []byte(structXstructTemplate))
 
 	// Create shared pkg/schema
 	schemaDir := fmt.Sprintf("%s/pkg/schema", currentDir)
