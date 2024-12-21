@@ -2,6 +2,7 @@ package template
 
 import (
 	"fmt"
+
 	"github.com/ettle/strcase"
 )
 
@@ -15,6 +16,7 @@ import (
 	"github.com/prongbang/fibererror"
 	"github.com/prongbang/goerror"
 	"`+module+`/internal/pkg/response"
+	"`+module+`/pkg/requestx"
 )
 
 type Validate interface {
@@ -41,7 +43,7 @@ func (v *validate) FindById(c *fiber.Ctx) error {
 		return v.Response.With(c).Response(response.NewDataInvalidError())
 	}
 
-	return c.Next()
+	return requestx.Next(c, body)
 }
 
 func (v *validate) FindList(c *fiber.Ctx) error {
@@ -54,7 +56,7 @@ func (v *validate) FindList(c *fiber.Ctx) error {
 		return v.Response.With(c).Response(response.NewDataInvalidError())
 	}
 	
-	return c.Next()
+	return requestx.Next(c, body)
 }
 
 func (v *validate) FindLiteList(c *fiber.Ctx) error {
@@ -67,7 +69,7 @@ func (v *validate) FindLiteList(c *fiber.Ctx) error {
 		return v.Response.With(c).Response(response.NewDataInvalidError())
 	}
 	
-	return c.Next()
+	return requestx.Next(c, body)
 }
 
 func (v *validate) Create(c *fiber.Ctx) error {
@@ -80,7 +82,7 @@ func (v *validate) Create(c *fiber.Ctx) error {
 		return v.Response.With(c).Response(response.NewDataInvalidError())
 	}
 
-	return c.Next()
+	return requestx.Next(c, body)
 }
 
 func (v *validate) Update(c *fiber.Ctx) error {
@@ -93,7 +95,7 @@ func (v *validate) Update(c *fiber.Ctx) error {
 		return v.Response.With(c).Response(response.NewDataInvalidError())
 	}
 
-	return c.Next()
+	return requestx.Next(c, body)
 }
 
 func (v *validate) Delete(c *fiber.Ctx) error {
@@ -106,7 +108,7 @@ func (v *validate) Delete(c *fiber.Ctx) error {
 		return v.Response.With(c).Response(response.NewDataInvalidError())
 	}
 
-	return c.Next()
+	return requestx.Next(c, body)
 }	
 
 func NewValidate(v *validator.Validate, response fibererror.Response) Validate {

@@ -18,6 +18,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/prongbang/fibererror"
 	"github.com/prongbang/goerror"
+	"{module}/pkg/requestx"
 )
 
 type Handler interface {
@@ -46,8 +47,7 @@ type handler struct {
 // @Security JWTAuth
 // @Router /v1/{route}/one [post]
 func (h *handler) FindById(c *fiber.Ctx) error {
-	q := QueryOne{}
-	_ = c.BodyParser(&q)
+	q := *requestx.Get[QueryOne](c)
 
 	if r := h.Uc.FindById(q.Id); r.Id {findOneCondition} {
 		return h.Response.With(c).Response(goerror.NewOK(r))
@@ -67,8 +67,7 @@ func (h *handler) FindById(c *fiber.Ctx) error {
 // @Security JWTAuth
 // @Router /v1/{route}/many [post]
 func (h *handler) FindList(c *fiber.Ctx) error {
-	q := QueryMany{}
-	_ = c.BodyParser(&q)
+	q := *requestx.Get[QueryMany](c)
 
 	params := Params{
 		QueryMany: q,
@@ -98,8 +97,7 @@ func (h *handler) FindList(c *fiber.Ctx) error {
 // @Security JWTAuth
 // @Router /v1/{route}/many/lite [post]
 func (h *handler) FindLiteList(c *fiber.Ctx) error {
-	q := LiteQueryMany{}
-	_ = c.BodyParser(&q)
+	q := *requestx.Get[LiteQueryMany](c)
 
 	params := LiteParams{
 		LiteQueryMany: q,
@@ -121,8 +119,7 @@ func (h *handler) FindLiteList(c *fiber.Ctx) error {
 // @Security JWTAuth
 // @Router /v1/{route}/create [post]
 func (h *handler) Create(c *fiber.Ctx) error {
-	b := Create{model}{}
-	_ = c.BodyParser(&b)
+	b := *requestx.Get[Create{model}](c)
 
 	d, err := h.Uc.Create(&b)
 	if err != nil {
@@ -144,8 +141,7 @@ func (h *handler) Create(c *fiber.Ctx) error {
 // @Security JWTAuth
 // @Router /v1/{route}/update [post]
 func (h *handler) Update(c *fiber.Ctx) error {
-	b := Update{model}{}
-	_ = c.BodyParser(&b)
+	b := *requestx.Get[Update{model}](c)
 
 	if r := h.Uc.FindById(b.Id); r.Id == b.Id {
 		d, err := h.Uc.Update(&b)
@@ -171,8 +167,7 @@ func (h *handler) Update(c *fiber.Ctx) error {
 // @Security JWTAuth
 // @Router /v1/{route}/delete [post]
 func (h *handler) Delete(c *fiber.Ctx) error {
-	b := Delete{model}{}
-	_ = c.BodyParser(&b)
+	b := *requestx.Get[Delete{model}](c)
 
 	if r := h.Uc.FindById(b.Id); r.Id == b.Id {
 		if err := h.Uc.Delete(b.Id); err != nil {
