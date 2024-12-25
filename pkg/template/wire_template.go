@@ -9,7 +9,7 @@ func (w *wireTemplate) Text() []byte {
 	return []byte(`//go:build wireinject
 // +build wireinject
 
-package api
+package ` + w.Project + `
 
 import (
 	"github.com/google/wire"

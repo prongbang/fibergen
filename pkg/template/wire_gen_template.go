@@ -12,7 +12,7 @@ func (w *wireGenTemplate) Text() []byte {
 //go:build !wireinject
 // +build !wireinject
 
-package api
+package ` + w.Project + `
 
 import (
 	"` + w.Module + `/internal/` + w.Project + `"

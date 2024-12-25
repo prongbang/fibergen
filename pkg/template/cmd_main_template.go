@@ -15,7 +15,7 @@ func (m *cmdMainTemplate) Text() []byte {
 import (
 	"` + m.Module + `/configuration"
 	_ "` + m.Module + `/docs/apispec"
-	"` + m.Module + `/internal/` + m.Project + `"
+	"` + m.Module + `"
 	"` + m.Module + `/internal/` + m.Project + `/database"
 	"github.com/urfave/cli/v2"
 	"log"
