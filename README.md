@@ -11,7 +11,7 @@ Generate a Clean Architecture for REST API with support for the Fiber Web Framew
 ## Install
 
 ```shell
-go install github.com/prongbang/fibergen@v1.1.7
+go install github.com/prongbang/fibergen@v1.2.0
 ```
 
 ## Requirement
@@ -40,14 +40,15 @@ Structure
 test
 ├── go.mod
 ├── go.sum
+├── wire.go
+├── wire_gen.go
 └── internal
     └── test
+        ├── app.go
         ├── api
-        │   ├── feature/domain
+        │   ├── feature_name
         │   ├── api.go
-        │   ├── routers.go
-        │   ├── wire.go
-        │   └── wire_gen.go
+        │   └── routers.go
         └── database
             └── drivers.go
 ```
@@ -117,7 +118,7 @@ fibergen -f user
 OR
 
 ```shell script
-$ cd project/internal/app/api && fibergen -f user
+$ fibergen -f user
 ```
 
 ## Output
@@ -134,7 +135,7 @@ user
 └── validate.go
 ```
 
-## CRUD
+## CRUD Generate by .json file
 
 - define spec `auth.json`
 
