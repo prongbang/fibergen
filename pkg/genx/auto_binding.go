@@ -11,16 +11,17 @@ import (
 )
 
 func AutoBinding(fx filex.FileX, pkg pkgs.Pkg) {
-	pwd, _ := fx.Getwd()
-	routerPath := "/" + pwd + "/routers.go"
-	wirePath := "/" + pwd + "/wire.go"
-
-	routerB := fx.ReadFile(routerPath)
-	wireB := fx.ReadFile(wirePath)
-	routerText := routerB
-	wireText := wireB
+	changeToRoot := "../../../"
+	pwdApi, _ := fx.Getwd()
 
 	// Binding wire
+	// Change to root directory
+	_ = fx.Chdir(changeToRoot)
+	pwdRoot, _ := fx.Getwd()
+
+	wirePath := "/" + pwdRoot + "/wire.go"
+	wireB := fx.ReadFile(wirePath)
+	wireText := wireB
 	wireImpPat1 := "//+fibergen:import wire:package"
 	wireImpPat2 := "// +fibergen:import wire:package"
 	wireImp := fmt.Sprintf(
@@ -47,6 +48,11 @@ func AutoBinding(fx filex.FileX, pkg pkgs.Pkg) {
 	}
 
 	// Binding routers
+	// Change to api directory
+	_ = fx.Chdir(pwdApi)
+	routerPath := "/" + pwdApi + "/routers.go"
+	routerB := fx.ReadFile(routerPath)
+	routerText := routerB
 	routerImpPat1 := "//+fibergen:import routers:package"
 	routerImpPat2 := "// +fibergen:import routers:package"
 	routerImp := fmt.Sprintf(
@@ -98,4 +104,7 @@ func AutoBinding(fx filex.FileX, pkg pkgs.Pkg) {
 	} else {
 		spinnerBindRouter.Fail()
 	}
+
+	// Change to root directory
+	_ = fx.Chdir(changeToRoot)
 }

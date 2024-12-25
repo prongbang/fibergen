@@ -16,40 +16,40 @@ type cmd struct{}
 
 // RunAsync implements Command.
 func (*cmd) RunAsync(name string, args ...string) (string, error) {
-	cmd := exec.Command(name, args...)
+	command := exec.Command(name, args...)
 
-	stdout, err := cmd.StdoutPipe()
+	stdout, err := command.StdoutPipe()
 	if err != nil {
 		return "", fmt.Errorf("error creating StdoutPipe: %v", err)
 	}
 
-	stderr, err := cmd.StderrPipe()
+	stderr, err := command.StderrPipe()
 	if err != nil {
 		return "", fmt.Errorf("error creating StderrPipe: %v", err)
 	}
 
-	if err := cmd.Start(); err != nil {
-		return "", fmt.Errorf("error starting command: %v", err)
+	if err2 := command.Start(); err2 != nil {
+		return "", fmt.Errorf("error starting command: %v", err2)
 	}
 
 	go printStream("stdout", stdout)
 	go printStream("stderr", stderr)
 
-	if err := cmd.Wait(); err != nil {
-		return "", fmt.Errorf("Command finished with error: %v", err)
+	if err2 := command.Wait(); err2 != nil {
+		return "", fmt.Errorf("command finished with error: %v", err2)
 	}
 	return "", nil
 }
 
 // Run implements Command.
 func (*cmd) Run(name string, args ...string) (string, error) {
-	cmd := exec.Command(name, args...)
-	output, err := cmd.CombinedOutput()
+	command := exec.Command(name, args...)
+	output, err := command.CombinedOutput()
 
 	// Check if the command was successful
 	if err != nil {
 		// Print the standard error output
-		fmt.Printf("Error output: %s\n", cmd.Stderr)
+		fmt.Printf("Error output: %s\n", command.Stderr)
 
 		return "", err
 	}
