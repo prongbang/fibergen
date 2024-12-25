@@ -69,7 +69,7 @@ import (
 
 func CreateAPI(dbDriver database.Drivers) API {
 	wire.Build(
-		NewAPI,
+		New,
 		NewRouters,
 		//+fibergen:func wire:build
 	)

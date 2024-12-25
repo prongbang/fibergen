@@ -56,6 +56,15 @@ func NewProject(fx filex.FileX, opt option.Options) {
 	docsSwaggerYamlTemplate := template.DocsSwaggerYamlTemplate()
 	_ = fx.WriteFile(docsSwaggerYamlPath, docsSwaggerYamlTemplate.Text())
 
+	// Create app
+	appDir := fmt.Sprintf("%s/internal/%s", currentDir, opt.Project)
+	_ = fx.EnsureDir(appDir)
+
+	// app.go
+	appPath := fmt.Sprintf("%s/app.go", appDir)
+	appTemplate := template.AppTemplate(opt.Module, opt.Project)
+	_ = fx.WriteFile(appPath, appTemplate.Text())
+
 	// Create api
 	apiDir := fmt.Sprintf("%s/internal/%s/api", currentDir, opt.Project)
 	_ = fx.EnsureDir(apiDir)
@@ -71,13 +80,13 @@ func NewProject(fx filex.FileX, opt option.Options) {
 	_ = fx.WriteFile(apiRoutersPath, apiRoutersTemplate.Text())
 
 	// wire.go
-	wireApiPath := fmt.Sprintf("%s/wire.go", apiDir)
-	wireApiTemplate := template.WireApiTemplate(opt.Module, opt.Project)
+	wireApiPath := fmt.Sprintf("%s/wire.go", currentDir)
+	wireApiTemplate := template.WireTemplate(opt.Module, opt.Project)
 	_ = fx.WriteFile(wireApiPath, wireApiTemplate.Text())
 
 	// wire_gen.go
-	wireGenApiPath := fmt.Sprintf("%s/wire_gen.go", apiDir)
-	wireGenApiTemplate := template.WireGenApiTemplate(opt.Module, opt.Project)
+	wireGenApiPath := fmt.Sprintf("%s/wire_gen.go", currentDir)
+	wireGenApiTemplate := template.WireGenTemplate(opt.Module, opt.Project)
 	_ = fx.WriteFile(wireGenApiPath, wireGenApiTemplate.Text())
 
 	// Create shared pkg/core

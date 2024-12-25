@@ -79,7 +79,7 @@ func wait(fn func(os.Signal)) {
 	fn(sig)
 }
 
-func NewAPI(router Routers) API {
+func New(router Routers) API {
 	return &api{
 		Router: router,
 	}

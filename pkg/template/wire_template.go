@@ -1,11 +1,11 @@
 package template
 
-type wireApiTemplate struct {
+type wireTemplate struct {
 	Module  string
 	Project string
 }
 
-func (w *wireApiTemplate) Text() []byte {
+func (w *wireTemplate) Text() []byte {
 	return []byte(`//go:build wireinject
 // +build wireinject
 
@@ -13,16 +13,19 @@ package api
 
 import (
 	"github.com/google/wire"
+	"` + w.Module + `/internal/` + w.Project + `"
+	"` + w.Module + `/internal/` + w.Project + `/api"
 	"` + w.Module + `/internal/` + w.Project + `/database"
 	"` + w.Module + `/internal/pkg/response"
 	"` + w.Module + `/internal/pkg/validator"
 	//+fibergen:import wire:package
 )
 
-func CreateAPI(dbDriver database.Drivers) API {
+func CreateApp(dbDriver database.Drivers) ` + w.Project + `.App {
 	wire.Build(
-		NewAPI,
-		NewRouters,
+		` + w.Project + `.NewApp,
+		api.New,
+		api.NewRouters,
 		response.New,
 		validator.New,
 		//+fibergen:func wire:build
@@ -31,8 +34,8 @@ func CreateAPI(dbDriver database.Drivers) API {
 }`)
 }
 
-func WireApiTemplate(module string, project string) Template {
-	return &wireApiTemplate{
+func WireTemplate(module string, project string) Template {
+	return &wireTemplate{
 		Module:  module,
 		Project: project,
 	}

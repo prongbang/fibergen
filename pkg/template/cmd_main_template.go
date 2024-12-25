@@ -1,6 +1,8 @@
 package template
 
-import "strings"
+import (
+	"strings"
+)
 
 type cmdMainTemplate struct {
 	Module  string
@@ -13,7 +15,7 @@ func (m *cmdMainTemplate) Text() []byte {
 import (
 	"` + m.Module + `/configuration"
 	_ "` + m.Module + `/docs/apispec"
-	"` + m.Module + `/internal/` + m.Project + `/api"
+	"` + m.Module + `/internal/` + m.Project + `"
 	"` + m.Module + `/internal/` + m.Project + `/database"
 	"github.com/urfave/cli/v2"
 	"log"
@@ -61,8 +63,8 @@ func main() {
 	}
 
 	dbDriver := database.NewDatabaseDriver()
-	apis := api.CreateAPI(dbDriver)
-	apis.Register()
+	apps := ` + m.Project + `.CreateApp(dbDriver)
+	apps.StartAPI()
 }`)
 }
 
