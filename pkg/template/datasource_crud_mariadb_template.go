@@ -25,6 +25,7 @@ import (
 	"{module}/{path}/database"
 	"{module}/internal/pkg/response"
 	"{module}/pkg/schema"
+	"github.com/iancoleman/strcase"
 	"github.com/innotechdevops/core/finder"
 	"github.com/prongbang/sqlxwrapper/mrwrapper"
 )
@@ -68,6 +69,7 @@ func (d *dataSource) FindList(params Params) []{model} {
 	}
 
 	order := "ORDER BY {alias}.id "
+	params.Sort = strcase.ToSnake(params.Sort)
 	if finder.Match(columns, params.Sort) {
 		order = fmt.Sprintf("ORDER BY {alias}.%s ", params.Sort)
 	}
@@ -87,6 +89,7 @@ func (d *dataSource) FindLiteList(params LiteParams) []Lite{model} {
 	args := []any{}
 
 	order := "ORDER BY {alias}.id "
+	params.Sort = strcase.ToSnake(params.Sort)
 	if finder.Match(columns, params.Sort) {
 		order = fmt.Sprintf("ORDER BY {alias}.%s ", params.Sort)
 	}
