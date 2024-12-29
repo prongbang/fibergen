@@ -39,7 +39,8 @@ func GetModule(fx filex.FileX) Mod {
 		name := mds[mdl-1]
 
 		// Find internal/project-name
-		appPath := fmt.Sprintf("internal/%s", name)
+		//appPath := fmt.Sprintf("internal/%s", name)
+		appPath := "internal"
 
 		// Change current directory
 		_ = fx.Chdir(fmt.Sprintf("./%s/api", appPath))

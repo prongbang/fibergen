@@ -11,7 +11,7 @@ import (
 )
 
 func AutoBinding(fx filex.FileX, pkg pkgs.Pkg) {
-	changeToRoot := "../../../"
+	changeToRoot := "../../"
 	pwdApi, _ := fx.Getwd()
 
 	// Binding wire
