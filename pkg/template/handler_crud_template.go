@@ -1,6 +1,7 @@
 package template
 
 import (
+	"github.com/prongbang/fibergen/pkg/tocase"
 	"strings"
 
 	"github.com/ettle/strcase"
@@ -36,8 +37,8 @@ type handler struct {
 }
 
 // FindById
-// @Tags {name}
-// @Summary Find a {name} by id
+// @Tags {tags}
+// @Summary Find a {tags} by id
 // @Accept json
 // @Produce json
 // @Param query body QueryOne true "query"
@@ -57,8 +58,8 @@ func (h *handler) FindById(c *fiber.Ctx) error {
 }
 
 // FindList
-// @Tags {name}
-// @Summary Find a list of {name}
+// @Tags {tags}
+// @Summary Find a list of {tags}
 // @Accept json
 // @Produce json
 // @Param query body QueryMany true "query"
@@ -87,8 +88,8 @@ func (h *handler) FindList(c *fiber.Ctx) error {
 }
 
 // FindLiteList
-// @Tags {name}
-// @Summary Find a lite list of {name}
+// @Tags {tags}
+// @Summary Find a lite list of {tags}
 // @Accept json
 // @Produce json
 // @Param query body QueryMany true "query"
@@ -109,11 +110,11 @@ func (h *handler) FindLiteList(c *fiber.Ctx) error {
 }
 
 // Create
-// @Tags {name}
-// @Summary Create a {name}
+// @Tags {tags}
+// @Summary Create a {tags}
 // @Accept json
 // @Produce json
-// @Param {name} body Create{model} true "{name}"
+// @Param query body Create{model} true "query"
 // @Success 201 {object} core.Success{data={model}}
 // @Failure 400 {object} core.Error
 // @Security JWTAuth
@@ -130,11 +131,11 @@ func (h *handler) Create(c *fiber.Ctx) error {
 }
 
 // Update
-// @Tags {name}
-// @Summary Update a {name}
+// @Tags {tags}
+// @Summary Update a {tags}
 // @Accept json
 // @Produce json
-// @Param {name} body Update{model} true "{name}"
+// @Param query body Update{model} true "query"
 // @Success 200 {object} core.Success{data={model}}
 // @Failure 400 {object} core.Error
 // @Failure 404 {object} core.Error
@@ -156,11 +157,11 @@ func (h *handler) Update(c *fiber.Ctx) error {
 }
 
 // Delete
-// @Tags {name}
-// @Summary Delete a {name} by id
+// @Tags {tags}
+// @Summary Delete a {tags} by id
 // @Accept json
 // @Produce json
-// @Param {name} body Delete{model} true "{name}"
+// @Param query body Delete{model} true "query"
 // @Success 200 {object} core.Success
 // @Failure 400 {object} core.Error
 // @Failure 404 {object} core.Error
@@ -197,7 +198,8 @@ func NewHandler(uc UseCase, response fibererror.Response) Handler {
 
 	tmpl = strings.ReplaceAll(tmpl, "{module}", module)
 	tmpl = strings.ReplaceAll(tmpl, "{model}", strcase.ToPascal(model))
-	tmpl = strings.ReplaceAll(tmpl, "{name}", strings.ToLower(model))
+	tmpl = strings.ReplaceAll(tmpl, "{name}", tocase.ToLower(model))
+	tmpl = strings.ReplaceAll(tmpl, "{tags}", strings.ToLower(model))
 	tmpl = strings.ReplaceAll(tmpl, "{route}", strcase.ToKebab(model))
 
 	return tmpl

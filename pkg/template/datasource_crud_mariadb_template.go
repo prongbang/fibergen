@@ -1,6 +1,7 @@
 package template
 
 import (
+	"github.com/prongbang/fibergen/pkg/tocase"
 	"strings"
 
 	"github.com/ettle/strcase"
@@ -170,7 +171,7 @@ func NewDataSource(driver database.Drivers) DataSource {
 	tmpl = strings.ReplaceAll(tmpl, "{pk}", pk)
 	tmpl = strings.ReplaceAll(tmpl, "{model}", strcase.ToPascal(model))
 	tmpl = strings.ReplaceAll(tmpl, "{driver}", driverName)
-	tmpl = strings.ReplaceAll(tmpl, "{name}", strings.ToLower(model))
+	tmpl = strings.ReplaceAll(tmpl, "{name}", tocase.ToLower(model))
 
 	// Query
 	tmpl = strings.ReplaceAll(tmpl, "{table}", strings.ToLower(model))

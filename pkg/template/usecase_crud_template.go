@@ -1,6 +1,7 @@
 package template
 
 import (
+	"github.com/prongbang/fibergen/pkg/tocase"
 	"strings"
 
 	"github.com/ettle/strcase"
@@ -70,7 +71,7 @@ func NewUseCase(repo Repository) UseCase {
 
 	tmpl = strings.ReplaceAll(tmpl, "{pk}", pk)
 	tmpl = strings.ReplaceAll(tmpl, "{model}", strcase.ToPascal(model))
-	tmpl = strings.ReplaceAll(tmpl, "{name}", strings.ToLower(model))
+	tmpl = strings.ReplaceAll(tmpl, "{name}", tocase.ToLower(model))
 
 	return tmpl
 }

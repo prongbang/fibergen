@@ -2,6 +2,7 @@ package template
 
 import (
 	"fmt"
+	"github.com/prongbang/fibergen/pkg/tocase"
 
 	"github.com/ettle/strcase"
 )
@@ -117,5 +118,5 @@ func NewValidate(v *validator.Validate, response fibererror.Response) Validate {
 		Response: response,
 	}
 }
-	`, name)
+	`, tocase.ToLower(name))
 }

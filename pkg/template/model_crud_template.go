@@ -2,6 +2,7 @@ package template
 
 import (
 	"fmt"
+	"github.com/prongbang/fibergen/pkg/tocase"
 	"strings"
 
 	"github.com/ettle/strcase"
@@ -80,7 +81,7 @@ type LiteParams struct {
 	tmpl = strings.ReplaceAll(tmpl, "{limit}", "`json:\"limit\"`")
 	tmpl = strings.ReplaceAll(tmpl, "{model}", model)
 	tmpl = strings.ReplaceAll(tmpl, "{fields}", fields)
-	tmpl = strings.ReplaceAll(tmpl, "{name}", name)
+	tmpl = strings.ReplaceAll(tmpl, "{name}", tocase.ToLower(name))
 
 	var colBuilder strings.Builder
 	for _, item := range columns {

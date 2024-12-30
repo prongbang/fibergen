@@ -21,7 +21,7 @@ func Get(value any) string {
 	case int, int8, int16, int32, int64:
 		return "int64"
 	case bool:
-		return "bool"
+		return "*bool"
 	case float32, float64:
 		if strings.Index(fmt.Sprintf("%v", v), ".") > -1 {
 			return "float64"
@@ -33,7 +33,7 @@ func Get(value any) string {
 }
 
 func Value(typ string) string {
-	if typ == "any" || typ == "*time.Time" {
+	if typ == "any" || typ == "*time.Time" || typ == "*bool" {
 		return "nil"
 	} else if typ == "string" {
 		return `""`

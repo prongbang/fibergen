@@ -1,6 +1,7 @@
 package template
 
 import (
+	"github.com/prongbang/fibergen/pkg/tocase"
 	"strings"
 
 	"github.com/ettle/strcase"
@@ -45,7 +46,7 @@ func NewRouter(handle Handler, validate Validate) Router {
 	tmpl = strings.ReplaceAll(tmpl, "{module}", moduleName)
 	tmpl = strings.ReplaceAll(tmpl, "{route}", strcase.ToKebab(name))
 	tmpl = strings.ReplaceAll(tmpl, "{model}", strcase.ToPascal(name))
-	tmpl = strings.ReplaceAll(tmpl, "{name}", strings.ToLower(name))
+	tmpl = strings.ReplaceAll(tmpl, "{name}", tocase.ToLower(name))
 
 	return tmpl
 }
