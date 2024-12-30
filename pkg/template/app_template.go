@@ -1,15 +1,14 @@
 package template
 
 type appTemplate struct {
-	Project string
-	Module  string
+	Module string
 }
 
 func (a *appTemplate) Text() []byte {
-	return []byte(`package ` + a.Project + `
+	return []byte(`package internal
 
 import (
-	"` + a.Module + `/internal/` + a.Project + `/api"
+	"` + a.Module + `/internal/api"
 )
 
 type App interface {
@@ -31,9 +30,8 @@ func NewApp(apis api.API) App {
 }`)
 }
 
-func AppTemplate(module string, project string) Template {
+func AppTemplate(module string) Template {
 	return &appTemplate{
-		Module:  module,
-		Project: project,
+		Module: module,
 	}
 }

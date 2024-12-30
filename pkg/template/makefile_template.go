@@ -7,18 +7,16 @@ type makefileTemplate struct {
 func (m *makefileTemplate) Text() []byte {
 	return []byte(`
 swaggen:
-	swag init -g cmd/` + m.Project + `/main.go -o docs/apispec
+	swag init -g cmd/api/main.go -o docs/apispec
 
 api-dev:
-	go run cmd/` + m.Project + `/main.go -env development
+	go run cmd/api/main.go -env development
 
 api-prod:
-	go run cmd/` + m.Project + `/main.go -env production
+	go run cmd/api/main.go -env production
 `)
 }
 
-func MakefileTemplate(project string) Template {
-	return &makefileTemplate{
-		Project: project,
-	}
+func MakefileTemplate() Template {
+	return &makefileTemplate{}
 }

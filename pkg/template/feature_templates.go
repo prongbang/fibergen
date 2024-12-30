@@ -2,7 +2,6 @@ package template
 
 import (
 	"fmt"
-
 	"github.com/prongbang/fibergen/pkg/pkgs"
 )
 

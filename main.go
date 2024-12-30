@@ -31,12 +31,12 @@ func (f Flags) Project() string {
 }
 
 func (f Flags) Module() string {
-	return fmt.Sprintf("%s/%s", f.ModuleName, strcase.ToSnake(f.Project()))
+	return fmt.Sprintf("%s/%s", f.ModuleName, strcase.ToKebab(f.Project()))
 }
 
 func (f Flags) Feature() string {
 	if f.FeatureName != "" {
-		return strings.ReplaceAll(strings.ReplaceAll(f.FeatureName, " ", "_"), "-", "_")
+		return strcase.ToSnake(strings.ReplaceAll(f.FeatureName, " ", ""))
 	}
 	return ""
 }

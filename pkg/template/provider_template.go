@@ -1,6 +1,9 @@
 package template
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/prongbang/fibergen/pkg/tocase"
+)
 
 func Provider(name string) string {
 	return fmt.Sprintf(`package %s
@@ -14,5 +17,5 @@ var ProviderSet = wire.NewSet(
 	NewHandler,
 	NewRouter,
 	NewValidate,
-)`, name)
+)`, tocase.ToLower(name))
 }

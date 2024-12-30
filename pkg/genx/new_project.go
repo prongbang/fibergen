@@ -2,7 +2,6 @@ package genx
 
 import (
 	"fmt"
-
 	"github.com/ettle/strcase"
 
 	"github.com/prongbang/fibergen/pkg/filex"
@@ -12,6 +11,8 @@ import (
 )
 
 func NewProject(fx filex.FileX, opt option.Options) {
+	opt.Project = strcase.ToKebab(opt.Project)
+
 	spinnerGenProject, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Create project \"%s\"", opt.Project))
 
 	currentDir, _ := fx.Getwd()
@@ -20,16 +21,13 @@ func NewProject(fx filex.FileX, opt option.Options) {
 	currentDir = fmt.Sprintf("%s/%s", currentDir, opt.Project)
 	_ = fx.EnsureDir(currentDir)
 
-	// Convert to snake
-	opt.Project = strcase.ToSnake(opt.Project)
-
 	// Create go.mod
 	modPath := fmt.Sprintf("%s/go.mod", currentDir)
 	modTemplate := template.ModTemplate(opt.Module)
 	_ = fx.WriteFile(modPath, modTemplate.Text())
 
 	// Create cmd
-	cmdPath := fmt.Sprintf("%s/cmd/%s", currentDir, opt.Project)
+	cmdPath := fmt.Sprintf("%s/cmd/api", currentDir)
 	_ = fx.EnsureDir(cmdPath)
 
 	// main.go
@@ -57,16 +55,16 @@ func NewProject(fx filex.FileX, opt option.Options) {
 	_ = fx.WriteFile(docsSwaggerYamlPath, docsSwaggerYamlTemplate.Text())
 
 	// Create app
-	appDir := fmt.Sprintf("%s/internal/%s", currentDir, opt.Project)
+	appDir := fmt.Sprintf("%s/internal", currentDir)
 	_ = fx.EnsureDir(appDir)
 
 	// app.go
 	appPath := fmt.Sprintf("%s/app.go", appDir)
-	appTemplate := template.AppTemplate(opt.Module, opt.Project)
+	appTemplate := template.AppTemplate(opt.Module)
 	_ = fx.WriteFile(appPath, appTemplate.Text())
 
 	// Create api
-	apiDir := fmt.Sprintf("%s/internal/%s/api", currentDir, opt.Project)
+	apiDir := fmt.Sprintf("%s/internal/api", currentDir)
 	_ = fx.EnsureDir(apiDir)
 
 	// api.go
@@ -90,7 +88,7 @@ func NewProject(fx filex.FileX, opt option.Options) {
 	_ = fx.WriteFile(wireGenApiPath, wireGenApiTemplate.Text())
 
 	// Create shared pkg/core
-	databaseDir := fmt.Sprintf("%s/internal/%s/database", currentDir, opt.Project)
+	databaseDir := fmt.Sprintf("%s/internal/database", currentDir)
 	_ = fx.EnsureDir(databaseDir)
 
 	// drivers.go
@@ -229,7 +227,7 @@ func NewProject(fx filex.FileX, opt option.Options) {
 
 	// Create Makefile
 	makefilePath := fmt.Sprintf("%s/Makefile", currentDir)
-	makefileTemplate := template.MakefileTemplate(opt.Project)
+	makefileTemplate := template.MakefileTemplate()
 	_ = fx.WriteFile(makefilePath, makefileTemplate.Text())
 
 	// Create configuration

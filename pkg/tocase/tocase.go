@@ -2,6 +2,7 @@ package tocase
 
 import (
 	"fmt"
+	"github.com/ettle/strcase"
 	"strings"
 )
 
@@ -31,4 +32,8 @@ func LowerCamelName(name string) string {
 		modelName += fmt.Sprintf("%s%s", first, last)
 	}
 	return modelName
+}
+
+func ToLower(name string) string {
+	return strings.ReplaceAll(strcase.ToKebab(name), "-", "")
 }

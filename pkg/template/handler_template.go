@@ -1,6 +1,7 @@
 package template
 
 import (
+	"github.com/prongbang/fibergen/pkg/tocase"
 	"strings"
 
 	"github.com/ettle/strcase"
@@ -25,7 +26,7 @@ type handler struct {
 }
 
 // Example
-// @Tags {name}
+// @Tags {tags}
 // @Summary Example
 // @Accept json
 // @Produce json
@@ -45,8 +46,9 @@ func NewHandler(uc UseCase, response fibererror.Response) Handler {
 	}
 }`
 
+	tmpl = strings.ReplaceAll(tmpl, "{tags}", strcase.ToSnake(name))
 	tmpl = strings.ReplaceAll(tmpl, "{model}", strcase.ToPascal(name))
-	tmpl = strings.ReplaceAll(tmpl, "{name}", strings.ToLower(name))
+	tmpl = strings.ReplaceAll(tmpl, "{name}", tocase.ToLower(name))
 	tmpl = strings.ReplaceAll(tmpl, "{route}", strcase.ToKebab(name))
 
 	return tmpl

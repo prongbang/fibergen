@@ -1,6 +1,9 @@
 package template
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/prongbang/fibergen/pkg/tocase"
+)
 
 func Repository(name string) string {
 	return fmt.Sprintf(`package %s
@@ -16,5 +19,5 @@ func NewRepository(ds DataSource) Repository {
 	return &repository{
 		Ds: ds,
 	}
-}`, name)
+}`, tocase.ToLower(name))
 }

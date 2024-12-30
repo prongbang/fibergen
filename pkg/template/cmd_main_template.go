@@ -1,6 +1,7 @@
 package template
 
 import (
+	"github.com/prongbang/fibergen/pkg/tocase"
 	"strings"
 )
 
@@ -10,13 +11,14 @@ type cmdMainTemplate struct {
 }
 
 func (m *cmdMainTemplate) Text() []byte {
+	project := tocase.ToLower(m.Project)
 	return []byte(`package main
 
 import (
 	"` + m.Module + `/configuration"
 	_ "` + m.Module + `/docs/apispec"
-	"` + m.Module + `"
-	"` + m.Module + `/internal/` + m.Project + `/database"
+	` + project + ` "` + m.Module + `"
+	"` + m.Module + `/internal/database"
 	"github.com/urfave/cli/v2"
 	"log"
 	"os"
@@ -63,7 +65,7 @@ func main() {
 	}
 
 	dbDriver := database.NewDatabaseDriver()
-	apps := ` + m.Project + `.CreateApp(dbDriver)
+	apps := ` + project + `.CreateApp(dbDriver)
 	apps.StartAPI()
 }`)
 }

@@ -22,7 +22,7 @@ COPY . .
 RUN go mod download
 
 # With go ≥ 1.10
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -ldflags="-w -s" -o /go/bin/` + d.Project + ` cmd/` + d.Project + `/main.go
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -ldflags="-w -s" -o /go/bin/` + d.Project + ` cmd/api/main.go
 
 # small image
 FROM alpine:3.7

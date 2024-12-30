@@ -1,29 +1,34 @@
 package template
 
+import (
+	"github.com/prongbang/fibergen/pkg/tocase"
+)
+
 type wireTemplate struct {
 	Module  string
 	Project string
 }
 
 func (w *wireTemplate) Text() []byte {
+	project := tocase.ToLower(w.Project)
 	return []byte(`//go:build wireinject
 // +build wireinject
 
-package ` + w.Project + `
+package ` + project + `
 
 import (
 	"github.com/google/wire"
-	"` + w.Module + `/internal/` + w.Project + `"
-	"` + w.Module + `/internal/` + w.Project + `/api"
-	"` + w.Module + `/internal/` + w.Project + `/database"
+	"` + w.Module + `/internal"
+	"` + w.Module + `/internal/api"
+	"` + w.Module + `/internal/database"
 	"` + w.Module + `/internal/pkg/response"
 	"` + w.Module + `/internal/pkg/validator"
 	//+fibergen:import wire:package
 )
 
-func CreateApp(dbDriver database.Drivers) ` + w.Project + `.App {
+func CreateApp(dbDriver database.Drivers) internal.App {
 	wire.Build(
-		` + w.Project + `.NewApp,
+		internal.NewApp,
 		api.New,
 		api.NewRouters,
 		response.New,

@@ -2,6 +2,7 @@ package template
 
 import (
 	"fmt"
+	"github.com/prongbang/fibergen/pkg/tocase"
 
 	"github.com/ettle/strcase"
 )
@@ -12,5 +13,5 @@ func Model(name string) string {
 	
 type %s struct {
 }
-`, name, model)
+`, tocase.ToLower(name), model)
 }

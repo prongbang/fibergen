@@ -2,6 +2,7 @@ package genx
 
 import (
 	"fmt"
+	"github.com/prongbang/fibergen/pkg/tocase"
 
 	"github.com/prongbang/fibergen/pkg/filex"
 	"github.com/prongbang/fibergen/pkg/pkgs"
@@ -16,7 +17,7 @@ func GenerateFeature(fx filex.FileX, pkg pkgs.Pkg, filename string, tmpl string)
 		spinnerGenFile.Fail()
 		return
 	}
-	currentDir = fmt.Sprintf("%s/%s", currentDir, pkg.Name)
+	currentDir = fmt.Sprintf("%s/%s", currentDir, tocase.ToLower(pkg.Name))
 	err = fx.EnsureDir(currentDir)
 	if err != nil {
 		fmt.Println(err)

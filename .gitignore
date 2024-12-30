@@ -1,6 +1,5 @@
 fibergen
-test
-test_test
+test*
 
 # dbml
 dbml-error.log

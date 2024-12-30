@@ -1,6 +1,9 @@
 package template
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/prongbang/fibergen/pkg/tocase"
+)
 
 func Validate(name string) string {
 	return fmt.Sprintf(`package %s
@@ -30,5 +33,5 @@ func NewValidate(v *validator.Validate, response fibererror.Response) Validate {
 		Response: response,
 	}
 }
-	`, name)
+	`, tocase.ToLower(name))
 }

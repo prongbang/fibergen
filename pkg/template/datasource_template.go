@@ -1,6 +1,9 @@
 package template
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/prongbang/fibergen/pkg/tocase"
+)
 
 func DataSource(pkgName string, moduleName string, modulePath string) string {
 	return fmt.Sprintf(`package %s
@@ -18,5 +21,5 @@ func NewDataSource(driver database.Drivers) DataSource {
 	return &dataSource{
 		Driver: driver,
 	}
-}`, pkgName, moduleName, modulePath)
+}`, tocase.ToLower(pkgName), moduleName, modulePath)
 }
