@@ -2,8 +2,9 @@ package genx
 
 import (
 	"fmt"
-	"github.com/ettle/strcase"
 	"strings"
+
+	"github.com/ettle/strcase"
 
 	"github.com/prongbang/fibergen/pkg/filex"
 	"github.com/prongbang/fibergen/pkg/pkgs"
@@ -12,7 +13,7 @@ import (
 )
 
 func AutoBinding(fx filex.FileX, pkg pkgs.Pkg) {
-	changeToRoot := "../../"
+	changeToRoot := "../../../"
 	pwdApi, _ := fx.Getwd()
 
 	// Binding wire

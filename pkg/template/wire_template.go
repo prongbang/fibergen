@@ -18,7 +18,7 @@ package ` + project + `
 
 import (
 	"github.com/google/wire"
-	"` + w.Module + `/internal"
+	"` + w.Module + `/internal/app"
 	"` + w.Module + `/internal/api"
 	"` + w.Module + `/internal/database"
 	"` + w.Module + `/internal/pkg/response"
@@ -26,9 +26,9 @@ import (
 	//+fibergen:import wire:package
 )
 
-func CreateApp(dbDriver database.Drivers) internal.App {
+func CreateApp(dbDriver database.Drivers) app.App {
 	wire.Build(
-		internal.NewApp,
+		app.NewApp,
 		api.New,
 		api.NewRouters,
 		response.New,

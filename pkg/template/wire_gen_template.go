@@ -20,18 +20,18 @@ func (w *wireGenTemplate) Text() []byte {
 package ` + project + `
 
 import (
-	"` + w.Module + `/internal"
+	"` + w.Module + `/internal/app"
 	"` + w.Module + `/internal/api"
 	"` + w.Module + `/internal/database"
 )
 
 // Injectors from wire.go:
 
-func CreateApp(dbDriver database.Drivers) internal.App {
+func CreateApp(dbDriver database.Drivers) app.App {
 	routers := api.NewRouters()
 	apiAPI := api.New(routers)
-	app := internal.NewApp(apiAPI)
-	return app
+	apps := app.NewApp(apiAPI)
+	return apps
 }
 `)
 }

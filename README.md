@@ -11,7 +11,7 @@ Generate a Clean Architecture for REST API with support for the Fiber Web Framew
 ## Install
 
 ```shell
-go install github.com/prongbang/fibergen@v1.2.3
+go install github.com/prongbang/fibergen@v1.2.4
 ```
 
 An alternative for older versions is to use
@@ -49,11 +49,16 @@ test
 ├── wire.go
 ├── wire_gen.go
 └── internal
-     ├── app.go
-     ├── api
-     │   ├── featurename
-     │   ├── api.go
-     │   └── routers.go
+     ├── app
+	 │   ├── app.go
+	 │	 ├── grpc
+	 │   │   ├── featurename
+	 │   │   ├── grpc.go
+	 │   │   └── servers.go
+	 │   └── api
+	 │       ├── featurename
+	 │       ├── api.go
+	 │       └── routers.go
      └── database
          └── drivers.go
 ```
