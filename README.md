@@ -50,15 +50,15 @@ test
 ├── wire_gen.go
 └── internal
      ├── app
-	 │   ├── app.go
-	 │	 ├── grpc
-	 │   │   ├── featurename
-	 │   │   ├── grpc.go
-	 │   │   └── servers.go
-	 │   └── api
-	 │       ├── featurename
-	 │       ├── api.go
-	 │       └── routers.go
+     │   ├── app.go
+     │	 ├── grpc
+     │   │   ├── featurename
+     │   │   ├── grpc.go
+     │   │   └── servers.go
+     │   └── api
+     │       ├── featurename
+     │       ├── api.go
+     │       └── routers.go
      └── database
          └── drivers.go
 ```
