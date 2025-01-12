@@ -2,16 +2,21 @@ package template
 
 import (
 	"fmt"
+	"github.com/prongbang/fibergen/pkg/config"
 
 	"github.com/prongbang/fibergen/pkg/pkgs"
 )
 
 func FeatureCrudTemplates(pkg pkgs.Pkg) map[string]string {
+	appPath := pkg.Module.AppPath
+	if appPath == config.AppPath {
+		appPath = config.InternalPath
+	}
 	return map[string]string{
 		"datasource.go": DataSourceCrud(
 			pkg.Name,
 			pkg.Module.Module,
-			pkg.Module.AppPath,
+			appPath,
 			pkg.Spec.Pk,
 			pkg.Spec.Driver,
 			pkg.Spec.QueryColumns,

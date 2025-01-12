@@ -15,9 +15,18 @@ type FileX interface {
 	Getwd() (string, error)
 	Chdir(dir string) error
 	IsExist(filename string) bool
+	IsDirExist(dir string) bool
 }
 
 type fileX struct {
+}
+
+func (f *fileX) IsDirExist(dir string) bool {
+	info, err := os.Stat(dir)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return info.IsDir()
 }
 
 func (f *fileX) IsExist(filename string) bool {

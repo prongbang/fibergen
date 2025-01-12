@@ -25,6 +25,10 @@ var read string = ""
 type fileXMock struct {
 }
 
+func (f *fileXMock) IsDirExist(dir string) bool {
+	return true
+}
+
 func (f *fileXMock) IsExist(filename string) bool {
 	return true
 }
@@ -61,6 +65,10 @@ func NewFileXMock() filex.FileX {
 }
 
 type fileXMockError struct {
+}
+
+func (f *fileXMockError) IsDirExist(dir string) bool {
+	return true
 }
 
 func (f *fileXMockError) IsExist(filename string) bool {

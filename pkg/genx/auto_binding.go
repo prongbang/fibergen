@@ -2,6 +2,7 @@ package genx
 
 import (
 	"fmt"
+	"github.com/prongbang/fibergen/pkg/config"
 	"strings"
 
 	"github.com/ettle/strcase"
@@ -14,14 +15,22 @@ import (
 
 func AutoBinding(fx filex.FileX, pkg pkgs.Pkg) {
 	changeToRoot := "../../../"
-	pwdApi, _ := fx.Getwd()
+	pwd, _ := fx.Getwd()
 
-	// Binding wire
-	// Change to root directory
-	_ = fx.Chdir(changeToRoot)
-	pwdRoot, _ := fx.Getwd()
+	wirePath := ""
+	if pkg.Module.AppPath == config.AppPath {
+		// Binding wire
+		// Change to root directory
+		_ = fx.Chdir(changeToRoot)
+		pwdRoot, _ := fx.Getwd()
 
-	wirePath := "/" + pwdRoot + "/wire.go"
+		wirePath = "/" + pwdRoot + "/wire.go"
+	} else {
+		// Reset root path
+		changeToRoot = ""
+		wirePath = "/" + pwd + "/wire.go"
+	}
+
 	wireB := fx.ReadFile(wirePath)
 	wireText := wireB
 	wireImpPat1 := "//+fibergen:import wire:package"
@@ -51,8 +60,8 @@ func AutoBinding(fx filex.FileX, pkg pkgs.Pkg) {
 
 	// Binding routers
 	// Change to api directory
-	_ = fx.Chdir(pwdApi)
-	routerPath := "/" + pwdApi + "/routers.go"
+	_ = fx.Chdir(pwd)
+	routerPath := "/" + pwd + "/routers.go"
 	routerB := fx.ReadFile(routerPath)
 	routerText := routerB
 	routerImpPat1 := "//+fibergen:import routers:package"
@@ -108,5 +117,7 @@ func AutoBinding(fx filex.FileX, pkg pkgs.Pkg) {
 	}
 
 	// Change to root directory
-	_ = fx.Chdir(changeToRoot)
+	if changeToRoot != "" {
+		_ = fx.Chdir(changeToRoot)
+	}
 }

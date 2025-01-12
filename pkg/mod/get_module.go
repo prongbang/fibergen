@@ -2,6 +2,7 @@ package mod
 
 import (
 	"fmt"
+	"github.com/prongbang/fibergen/pkg/config"
 	"strings"
 
 	"github.com/prongbang/fibergen/pkg/filex"
@@ -39,11 +40,14 @@ func GetModule(fx filex.FileX) Mod {
 		name := mds[mdl-1]
 
 		// Find internal/project-name
-		//appPath := fmt.Sprintf("internal/%s", name)
-		appPath := "internal/app"
+		appPath := fmt.Sprintf("internal/%s", name)
+		if !fx.IsDirExist(fmt.Sprintf("%s/%s", root, appPath)) {
+			appPath = config.AppPath
+		}
 
-		// Change current directory
-		_ = fx.Chdir(fmt.Sprintf("./%s/api", appPath))
+		// Change current directory to api path
+		apiPath := fmt.Sprintf("./%s/api", appPath)
+		_ = fx.Chdir(apiPath)
 
 		return Mod{
 			Module:  module,
