@@ -1,17 +1,16 @@
-package genx_test
+package generate_test
 
 import (
 	"fmt"
+	"github.com/prongbang/fibergen/pkg/generate"
 	"testing"
 
 	"github.com/prongbang/fibergen/pkg/option"
-	"github.com/prongbang/fibergen/pkg/pkgs"
 	"github.com/prongbang/fibergen/pkg/template"
 	"github.com/prongbang/fibergen/pkg/tocase"
 	"github.com/prongbang/fibergen/pkg/tools"
 
 	"github.com/prongbang/fibergen/pkg/filex"
-	"github.com/prongbang/fibergen/pkg/genx"
 	"github.com/prongbang/fibergen/pkg/mod"
 )
 
@@ -127,16 +126,16 @@ func NewFileXMockError() filex.FileX {
 	return &fileXMockError{}
 }
 
-var genX genx.Generator
-var genXError genx.Generator
+var genX generate.Generator
+var genXError generate.Generator
 
 func init() {
 	tl := NewInstallerMock()
 	runner := NewRunnerMock()
 	fx := NewFileXMock()
 	fxError := NewFileXMockError()
-	genX = genx.NewGenerator(fx, tl, tl, runner)
-	genXError = genx.NewGenerator(fxError, tl, tl, runner)
+	genX = generate.NewGenerator(fx, tl, tl, runner)
+	genXError = generate.NewGenerator(fxError, tl, tl, runner)
 }
 
 func TestGenerateWriteFileError(t *testing.T) {
@@ -144,46 +143,46 @@ func TestGenerateWriteFileError(t *testing.T) {
 	filename := "usecase.go"
 	tmpl := ""
 	writeFile = fmt.Errorf("%s", "Error")
-	pkg := pkgs.Pkg{
+	pkg := option.Package{
 		Name: feature,
 		Module: mod.Mod{
 			Module:  module,
 			AppPath: appPath,
 		},
 	}
-	genx.GenerateFeature(NewFileXMock(), pkg, filename, tmpl)
+	generate.FeatureGenerate(NewFileXMock(), pkg, filename, tmpl)
 }
 
 func TestGenerateEnsureDirError(t *testing.T) {
 	feature := "hello"
 	filename := "usecase.go"
 	tmpl := ""
-	pkg := pkgs.Pkg{
+	pkg := option.Package{
 		Name: feature,
 		Module: mod.Mod{
 			Module:  module,
 			AppPath: appPath,
 		},
 	}
-	genx.GenerateFeature(NewFileXMock(), pkg, filename, tmpl)
+	generate.FeatureGenerate(NewFileXMock(), pkg, filename, tmpl)
 }
 
 func TestGenerateGetwdError(t *testing.T) {
 	feature := "hello"
 	filename := "usecase.go"
 	tmpl := ""
-	pkg := pkgs.Pkg{
+	pkg := option.Package{
 		Name: feature,
 		Module: mod.Mod{
 			Module:  module,
 			AppPath: appPath,
 		},
 	}
-	genx.GenerateFeature(NewFileXMock(), pkg, filename, tmpl)
+	generate.FeatureGenerate(NewFileXMock(), pkg, filename, tmpl)
 }
 
 func TestTemplates(t *testing.T) {
-	pkg := pkgs.Pkg{
+	pkg := option.Package{
 		Name: "user",
 		Module: mod.Mod{
 			Module:  module,
@@ -227,122 +226,18 @@ func TestGenerate(t *testing.T) {
 	feature := "hello"
 	filename := "usecase.go"
 	tmpl := ""
-	pkg := pkgs.Pkg{
+	pkg := option.Package{
 		Name: feature,
 		Module: mod.Mod{
 			Module:  module,
 			AppPath: appPath,
 		},
 	}
-	genx.GenerateFeature(NewFileXMock(), pkg, filename, tmpl)
-}
-
-func TestDataSourceTemplate(t *testing.T) {
-	pkg := pkgs.Pkg{
-		Name: "hello",
-		Module: mod.Mod{
-			Module:  module,
-			AppPath: appPath,
-		},
-	}
-	if template.DataSource(pkg.Name, pkg.Module.Module, pkg.Module.AppPath) == "" {
-		t.Error("Error")
-	}
-}
-
-func TestHandlerTemplate(t *testing.T) {
-	pkg := pkgs.Pkg{
-		Name: "hello",
-		Module: mod.Mod{
-			Module:  module,
-			AppPath: appPath,
-		},
-	}
-	if template.Handler(pkg.Name) == "" {
-		t.Error("Error")
-	}
-}
-
-func TestProviderTemplate(t *testing.T) {
-	pkg := pkgs.Pkg{
-		Name: "hello",
-		Module: mod.Mod{
-			Module:  module,
-			AppPath: appPath,
-		},
-	}
-	if template.Provider(pkg.Name) == "" {
-		t.Error("Error")
-	}
-}
-
-func TestRepositoryTemplate(t *testing.T) {
-	pkg := pkgs.Pkg{
-		Name: "hello",
-		Module: mod.Mod{
-			Module:  module,
-			AppPath: appPath,
-		},
-	}
-	if template.Repository(pkg.Name) == "" {
-		t.Error("Error")
-	}
-}
-
-func TestRouterTemplate(t *testing.T) {
-	pkg := pkgs.Pkg{
-		Name: "hello",
-		Module: mod.Mod{
-			Module:  module,
-			AppPath: appPath,
-		},
-	}
-	if template.Router(pkg.Name, pkg.Module.Module) == "" {
-		t.Error("Error")
-	}
-}
-
-func TestUseCaseTemplate(t *testing.T) {
-	pkg := pkgs.Pkg{
-		Name: "hello",
-		Module: mod.Mod{
-			Module:  module,
-			AppPath: appPath,
-		},
-	}
-	if template.UseCase(pkg.Name) == "" {
-		t.Error("Error")
-	}
-}
-
-func TestValidateTemplate(t *testing.T) {
-	pkg := pkgs.Pkg{
-		Name: "hello",
-		Module: mod.Mod{
-			Module:  module,
-			AppPath: appPath,
-		},
-	}
-	if template.Validate(pkg.Name) == "" {
-		t.Error("Error")
-	}
-}
-
-func TestModelTemplate(t *testing.T) {
-	pkg := pkgs.Pkg{
-		Name: "hello",
-		Module: mod.Mod{
-			Module:  module,
-			AppPath: appPath,
-		},
-	}
-	if template.Model(pkg.Name) == "" {
-		t.Error("Error")
-	}
+	generate.FeatureGenerate(NewFileXMock(), pkg, filename, tmpl)
 }
 
 func TestGetTemplate(t *testing.T) {
-	pkg := pkgs.Pkg{
+	pkg := option.Package{
 		Name: "hello",
 		Module: mod.Mod{
 			Module:  module,

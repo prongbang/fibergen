@@ -1,19 +1,19 @@
-package genx
+package generate
 
 import (
 	"fmt"
 	"github.com/prongbang/fibergen/pkg/config"
+	"github.com/prongbang/fibergen/pkg/option"
 	"strings"
 
 	"github.com/ettle/strcase"
 
 	"github.com/prongbang/fibergen/pkg/filex"
-	"github.com/prongbang/fibergen/pkg/pkgs"
 	"github.com/prongbang/fibergen/pkg/tocase"
 	"github.com/pterm/pterm"
 )
 
-func AutoBinding(fx filex.FileX, pkg pkgs.Pkg) {
+func AutoBinding(fx filex.FileX, pkg option.Package) {
 	changeToRoot := "../../../"
 	pwd, _ := fx.Getwd()
 

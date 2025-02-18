@@ -1,4 +1,4 @@
-package genx
+package generate
 
 import (
 	"encoding/json"
@@ -12,7 +12,6 @@ import (
 	"github.com/prongbang/fibergen/pkg/filex"
 	"github.com/prongbang/fibergen/pkg/mod"
 	"github.com/prongbang/fibergen/pkg/option"
-	"github.com/prongbang/fibergen/pkg/pkgs"
 	"github.com/prongbang/fibergen/pkg/template"
 	"github.com/prongbang/fibergen/pkg/tools"
 )
@@ -95,14 +94,14 @@ func NewFeatureCrud(fx filex.FileX, opt option.Options, installer tools.Installe
 	// Install library
 	if err := installer.Install(); err == nil {
 		module := mod.GetModule(fx)
-		pkg := pkgs.Pkg{
+		pkg := option.Package{
 			Imports: imports,
 			Name:    opt.Crud,
 			Module:  module,
 			Spec:    spec,
 		}
 		for filename, tmpl := range template.FeatureCrudTemplates(pkg) {
-			GenerateFeature(fx, pkg, filename, tmpl)
+			FeatureGenerate(fx, pkg, filename, tmpl)
 		}
 		AutoBinding(fx, pkg)
 

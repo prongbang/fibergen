@@ -1,10 +1,9 @@
-package genx
+package generate
 
 import (
 	"github.com/prongbang/fibergen/pkg/filex"
 	"github.com/prongbang/fibergen/pkg/mod"
 	"github.com/prongbang/fibergen/pkg/option"
-	"github.com/prongbang/fibergen/pkg/pkgs"
 	"github.com/prongbang/fibergen/pkg/template"
 	"github.com/prongbang/fibergen/pkg/tools"
 )
@@ -14,9 +13,9 @@ func NewFeature(fx filex.FileX, opt option.Options, wireInstaller tools.Installe
 	_ = wireInstaller.Install()
 
 	module := mod.GetModule(fx)
-	pkg := pkgs.Pkg{Name: opt.Feature, Module: module}
+	pkg := option.Package{Name: opt.Feature, Module: module}
 	for filename, tmpl := range template.FeatureTemplates(pkg) {
-		GenerateFeature(fx, pkg, filename, tmpl)
+		FeatureGenerate(fx, pkg, filename, tmpl)
 	}
 	AutoBinding(fx, pkg)
 

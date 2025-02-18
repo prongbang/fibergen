@@ -1,10 +1,10 @@
 package template
 
 import (
-	"github.com/prongbang/fibergen/pkg/pkgs"
+	"github.com/prongbang/fibergen/pkg/option"
 )
 
-func FeatureTemplates(pkg pkgs.Pkg) map[string]string {
+func FeatureTemplates(pkg option.Package) map[string]string {
 	return map[string]string{
 		//"datasource.go":                DataSource(pkg.Name, pkg.Module.Module, pkg.Module.AppPath),
 		//"handler.go":                   Handler(pkg.Name),

@@ -2,11 +2,10 @@ package template
 
 import (
 	"github.com/prongbang/fibergen/pkg/config"
-
-	"github.com/prongbang/fibergen/pkg/pkgs"
+	"github.com/prongbang/fibergen/pkg/option"
 )
 
-func FeatureCrudTemplates(pkg pkgs.Pkg) map[string]string {
+func FeatureCrudTemplates(pkg option.Package) map[string]string {
 	appPath := pkg.Module.AppPath
 	if appPath == config.AppPath {
 		appPath = config.InternalPath
