@@ -1,0 +1,50 @@
+package configuration
+
+import (
+	"github.com/fsnotify/fsnotify"
+	"github.com/spf13/viper"
+	"log"
+)
+
+type configuration struct {
+	Env string `mapstructure:"env"`
+	API struct {
+		Port int `mapstructure:"port"`
+	} `mapstructure:"api"`
+	Role struct {
+		Admin string `mapstructure:"admin"`
+		User  string `mapstructure:"user"`
+	} `mapstructure:"role"`
+	Jwt struct {
+		Secret string `mapstructure:"secret"`
+	} `mapstructure:"jwt"`
+	Casbin struct {
+		Model  string `mapstructure:"model"`
+		Policy string `mapstructure:"policy"`
+	} `mapstructure:"casbin"`
+	Mongodb struct {
+		Host     string `mapstructure:"host"`
+		Port     int    `mapstructure:"port"`
+		Database string `mapstructure:"database"`
+		User     string `mapstructure:"user"`
+		Pass     string `mapstructure:"pass"`
+	} `mapstructure:"mongodb"`
+}
+
+var Config configuration
+
+func Load(env string) {
+	viper.SetConfigName(env)
+	viper.AddConfigPath("configuration")
+	if err := viper.ReadInConfig(); err != nil {
+		log.Fatalf("Reading configuration file, %s", err)
+	}
+	viper.OnConfigChange(func(e fsnotify.Event) {
+		log.Println("Configuration file changed:", e.Name)
+	})
+	viper.WatchConfig()
+	err := viper.Unmarshal(&Config)
+	if err == nil {
+		log.Println("Configuration file has been loaded.")
+	}
+}

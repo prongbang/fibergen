@@ -1,0 +1,23 @@
+package internal
+
+import (
+	"{{.Module}}/internal/api"
+)
+
+type App interface {
+	StartAPI()
+}
+
+type app struct {
+	API  api.API
+}
+
+func (a *app) StartAPI() {
+	a.API.Register()
+}
+
+func NewApp(apis api.API) App {
+	return &app{
+		API:  apis,
+	}
+}

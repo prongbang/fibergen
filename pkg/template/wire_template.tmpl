@@ -1,0 +1,26 @@
+//go:build wireinject
+// +build wireinject
+
+package {{.PackageName}}
+
+import (
+	"github.com/google/wire"
+	"{{.Module}}/internal/app"
+	"{{.Module}}/internal/api"
+	"{{.Module}}/internal/database"
+	"{{.Module}}/internal/pkg/response"
+	"{{.Module}}/internal/pkg/validator"
+	//+fibergen:import wire:package
+)
+
+func CreateApp(dbDriver database.Drivers) app.App {
+	wire.Build(
+		app.NewApp,
+		api.New,
+		api.NewRouters,
+		response.New,
+		validator.New,
+		//+fibergen:func wire:build
+	)
+	return nil
+}

@@ -3,6 +3,7 @@ package genx
 import (
 	"fmt"
 	"github.com/ettle/strcase"
+	"github.com/prongbang/fibergen/pkg/generate"
 
 	"github.com/prongbang/fibergen/pkg/filex"
 	"github.com/prongbang/fibergen/pkg/option"
@@ -11,6 +12,7 @@ import (
 )
 
 func NewProject(fx filex.FileX, opt option.Options) {
+	var err error
 	opt.Project = strcase.ToKebab(opt.Project)
 
 	spinnerGenProject, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Create project \"%s\"", opt.Project))
@@ -19,271 +21,188 @@ func NewProject(fx filex.FileX, opt option.Options) {
 
 	// Create project directory
 	currentDir = fmt.Sprintf("%s/%s", currentDir, opt.Project)
-	_ = fx.EnsureDir(currentDir)
+	err = fx.EnsureDir(currentDir)
 
 	// Create go.mod
-	modPath := fmt.Sprintf("%s/go.mod", currentDir)
-	modTemplate := template.ModTemplate(opt.Module)
-	_ = fx.WriteFile(modPath, modTemplate.Text())
+	err = generate.Execute(fx, fmt.Sprintf("%s/go.mod", currentDir), template.ModTemplate, template.Project{Module: opt.Module})
 
 	// Create cmd
 	cmdPath := fmt.Sprintf("%s/cmd/api", currentDir)
-	_ = fx.EnsureDir(cmdPath)
+	err = fx.EnsureDir(cmdPath)
 
 	// main.go
-	cmdMainPath := fmt.Sprintf("%s/main.go", cmdPath)
-	cmdMainTemplate := template.CmdMainTemplate(opt.Module, opt.Project)
-	_ = fx.WriteFile(cmdMainPath, cmdMainTemplate.Text())
+	err = generate.Execute(fx, fmt.Sprintf("%s/main.go", cmdPath), template.CmdMainTemplate, template.Project{Name: opt.Project, Module: opt.Module})
 
 	// Create docs
 	docsDir := fmt.Sprintf("%s/docs/apispec", currentDir)
-	_ = fx.EnsureDir(docsDir)
+	err = fx.EnsureDir(docsDir)
 
 	// docs.go
-	docsPath := fmt.Sprintf("%s/docs.go", docsDir)
-	docsTemplate := template.DocsTemplate()
-	_ = fx.WriteFile(docsPath, docsTemplate.Text())
+	err = generate.Execute(fx, fmt.Sprintf("%s/docs.go", docsDir), template.DocsTemplate, template.Any{})
 
-	// swagger.json
-	docsSwaggerPath := fmt.Sprintf("%s/swagger.json", docsDir)
-	docsSwaggerTemplate := template.DocsSwaggerJsonTemplate()
-	_ = fx.WriteFile(docsSwaggerPath, docsSwaggerTemplate.Text())
+	//// swagger.json
+	err = generate.Execute(fx, fmt.Sprintf("%s/swagger.json", docsDir), template.DocsSwaggerJSONTemplate, template.Any{})
 
 	// swagger.yaml
-	docsSwaggerYamlPath := fmt.Sprintf("%s/swagger.yaml", docsDir)
-	docsSwaggerYamlTemplate := template.DocsSwaggerYamlTemplate()
-	_ = fx.WriteFile(docsSwaggerYamlPath, docsSwaggerYamlTemplate.Text())
+	err = generate.Execute(fx, fmt.Sprintf("%s/swagger.yaml", docsDir), template.DocsSwaggerYAMLTemplate, template.Any{})
 
 	// Create app
 	appDir := fmt.Sprintf("%s/internal", currentDir)
-	_ = fx.EnsureDir(appDir)
+	err = fx.EnsureDir(appDir)
 
 	// app.go
-	appPath := fmt.Sprintf("%s/app.go", appDir)
-	appTemplate := template.AppTemplate(opt.Module)
-	_ = fx.WriteFile(appPath, appTemplate.Text())
+	err = generate.Execute(fx, fmt.Sprintf("%s/app.go", appDir), template.AppTemplate, template.Project{Module: opt.Module})
 
 	// Create api
 	apiDir := fmt.Sprintf("%s/internal/api", currentDir)
-	_ = fx.EnsureDir(apiDir)
+	err = fx.EnsureDir(apiDir)
 
 	// api.go
-	apiPath := fmt.Sprintf("%s/api.go", apiDir)
-	apiTemplate := template.ApiTemplate(opt.Module)
-	_ = fx.WriteFile(apiPath, apiTemplate.Text())
+	err = generate.Execute(fx, fmt.Sprintf("%s/api.go", apiDir), template.ApiTemplate, template.Project{Module: opt.Module})
 
 	// routers.go
-	apiRoutersPath := fmt.Sprintf("%s/routers.go", apiDir)
-	apiRoutersTemplate := template.ApiRoutersTemplate(opt.Module)
-	_ = fx.WriteFile(apiRoutersPath, apiRoutersTemplate.Text())
+	err = generate.Execute(fx, fmt.Sprintf("%s/routers.go", apiDir), template.ApiRoutersTemplate, template.Project{Module: opt.Module})
 
 	// wire.go
-	wireApiPath := fmt.Sprintf("%s/wire.go", currentDir)
-	wireApiTemplate := template.WireTemplate(opt.Module, opt.Project)
-	_ = fx.WriteFile(wireApiPath, wireApiTemplate.Text())
+	err = generate.Execute(fx, fmt.Sprintf("%s/wire.go", currentDir), template.WireTemplate, template.Project{Module: opt.Module, Name: opt.Project})
 
 	// wire_gen.go
-	wireGenApiPath := fmt.Sprintf("%s/wire_gen.go", currentDir)
-	wireGenApiTemplate := template.WireGenTemplate(opt.Module, opt.Project)
-	_ = fx.WriteFile(wireGenApiPath, wireGenApiTemplate.Text())
+	err = generate.Execute(fx, fmt.Sprintf("%s/wire_gen.go", currentDir), template.WireGenTemplate, template.Project{Module: opt.Module, Name: opt.Project})
 
 	// Create shared pkg/core
 	databaseDir := fmt.Sprintf("%s/internal/database", currentDir)
-	_ = fx.EnsureDir(databaseDir)
+	err = fx.EnsureDir(databaseDir)
 
 	// drivers.go
-	databaseDriversPath := fmt.Sprintf("%s/drivers.go", databaseDir)
-	databaseDriversTemplate := template.DatabaseDriversTemplate()
-	_ = fx.WriteFile(databaseDriversPath, databaseDriversTemplate.Text())
+	err = generate.Execute(fx, fmt.Sprintf("%s/drivers.go", databaseDir), template.DatabaseDriversTemplate, template.Any{})
 
 	// mongodb.go
-	databaseMongodbPath := fmt.Sprintf("%s/mongodb.go", databaseDir)
-	databaseMongodbTemplate := template.DatabaseMongodbTemplate()
-	_ = fx.WriteFile(databaseMongodbPath, databaseMongodbTemplate.Text())
+	err = generate.Execute(fx, fmt.Sprintf("%s/mongodb.go", databaseDir), template.DatabaseMongoDBTemplate, template.Any{})
 
 	// wire.go
-	databaseWirePath := fmt.Sprintf("%s/wire.go", databaseDir)
-	databaseWireTemplate := template.DatabaseWireTemplate()
-	_ = fx.WriteFile(databaseWirePath, databaseWireTemplate.Text())
+	err = generate.Execute(fx, fmt.Sprintf("%s/wire.go", databaseDir), template.DatabaseWireTemplate, template.Any{})
 
 	// wire_gen.go
-	databaseWireGenPath := fmt.Sprintf("%s/wire_gen.go", databaseDir)
-	databaseWireGenTemplate := template.DatabaseWireGenTemplate()
-	_ = fx.WriteFile(databaseWireGenPath, databaseWireGenTemplate.Text())
+	err = generate.Execute(fx, fmt.Sprintf("%s/wire_gen.go", databaseDir), template.DatabaseWireGenTemplate, template.Any{})
 
 	// Create deployments
 	deploymentsDir := fmt.Sprintf("%s/deployments", currentDir)
-	_ = fx.EnsureDir(deploymentsDir)
+	err = fx.EnsureDir(deploymentsDir)
 
 	// Dockerfile
-	deploymentsDockerfilePath := fmt.Sprintf("%s/Dockerfile", deploymentsDir)
-	deploymentsDockerfileTemplate := template.DeploymentsDockerfileTemplate(opt.Module, opt.Project)
-	_ = fx.WriteFile(deploymentsDockerfilePath, deploymentsDockerfileTemplate.Text())
+	err = generate.Execute(fx, fmt.Sprintf("%s/Dockerfile", deploymentsDir), template.DeploymentsDockerfileTemplate, template.Project{Module: opt.Module, Name: opt.Project})
 
 	// api-prod.yml
-	deploymentsApiComposePath := fmt.Sprintf("%s/api-prod.yml", deploymentsDir)
-	deploymentsApiComposeTemplate := template.DeploymentsApiComposeTemplate(opt.Project)
-	_ = fx.WriteFile(deploymentsApiComposePath, deploymentsApiComposeTemplate.Text())
+	err = generate.Execute(fx, fmt.Sprintf("%s/api-prod.yml", deploymentsDir), template.DeploymentsAPIComposeTemplate, template.Project{Name: opt.Project})
 
 	// Create shared pkg/core
 	coreDir := fmt.Sprintf("%s/pkg/core", currentDir)
-	_ = fx.EnsureDir(coreDir)
+	err = fx.EnsureDir(coreDir)
 
 	// handler.go
-	coreHandlerPath := fmt.Sprintf("%s/handler.go", coreDir)
-	coreHandlerTemplate := template.CoreHandlerTemplate()
-	_ = fx.WriteFile(coreHandlerPath, coreHandlerTemplate.Text())
+	err = generate.Execute(fx, fmt.Sprintf("%s/handler.go", coreDir), template.CoreHandlerTemplate, template.Any{})
 
 	// paging.go
-	corePagingPath := fmt.Sprintf("%s/paging.go", coreDir)
-	corePagingTemplate := template.CorePagingTemplate()
-	_ = fx.WriteFile(corePagingPath, corePagingTemplate.Text())
+	err = generate.Execute(fx, fmt.Sprintf("%s/paging.go", coreDir), template.CorePagingTemplate, template.Any{})
 
 	// params.go
-	coreParamsPath := fmt.Sprintf("%s/params.go", coreDir)
-	coreParamsTemplate := template.CoreParamsTemplate()
-	_ = fx.WriteFile(coreParamsPath, coreParamsTemplate.Text())
+	err = generate.Execute(fx, fmt.Sprintf("%s/params.go", coreDir), template.CoreParamsTemplate, template.Any{})
 
 	// request.go
-	coreRequestPath := fmt.Sprintf("%s/request.go", coreDir)
-	coreRequestTemplate := template.CoreRequestTemplate()
-	_ = fx.WriteFile(coreRequestPath, coreRequestTemplate.Text())
+	err = generate.Execute(fx, fmt.Sprintf("%s/request.go", coreDir), template.CoreRequestTemplate, template.Any{})
 
 	// response.go
-	coreResponsePath := fmt.Sprintf("%s/response.go", coreDir)
-	coreResponseTemplate := template.CoreResponseTemplate()
-	_ = fx.WriteFile(coreResponsePath, coreResponseTemplate.Text())
+	err = generate.Execute(fx, fmt.Sprintf("%s/response.go", coreDir), template.CoreResponseTemplate, template.Any{})
 
 	// router.go
-	coreRouterPath := fmt.Sprintf("%s/router.go", coreDir)
-	coreRouterTemplate := template.CoreRouterTemplate()
-	_ = fx.WriteFile(coreRouterPath, coreRouterTemplate.Text())
-
-	// validate.go
-	coreValidatePath := fmt.Sprintf("%s/validate.go", coreDir)
-	coreValidateTemplate := template.CoreValidateTemplate()
-	_ = fx.WriteFile(coreValidatePath, coreValidateTemplate.Text())
+	err = generate.Execute(fx, fmt.Sprintf("%s/router.go", coreDir), template.CoreRouterTemplate, template.Any{})
 
 	// jwt.go
-	coreJwtPath := fmt.Sprintf("%s/jwt.go", coreDir)
-	coreJwtTemplate := template.CoreJwtTemplate()
-	_ = fx.WriteFile(coreJwtPath, coreJwtTemplate.Text())
+	err = generate.Execute(fx, fmt.Sprintf("%s/jwt.go", coreDir), template.CoreJWTTemplate, template.Any{})
 
 	// flag.go
-	coreFlagPath := fmt.Sprintf("%s/flag.go", coreDir)
-	coreFlagTemplate := template.CoreFlagTemplate()
-	_ = fx.WriteFile(coreFlagPath, coreFlagTemplate.Text())
+	err = generate.Execute(fx, fmt.Sprintf("%s/flag.go", coreDir), template.CoreFlagTemplate, template.Any{})
 
 	// sorting.go
-	coreSortingPath := fmt.Sprintf("%s/sorting.go", coreDir)
-	coreSortingTemplate := template.CoreSortingTemplate()
-	_ = fx.WriteFile(coreSortingPath, coreSortingTemplate.Text())
+	err = generate.Execute(fx, fmt.Sprintf("%s/sorting.go", coreDir), template.CoreSortingTemplate, template.Any{})
 
 	// header.go
-	coreHeaderPath := fmt.Sprintf("%s/header.go", coreDir)
-	coreHeaderTemplate := template.CoreHeaderTemplate()
-	_ = fx.WriteFile(coreHeaderPath, coreHeaderTemplate.Text())
+	err = generate.Execute(fx, fmt.Sprintf("%s/header.go", coreDir), template.CoreHeaderTemplate, template.Any{})
 
 	// Create shared pkg/requestx
 	requestxDir := fmt.Sprintf("%s/pkg/requestx", currentDir)
-	_ = fx.EnsureDir(requestxDir)
+	err = fx.EnsureDir(requestxDir)
 
-	// request.go
-	requestXRequestPath := fmt.Sprintf("%s/request.go", requestxDir)
-	requestXRequestTemplate := template.RequestXRequest(opt.Module)
-	_ = fx.WriteFile(requestXRequestPath, []byte(requestXRequestTemplate))
+	// requestx.go
+	err = generate.Execute(fx, fmt.Sprintf("%s/requestx.go", requestxDir), template.RequestXRequestTemplate, template.Project{Module: opt.Module})
 
 	// Create shared pkg/structx
 	structxDir := fmt.Sprintf("%s/pkg/structx", currentDir)
-	_ = fx.EnsureDir(structxDir)
+	err = fx.EnsureDir(structxDir)
 
 	// struct.go
-	structXstructPath := fmt.Sprintf("%s/struct.go", structxDir)
-	structXstructTemplate := template.StructXStruct()
-	_ = fx.WriteFile(structXstructPath, []byte(structXstructTemplate))
+	err = generate.Execute(fx, fmt.Sprintf("%s/struct.go", structxDir), template.StructXTemplate, template.Any{})
 
 	// Create shared pkg/schema
 	schemaDir := fmt.Sprintf("%s/pkg/schema", currentDir)
-	_ = fx.EnsureDir(schemaDir)
+	err = fx.EnsureDir(schemaDir)
 
 	// sql.go
-	schemaSqlPath := fmt.Sprintf("%s/sql.go", schemaDir)
-	schemaSqlTemplate := template.SchemaSqlTemplate()
-	_ = fx.WriteFile(schemaSqlPath, schemaSqlTemplate.Text())
+	err = generate.Execute(fx, fmt.Sprintf("%s/sql.go", schemaDir), template.SchemaSQLTemplate, template.Any{})
 
 	// Create policy
 	casbinPolicyDir := fmt.Sprintf("%s/policy", currentDir)
-	_ = fx.EnsureDir(casbinPolicyDir)
+	err = fx.EnsureDir(casbinPolicyDir)
 
 	// model.conf
-	casbinModelPath := fmt.Sprintf("%s/model.conf", casbinPolicyDir)
-	casbinModelTemplate := template.CasbinModelTemplate()
-	_ = fx.WriteFile(casbinModelPath, casbinModelTemplate.Text())
+	err = generate.Execute(fx, fmt.Sprintf("%s/model.conf", casbinPolicyDir), template.CasbinModelTemplate, template.Any{})
 
 	// policy.csv
-	casbinPolicyPath := fmt.Sprintf("%s/policy.csv", casbinPolicyDir)
-	casbinPolicyTemplate := template.CasbinPolicyTemplate()
-	_ = fx.WriteFile(casbinPolicyPath, casbinPolicyTemplate.Text())
+	err = generate.Execute(fx, fmt.Sprintf("%s/policy.csv", casbinPolicyDir), template.CasbinPolicyTemplate, template.Any{})
 
 	// Create Makefile
-	makefilePath := fmt.Sprintf("%s/Makefile", currentDir)
-	makefileTemplate := template.MakefileTemplate()
-	_ = fx.WriteFile(makefilePath, makefileTemplate.Text())
+	err = generate.Execute(fx, fmt.Sprintf("%s/Makefile", currentDir), template.MakefileTemplate, template.Any{})
 
 	// Create configuration
 	configurationDir := fmt.Sprintf("%s/configuration", currentDir)
-	_ = fx.EnsureDir(configurationDir)
+	err = fx.EnsureDir(configurationDir)
 
 	// configuration.go
-	configurationPath := fmt.Sprintf("%s/configuration.go", configurationDir)
-	configurationTemplate := template.ConfigurationTemplate()
-	_ = fx.WriteFile(configurationPath, configurationTemplate.Text())
+	err = generate.Execute(fx, fmt.Sprintf("%s/configuration.go", configurationDir), template.ConfigurationTemplate, template.Any{})
 
 	// environment.go
-	configurationEnvironmentPath := fmt.Sprintf("%s/environment.go", configurationDir)
-	configurationEnvironmentTemplate := template.ConfigurationEnvironmentTemplate()
-	_ = fx.WriteFile(configurationEnvironmentPath, configurationEnvironmentTemplate.Text())
+	err = generate.Execute(fx, fmt.Sprintf("%s/environment.go", configurationDir), template.ConfigurationEnvironmentTemplate, template.Any{})
 
 	// development.yml
-	configurationDevelopmentPath := fmt.Sprintf("%s/development.yml", configurationDir)
-	configurationDevelopmentTemplate := template.ConfigurationDevelopmentTemplate()
-	_ = fx.WriteFile(configurationDevelopmentPath, configurationDevelopmentTemplate.Text())
+	err = generate.Execute(fx, fmt.Sprintf("%s/development.yml", configurationDir), template.ConfigurationDevelopmentTemplate, template.Any{})
 
 	// production.yml
-	configurationProductionPath := fmt.Sprintf("%s/production.yml", configurationDir)
-	configurationProductionTemplate := template.ConfigurationProductionTemplate()
-	_ = fx.WriteFile(configurationProductionPath, configurationProductionTemplate.Text())
+	err = generate.Execute(fx, fmt.Sprintf("%s/production.yml", configurationDir), template.ConfigurationProductionTemplate, template.Any{})
 
 	// Create internal/pkg
 	internalPkgDir := fmt.Sprintf("%s/internal/pkg", currentDir)
-	_ = fx.EnsureDir(internalPkgDir)
+	err = fx.EnsureDir(internalPkgDir)
 
 	// Create internal/pkg/casbinx
 	internalPkgCasbinxDir := fmt.Sprintf("%s/internal/pkg/casbinx", currentDir)
-	_ = fx.EnsureDir(internalPkgCasbinxDir)
+	err = fx.EnsureDir(internalPkgCasbinxDir)
 
 	// casbinx.go
-	internalPkgCasbinxPath := fmt.Sprintf("%s/casbinx.go", internalPkgCasbinxDir)
-	internalPkgCasbinxTemplate := template.InternalPkgCasbinxTemplate()
-	_ = fx.WriteFile(internalPkgCasbinxPath, internalPkgCasbinxTemplate.Text())
+	err = generate.Execute(fx, fmt.Sprintf("%s/casbinx.go", internalPkgCasbinxDir), template.InternalPkgCasbinxTemplate, template.Any{})
 
 	// Create internal/pkg/response
 	internalPkgResponseDir := fmt.Sprintf("%s/internal/pkg/response", currentDir)
-	_ = fx.EnsureDir(internalPkgResponseDir)
+	err = fx.EnsureDir(internalPkgResponseDir)
 
 	// response.go
-	internalPkgResponsePath := fmt.Sprintf("%s/response.go", internalPkgResponseDir)
-	internalPkgResponseTemplate := template.InternalPkgResponseTemplate()
-	_ = fx.WriteFile(internalPkgResponsePath, internalPkgResponseTemplate.Text())
+	err = generate.Execute(fx, fmt.Sprintf("%s/response.go", internalPkgResponseDir), template.InternalPkgResponseTemplate, template.Any{})
 
 	// Create internal/pkg/validator
 	internalPkgValidatorDir := fmt.Sprintf("%s/internal/pkg/validator", currentDir)
-	_ = fx.EnsureDir(internalPkgValidatorDir)
+	err = fx.EnsureDir(internalPkgValidatorDir)
 
 	// validator.go
-	internalPkgValidatorPath := fmt.Sprintf("%s/validator.go", internalPkgValidatorDir)
-	internalPkgValidatorTemplate := template.InternalPkgValidatorTemplate()
-	err := fx.WriteFile(internalPkgValidatorPath, internalPkgValidatorTemplate.Text())
+	err = generate.Execute(fx, fmt.Sprintf("%s/validator.go", internalPkgValidatorDir), template.InternalPkgValidatorTemplate, template.Any{})
 
 	// Update status
 	if err == nil {

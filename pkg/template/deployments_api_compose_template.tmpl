@@ -1,0 +1,14 @@
+version: '3.9'
+services:
+  {{.ProjectName}}-api:
+    image: {{.ProjectName}}-api:1.0
+    ports:
+      - "9001:9001"
+    environment:
+      TZ: "Asia/Bangkok"
+    networks:
+      - {{.ProjectName}}-network
+
+networks:
+  {{.ProjectName}}-network:
+    external: true

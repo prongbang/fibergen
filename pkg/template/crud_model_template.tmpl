@@ -1,0 +1,77 @@
+package {{.PackageName}}
+
+import ({{.Import}}
+	"{{.Module}}/pkg/core"
+)
+
+{{- $fields := .Fields }}
+{{- range .Models }}
+type {{.ModelName}} struct {
+{{- range $field := $fields }}
+	{{ $field.Name }} {{ $field.Type }} `json:"{{ $field.JSONName }}"`
+{{- end }}
+}
+
+type {{.ModelName}}Data struct {
+	*{{.ModelName}}
+}
+
+type {{.ModelName}}Paged struct {
+	*core.Paging
+}
+
+type Lite{{.ModelName}} struct {
+{{- range $field := $fields }}
+	{{ $field.Name }} {{ $field.Type }} `json:"{{ $field.JSONName }}"`
+{{- end }}
+}
+
+type Create{{.ModelName}} struct {
+{{- range $field := $fields }}
+	{{ $field.Name }} {{ $field.Type }} `json:"{{ $field.JSONName }}"`
+{{- end }}
+}
+
+type Update{{.ModelName}} struct {
+{{- range $field := $fields }}
+	{{ $field.Name }} {{ $field.Type }} `json:"{{ $field.JSONName }}"`
+{{- end }}
+}
+{{- end }}
+
+type Delete{{.ModelName}}Request struct {
+	Id {{.Pk}} {{.JsonId}}
+}
+
+type Delete{{.ModelName}}Data struct {
+}
+
+type List{{.ModelName}}Request struct {
+	UserRequestInfo *core.UserRequestInfo `json:"-"`
+
+	*List{{.ModelName}}Criteria
+}
+
+type LiteList{{.ModelName}}Request struct {
+	UserRequestInfo *core.UserRequestInfo `json:"-"`
+
+	*LiteList{{.ModelName}}Criteria
+}
+
+type One{{.ModelName}}Request struct {
+	UserRequestInfo *core.UserRequestInfo `json:"-"`
+
+	*One{{.ModelName}}Criteria
+}
+
+type List{{.ModelName}}Criteria struct {
+	core.Params
+}
+
+type LiteList{{.ModelName}}Criteria struct {
+	core.Sorting
+}
+
+type One{{.ModelName}}Criteria struct {
+    Id {{.Pk}}
+}

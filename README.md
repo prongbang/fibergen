@@ -135,8 +135,7 @@ user
 ├── repository.go
 ├── router.go
 ├── usecase.go
-├── user.go
-└── validate.go
+└── user.go
 ```
 
 ## CRUD Generate by .json file

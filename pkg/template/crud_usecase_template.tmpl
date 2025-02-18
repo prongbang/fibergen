@@ -1,0 +1,96 @@
+package {{.PackageName}}
+
+import (
+	"context"
+	"{{.Module}}/pkg/core"
+	"time"
+)
+
+type UseCase interface {
+	FindOne(ctx context.Context, request *One{{.ModelName}}Request) (*{{.ModelName}}, error)
+	List(ctx context.Context, request *List{{.ModelName}}Request) (*{{.ModelName}}Paged, error)
+	LiteList(ctx context.Context, request *LiteList{{.ModelName}}Request) (*[]{{.ModelName}}, error)
+	Create(ctx context.Context, request *Create{{.ModelName}}Request) (*{{.ModelName}}, error)
+	Update(ctx context.Context, request *Update{{.ModelName}}Request) (*{{.ModelName}}, error)
+	Delete(ctx context.Context, request *Delete{{.ModelName}}Request) (*Delete{{.ModelName}}Result, error)
+}
+
+type useCase struct {
+	Repo Repository
+}
+
+func (uc *useCase) FindOne(ctx context.Context, request *One{{.ModelName}}Request) (*{{.ModelName}}, error) {
+	data, err := uc.Repo.FindOne(ctx, request.One{{.ModelName}}Criteria)
+	if err != nil {
+		return nil, err
+	}
+	return data, nil
+}
+
+func (uc *useCase) LiteList(ctx context.Context, request *LiteList{{.ModelName}}Request) (*[]{{.ModelName}}, error) {
+	data, err := uc.Repo.LiteList(ctx, request.LiteList{{.ModelName}}Criteria)
+	if err != nil {
+		return nil, err
+	}
+	return data, nil
+}
+
+func (uc *useCase) Create(ctx context.Context, request *Create{{.ModelName}}Request) (*{{.ModelName}}, error) {
+	data := &{{.ModelName}}{
+        {{- range .CreateFields }}
+    	{{ .Name }}: request.{{ .Source }},
+    	{{- end }}
+
+		CreatedBy: request.UserRequestInfo.Id,
+	}
+
+	_, err := uc.Repo.Create(ctx, data)
+	if err != nil {
+		return nil, err
+	}
+	return data, nil
+}
+
+func (uc *useCase) Update(ctx context.Context, request *Update{{.ModelName}}Request) (*{{.ModelName}}, error) {
+	data, err := uc.Repo.FindOne(ctx, One{{.ModelName}}Criteria{Id: request.Id})
+	if err != nil {
+		return nil, err
+	}
+	if data == nil {
+		return nil, goerror.NewNotFound()
+	}
+
+    {{- range .CreateFields }}
+    data.{{ .Name }} = request.{{ .Source }},
+    {{- end }}
+	data.UpdatedBy = request.UserRequestInfo.Id
+
+	_, err = uc.Repo.Update(ctx, data)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
+}
+
+func (uc *useCase) Delete(ctx context.Context, request *Delete{{.ModelName}}Request) (*Delete{{.ModelName}}Data, error) {
+	data, err := uc.Repo.FindOne(ctx, One{{.ModelName}}Criteria{Id: request.Id})
+	if err != nil {
+		return nil, err
+	}
+	if data == nil {
+		return nil, goerror.NewNotFound()
+	}
+
+	err = uc.Repo.Delete(ctx, request.Id)
+	if err != nil {
+		return nil, err
+	}
+	return &Delete{{.ModelName}}Data{}, nil
+}
+
+func NewUseCase(repo Repository) UseCase {
+	return &useCase{
+		Repo: repo,
+	}
+}

@@ -1,0 +1,32 @@
+package {{.PackageName}}
+
+import (
+	"github.com/gofiber/fiber/v2"
+	"{{.Module}}/pkg/core"
+)
+
+type Router interface {
+	core.Router
+}
+
+type router struct {
+	Handle Handler
+}
+
+func (r *router) Initial(app *fiber.App) {
+	v1 := app.Group("/v1")
+	{
+		v1.Post("/{{.RouteName}}/one", r.Handle.FindOne)
+		v1.Post("/{{.RouteName}}/many", r.Handle.FindList)
+		v1.Post("/{{.RouteName}}/many/lite", r.Handle.FindLiteList)
+		v1.Post("/{{.RouteName}}/create", r.Handle.Create)
+		v1.Post("/{{.RouteName}}/update", r.Handle.Update)
+		v1.Post("/{{.RouteName}}/delete", r.Handle.Delete)
+	}
+}
+
+func NewRouter(handle Handler) Router {
+	return &router{
+		Handle: handle,
+	}
+}
