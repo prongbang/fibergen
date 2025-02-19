@@ -1,0 +1,25 @@
+package database
+
+import (
+	"github.com/dreamph/dbre"
+	"{{.Module}}/configuration"
+	"github.com/innotechdevops/bun-driver/pkg/bundriver"
+	"time"
+)
+
+// NewMariaDBDriver for create mariadb drivers
+func NewMariaDBDriver() bundriver.MariaDBDriver {
+	return bundriver.NewMariaDBDriver(&bundriver.MariaConfig{
+		Host:     configuration.Config.Mariadb.Host,
+		Port:     configuration.Config.Mariadb.Port,
+		DBName:   configuration.Config.Mariadb.Database,
+		User:     configuration.Config.Mariadb.User,
+		Password: configuration.Config.Mariadb.Pass,
+		Loc:      "Asia%2FBangkok",
+		PoolOptions: &dbre.DbPoolOptions{
+			MaxIdleConns:    2,
+			MaxOpenConns:    10,
+			ConnMaxLifetime: 30 * time.Minute,
+		},
+	})
+}

@@ -108,6 +108,9 @@ var CrudRouterTemplate string
 //go:embed crud_usecase_template.tmpl
 var CrudUseCaseTemplate string
 
+//go:embed crud_permission_template.tmpl
+var CrudPermissionTemplate string
+
 // Database
 
 //go:embed database_drivers_template.tmpl
@@ -115,6 +118,9 @@ var DatabaseDriversTemplate string
 
 //go:embed database_mongodb_template.tmpl
 var DatabaseMongoDBTemplate string
+
+//go:embed database_mariadb_template.tmpl
+var DatabaseMariaDBTemplate string
 
 //go:embed database_wire_gen_template.tmpl
 var DatabaseWireGenTemplate string
@@ -152,6 +158,12 @@ var InternalPkgResponseTemplate string
 //go:embed internal_pkg_validator_template.tmpl
 var InternalPkgValidatorTemplate string
 
+//go:embed internal_pkg_streamx_template.tmpl
+var InternalPkgStreamXTemplate string
+
+//go:embed internal_pkg_typex_template.tmpl
+var InternalPkgTypeXTemplate string
+
 // Internal Middleware
 
 //go:embed internal_middleware_jwt_template.tmpl
@@ -159,6 +171,9 @@ var InternalMiddlewareJwtTemplate string
 
 //go:embed internal_middleware_api_key_template.tmpl
 var InternalMiddlewareApiKeyTemplate string
+
+//go:embed internal_middleware_on_request_template.tmpl
+var InternalMiddlewareOnRequestTemplate string
 
 // Makefile
 
@@ -248,6 +263,10 @@ func (w Project) ModelName() string {
 }
 
 func (w Project) RouteName() string {
+	return strcase.ToKebab(w.Name)
+}
+
+func (w Project) KebabName() string {
 	return strcase.ToKebab(w.Name)
 }
 

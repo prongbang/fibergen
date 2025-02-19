@@ -7,6 +7,6 @@ import (
 )
 
 func NewDatabaseDriver() Drivers {
-	wire.Build(NewMongoDbDriver, NewDrivers)
+	wire.Build(NewMongoDBDriver, NewMariaDBDriver, NewDrivers)
 	return nil
 }

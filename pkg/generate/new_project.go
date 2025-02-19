@@ -7,222 +7,278 @@ import (
 	"github.com/prongbang/fibergen/pkg/option"
 	"github.com/prongbang/fibergen/pkg/template"
 	"github.com/pterm/pterm"
+	"path/filepath"
 )
 
-func NewProject(fx filex.FileX, opt option.Options) {
-	var err error
+type FileConfig struct {
+	Path     string
+	Template string
+	Data     interface{}
+}
+
+func getProjectConfig(currentDir string, opt option.Options) []FileConfig {
+	return []FileConfig{
+		// Root level files
+		{
+			Path:     fmt.Sprintf("%s/go.mod", currentDir),
+			Template: template.ModTemplate,
+			Data:     template.Project{Module: opt.Module},
+		},
+		{
+			Path:     fmt.Sprintf("%s/wire.go", currentDir),
+			Template: template.WireTemplate,
+			Data:     template.Project{Module: opt.Module, Name: opt.Project},
+		},
+		{
+			Path:     fmt.Sprintf("%s/wire_gen.go", currentDir),
+			Template: template.WireGenTemplate,
+			Data:     template.Project{Module: opt.Module, Name: opt.Project},
+		},
+		{
+			Path:     fmt.Sprintf("%s/Makefile", currentDir),
+			Template: template.MakefileTemplate,
+		},
+
+		// CMD files
+		{
+			Path:     fmt.Sprintf("%s/cmd/api/main.go", currentDir),
+			Template: template.CmdMainTemplate,
+			Data:     template.Project{Name: opt.Project, Module: opt.Module},
+		},
+
+		// Docs files
+		{
+			Path:     fmt.Sprintf("%s/docs/apispec/docs.go", currentDir),
+			Template: template.DocsTemplate,
+		},
+		{
+			Path:     fmt.Sprintf("%s/docs/apispec/swagger.json", currentDir),
+			Template: template.DocsSwaggerJSONTemplate,
+		},
+		{
+			Path:     fmt.Sprintf("%s/docs/apispec/swagger.yaml", currentDir),
+			Template: template.DocsSwaggerYAMLTemplate,
+		},
+
+		// Middleware files
+		{
+			Path:     fmt.Sprintf("%s/internal/middleware/jwt.go", currentDir),
+			Template: template.InternalMiddlewareJwtTemplate,
+			Data:     template.Project{Module: opt.Module},
+		},
+		{
+			Path:     fmt.Sprintf("%s/internal/middleware/api_key.go", currentDir),
+			Template: template.InternalMiddlewareApiKeyTemplate,
+		},
+		{
+			Path:     fmt.Sprintf("%s/internal/middleware/on_request.go", currentDir),
+			Template: template.InternalMiddlewareOnRequestTemplate,
+			Data:     template.Project{Module: opt.Module},
+		},
+
+		// App files
+		{
+			Path:     fmt.Sprintf("%s/internal/app/app.go", currentDir),
+			Template: template.AppTemplate,
+			Data:     template.Project{Module: opt.Module},
+		},
+		{
+			Path:     fmt.Sprintf("%s/internal/app/api/api.go", currentDir),
+			Template: template.ApiTemplate,
+			Data:     template.Project{Module: opt.Module},
+		},
+		{
+			Path:     fmt.Sprintf("%s/internal/app/api/routers.go", currentDir),
+			Template: template.ApiRoutersTemplate,
+			Data:     template.Project{Module: opt.Module},
+		},
+
+		// Database files
+		{
+			Path:     fmt.Sprintf("%s/internal/database/drivers.go", currentDir),
+			Template: template.DatabaseDriversTemplate,
+		},
+		{
+			Path:     fmt.Sprintf("%s/internal/database/mongodb.go", currentDir),
+			Template: template.DatabaseMongoDBTemplate,
+		},
+		{
+			Path:     fmt.Sprintf("%s/internal/database/mariadb.go", currentDir),
+			Template: template.DatabaseMariaDBTemplate,
+			Data:     template.Project{Module: opt.Module},
+		},
+		{
+			Path:     fmt.Sprintf("%s/internal/database/wire.go", currentDir),
+			Template: template.DatabaseWireTemplate,
+		},
+		{
+			Path:     fmt.Sprintf("%s/internal/database/wire_gen.go", currentDir),
+			Template: template.DatabaseWireGenTemplate,
+		},
+
+		// Deployment files
+		{
+			Path:     fmt.Sprintf("%s/deployments/Dockerfile", currentDir),
+			Template: template.DeploymentsDockerfileTemplate,
+			Data:     template.Project{Module: opt.Module, Name: opt.Project},
+		},
+		{
+			Path:     fmt.Sprintf("%s/deployments/api-prod.yml", currentDir),
+			Template: template.DeploymentsAPIComposeTemplate,
+			Data:     template.Project{Name: opt.Project},
+		},
+
+		// Core package files
+		{
+			Path:     fmt.Sprintf("%s/pkg/core/handler.go", currentDir),
+			Template: template.CoreHandlerTemplate,
+		},
+		{
+			Path:     fmt.Sprintf("%s/pkg/core/paging.go", currentDir),
+			Template: template.CorePagingTemplate,
+		},
+		{
+			Path:     fmt.Sprintf("%s/pkg/core/params.go", currentDir),
+			Template: template.CoreParamsTemplate,
+		},
+		{
+			Path:     fmt.Sprintf("%s/pkg/core/request.go", currentDir),
+			Template: template.CoreRequestTemplate,
+		},
+		{
+			Path:     fmt.Sprintf("%s/pkg/core/response.go", currentDir),
+			Template: template.CoreResponseTemplate,
+		},
+		{
+			Path:     fmt.Sprintf("%s/pkg/core/router.go", currentDir),
+			Template: template.CoreRouterTemplate,
+		},
+		{
+			Path:     fmt.Sprintf("%s/pkg/core/jwt.go", currentDir),
+			Template: template.CoreJWTTemplate,
+		},
+		{
+			Path:     fmt.Sprintf("%s/pkg/core/flag.go", currentDir),
+			Template: template.CoreFlagTemplate,
+		},
+		{
+			Path:     fmt.Sprintf("%s/pkg/core/sorting.go", currentDir),
+			Template: template.CoreSortingTemplate,
+		},
+		{
+			Path:     fmt.Sprintf("%s/pkg/core/header.go", currentDir),
+			Template: template.CoreHeaderTemplate,
+		},
+
+		// Other package files
+		{
+			Path:     fmt.Sprintf("%s/pkg/multipartx/multipartx.go", currentDir),
+			Template: template.MultipartXTemplate,
+		},
+		{
+			Path:     fmt.Sprintf("%s/pkg/requestx/request.go", currentDir),
+			Template: template.RequestXRequestTemplate,
+			Data:     template.Project{Module: opt.Module},
+		},
+		{
+			Path:     fmt.Sprintf("%s/pkg/structx/structx.go", currentDir),
+			Template: template.StructXTemplate,
+		},
+		{
+			Path:     fmt.Sprintf("%s/pkg/schema/sql.go", currentDir),
+			Template: template.SchemaSQLTemplate,
+		},
+		{
+			Path:     fmt.Sprintf("%s/pkg/streamx/streamx.go", currentDir),
+			Template: template.InternalPkgStreamXTemplate,
+		},
+		{
+			Path:     fmt.Sprintf("%s/pkg/typex/typex.go", currentDir),
+			Template: template.InternalPkgTypeXTemplate,
+		},
+
+		// Casbin policy files
+		{
+			Path:     fmt.Sprintf("%s/policy/model.conf", currentDir),
+			Template: template.CasbinModelTemplate,
+		},
+		{
+			Path:     fmt.Sprintf("%s/policy/policy.csv", currentDir),
+			Template: template.CasbinPolicyTemplate,
+		},
+
+		// Configuration files
+		{
+			Path:     fmt.Sprintf("%s/configuration/configuration.go", currentDir),
+			Template: template.ConfigurationTemplate,
+		},
+		{
+			Path:     fmt.Sprintf("%s/configuration/environment.go", currentDir),
+			Template: template.ConfigurationEnvironmentTemplate,
+		},
+		{
+			Path:     fmt.Sprintf("%s/configuration/development.yml", currentDir),
+			Template: template.ConfigurationDevelopmentTemplate,
+		},
+		{
+			Path:     fmt.Sprintf("%s/configuration/production.yml", currentDir),
+			Template: template.ConfigurationProductionTemplate,
+		},
+
+		// Internal package files
+		{
+			Path:     fmt.Sprintf("%s/internal/pkg/casbinx/casbinx.go", currentDir),
+			Template: template.InternalPkgCasbinxTemplate,
+		},
+		{
+			Path:     fmt.Sprintf("%s/internal/pkg/response/response.go", currentDir),
+			Template: template.InternalPkgResponseTemplate,
+		},
+		{
+			Path:     fmt.Sprintf("%s/internal/pkg/validator/validator.go", currentDir),
+			Template: template.InternalPkgValidatorTemplate,
+		},
+	}
+}
+
+// NewProject generates the project structure using the configuration
+func NewProject(fx filex.FileX, opt option.Options) error {
 	opt.Project = strcase.ToKebab(opt.Project)
 
 	spinnerGenProject, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Create project \"%s\"", opt.Project))
 
 	currentDir, _ := fx.Getwd()
+	currentDir = fmt.Sprintf("%s/%s", currentDir, opt.Project)
 
 	// Create project directory
-	currentDir = fmt.Sprintf("%s/%s", currentDir, opt.Project)
-	err = fx.EnsureDir(currentDir)
-
-	// Create go.mod
-	err = WriteFile(fx, fmt.Sprintf("%s/go.mod", currentDir), template.ModTemplate, template.Project{Module: opt.Module})
-
-	// Create cmd
-	cmdPath := fmt.Sprintf("%s/cmd/api", currentDir)
-	err = fx.EnsureDir(cmdPath)
-
-	// main.go
-	err = WriteFile(fx, fmt.Sprintf("%s/main.go", cmdPath), template.CmdMainTemplate, template.Project{Name: opt.Project, Module: opt.Module})
-
-	// Create docs
-	docsDir := fmt.Sprintf("%s/docs/apispec", currentDir)
-	err = fx.EnsureDir(docsDir)
-
-	// docs.go
-	err = WriteFile(fx, fmt.Sprintf("%s/docs.go", docsDir), template.DocsTemplate, template.Any{})
-
-	//// swagger.json
-	err = WriteFile(fx, fmt.Sprintf("%s/swagger.json", docsDir), template.DocsSwaggerJSONTemplate, template.Any{})
-
-	// swagger.yaml
-	err = WriteFile(fx, fmt.Sprintf("%s/swagger.yaml", docsDir), template.DocsSwaggerYAMLTemplate, template.Any{})
-
-	// Create middleware
-	middlewareDir := fmt.Sprintf("%s/internal/middleware", currentDir)
-	err = fx.EnsureDir(middlewareDir)
-
-	// jwt.go
-	err = WriteFile(fx, fmt.Sprintf("%s/jwt.go", middlewareDir), template.InternalMiddlewareJwtTemplate, template.Project{Module: opt.Module})
-
-	// api_key.go
-	err = WriteFile(fx, fmt.Sprintf("%s/api_key.go", middlewareDir), template.InternalMiddlewareApiKeyTemplate, template.Any{})
-
-	// Create app
-	appDir := fmt.Sprintf("%s/internal/app", currentDir)
-	err = fx.EnsureDir(appDir)
-
-	// app.go
-	err = WriteFile(fx, fmt.Sprintf("%s/app.go", appDir), template.AppTemplate, template.Project{Module: opt.Module})
-
-	// Create api
-	apiDir := fmt.Sprintf("%s/internal/app/api", currentDir)
-	err = fx.EnsureDir(apiDir)
-
-	// api.go
-	err = WriteFile(fx, fmt.Sprintf("%s/api.go", apiDir), template.ApiTemplate, template.Project{Module: opt.Module})
-
-	// routers.go
-	err = WriteFile(fx, fmt.Sprintf("%s/routers.go", apiDir), template.ApiRoutersTemplate, template.Project{Module: opt.Module})
-
-	// wire.go
-	err = WriteFile(fx, fmt.Sprintf("%s/wire.go", currentDir), template.WireTemplate, template.Project{Module: opt.Module, Name: opt.Project})
-
-	// wire_gen.go
-	err = WriteFile(fx, fmt.Sprintf("%s/wire_gen.go", currentDir), template.WireGenTemplate, template.Project{Module: opt.Module, Name: opt.Project})
-
-	// Create shared pkg/core
-	databaseDir := fmt.Sprintf("%s/internal/database", currentDir)
-	err = fx.EnsureDir(databaseDir)
-
-	// drivers.go
-	err = WriteFile(fx, fmt.Sprintf("%s/drivers.go", databaseDir), template.DatabaseDriversTemplate, template.Any{})
-
-	// mongodb.go
-	err = WriteFile(fx, fmt.Sprintf("%s/mongodb.go", databaseDir), template.DatabaseMongoDBTemplate, template.Any{})
-
-	// wire.go
-	err = WriteFile(fx, fmt.Sprintf("%s/wire.go", databaseDir), template.DatabaseWireTemplate, template.Any{})
-
-	// wire_gen.go
-	err = WriteFile(fx, fmt.Sprintf("%s/wire_gen.go", databaseDir), template.DatabaseWireGenTemplate, template.Any{})
-
-	// Create deployments
-	deploymentsDir := fmt.Sprintf("%s/deployments", currentDir)
-	err = fx.EnsureDir(deploymentsDir)
-
-	// Dockerfile
-	err = WriteFile(fx, fmt.Sprintf("%s/Dockerfile", deploymentsDir), template.DeploymentsDockerfileTemplate, template.Project{Module: opt.Module, Name: opt.Project})
-
-	// api-prod.yml
-	err = WriteFile(fx, fmt.Sprintf("%s/api-prod.yml", deploymentsDir), template.DeploymentsAPIComposeTemplate, template.Project{Name: opt.Project})
-
-	// Create shared pkg/core
-	coreDir := fmt.Sprintf("%s/pkg/core", currentDir)
-	err = fx.EnsureDir(coreDir)
-
-	// handler.go
-	err = WriteFile(fx, fmt.Sprintf("%s/handler.go", coreDir), template.CoreHandlerTemplate, template.Any{})
-
-	// paging.go
-	err = WriteFile(fx, fmt.Sprintf("%s/paging.go", coreDir), template.CorePagingTemplate, template.Any{})
-
-	// params.go
-	err = WriteFile(fx, fmt.Sprintf("%s/params.go", coreDir), template.CoreParamsTemplate, template.Any{})
-
-	// request.go
-	err = WriteFile(fx, fmt.Sprintf("%s/request.go", coreDir), template.CoreRequestTemplate, template.Any{})
-
-	// response.go
-	err = WriteFile(fx, fmt.Sprintf("%s/response.go", coreDir), template.CoreResponseTemplate, template.Any{})
-
-	// router.go
-	err = WriteFile(fx, fmt.Sprintf("%s/router.go", coreDir), template.CoreRouterTemplate, template.Any{})
-
-	// jwt.go
-	err = WriteFile(fx, fmt.Sprintf("%s/jwt.go", coreDir), template.CoreJWTTemplate, template.Any{})
-
-	// flag.go
-	err = WriteFile(fx, fmt.Sprintf("%s/flag.go", coreDir), template.CoreFlagTemplate, template.Any{})
-
-	// sorting.go
-	err = WriteFile(fx, fmt.Sprintf("%s/sorting.go", coreDir), template.CoreSortingTemplate, template.Any{})
-
-	// header.go
-	err = WriteFile(fx, fmt.Sprintf("%s/header.go", coreDir), template.CoreHeaderTemplate, template.Any{})
-
-	// Create shared pkg/multipartx
-	multipartxDir := fmt.Sprintf("%s/pkg/multipartx", currentDir)
-	err = fx.EnsureDir(multipartxDir)
-
-	// multipartx.go
-	err = WriteFile(fx, fmt.Sprintf("%s/multipartx.go", multipartxDir), template.MultipartXTemplate, template.Any{})
-
-	// Create shared pkg/requestx
-	requestxDir := fmt.Sprintf("%s/pkg/requestx", currentDir)
-	err = fx.EnsureDir(requestxDir)
-
-	// request.go
-	err = WriteFile(fx, fmt.Sprintf("%s/request.go", requestxDir), template.RequestXRequestTemplate, template.Project{Module: opt.Module})
-
-	// Create shared pkg/structx
-	structxDir := fmt.Sprintf("%s/pkg/structx", currentDir)
-	err = fx.EnsureDir(structxDir)
-
-	// struct.go
-	err = WriteFile(fx, fmt.Sprintf("%s/struct.go", structxDir), template.StructXTemplate, template.Any{})
-
-	// Create shared pkg/schema
-	schemaDir := fmt.Sprintf("%s/pkg/schema", currentDir)
-	err = fx.EnsureDir(schemaDir)
-
-	// sql.go
-	err = WriteFile(fx, fmt.Sprintf("%s/sql.go", schemaDir), template.SchemaSQLTemplate, template.Any{})
-
-	// Create policy
-	casbinPolicyDir := fmt.Sprintf("%s/policy", currentDir)
-	err = fx.EnsureDir(casbinPolicyDir)
-
-	// model.conf
-	err = WriteFile(fx, fmt.Sprintf("%s/model.conf", casbinPolicyDir), template.CasbinModelTemplate, template.Any{})
-
-	// policy.csv
-	err = WriteFile(fx, fmt.Sprintf("%s/policy.csv", casbinPolicyDir), template.CasbinPolicyTemplate, template.Any{})
-
-	// Create Makefile
-	err = WriteFile(fx, fmt.Sprintf("%s/Makefile", currentDir), template.MakefileTemplate, template.Any{})
-
-	// Create configuration
-	configurationDir := fmt.Sprintf("%s/configuration", currentDir)
-	err = fx.EnsureDir(configurationDir)
-
-	// configuration.go
-	err = WriteFile(fx, fmt.Sprintf("%s/configuration.go", configurationDir), template.ConfigurationTemplate, template.Any{})
-
-	// environment.go
-	err = WriteFile(fx, fmt.Sprintf("%s/environment.go", configurationDir), template.ConfigurationEnvironmentTemplate, template.Any{})
-
-	// development.yml
-	err = WriteFile(fx, fmt.Sprintf("%s/development.yml", configurationDir), template.ConfigurationDevelopmentTemplate, template.Any{})
-
-	// production.yml
-	err = WriteFile(fx, fmt.Sprintf("%s/production.yml", configurationDir), template.ConfigurationProductionTemplate, template.Any{})
-
-	// Create internal/pkg
-	internalPkgDir := fmt.Sprintf("%s/internal/pkg", currentDir)
-	err = fx.EnsureDir(internalPkgDir)
-
-	// Create internal/pkg/casbinx
-	internalPkgCasbinxDir := fmt.Sprintf("%s/internal/pkg/casbinx", currentDir)
-	err = fx.EnsureDir(internalPkgCasbinxDir)
-
-	// casbinx.go
-	err = WriteFile(fx, fmt.Sprintf("%s/casbinx.go", internalPkgCasbinxDir), template.InternalPkgCasbinxTemplate, template.Any{})
-
-	// Create internal/pkg/response
-	internalPkgResponseDir := fmt.Sprintf("%s/internal/pkg/response", currentDir)
-	err = fx.EnsureDir(internalPkgResponseDir)
-
-	// response.go
-	err = WriteFile(fx, fmt.Sprintf("%s/response.go", internalPkgResponseDir), template.InternalPkgResponseTemplate, template.Any{})
-
-	// Create internal/pkg/validator
-	internalPkgValidatorDir := fmt.Sprintf("%s/internal/pkg/validator", currentDir)
-	err = fx.EnsureDir(internalPkgValidatorDir)
-
-	// validator.go
-	err = WriteFile(fx, fmt.Sprintf("%s/validator.go", internalPkgValidatorDir), template.InternalPkgValidatorTemplate, template.Any{})
-
-	// Update status
-	if err == nil {
-		spinnerGenProject.Success()
-	} else {
-		spinnerGenProject.Fail()
+	if err := fx.EnsureDir(currentDir); err != nil {
+		return fmt.Errorf("failed to create project directory: %w", err)
 	}
+
+	// Get file configurations
+	configs := getProjectConfig(currentDir, opt)
+
+	// Create directories and write files
+	for _, config := range configs {
+		// Ensure directory exists
+		dir := filepath.Dir(config.Path)
+		if err := fx.EnsureDir(dir); err != nil {
+			spinnerGenProject.Fail(fmt.Errorf("failed to create directory %s: %w", dir, err))
+			return fmt.Errorf("failed to create directory %s: %w", dir, err)
+		}
+
+		if config.Data == nil {
+			config.Data = template.Any{}
+		}
+
+		// Write file
+		if err := WriteFile(fx, config.Path, config.Template, config.Data); err != nil {
+			spinnerGenProject.Fail(fmt.Errorf("failed to write file %s: %w", config.Path, err))
+			return fmt.Errorf("failed to write file %s: %w", config.Path, err)
+		}
+	}
+
+	spinnerGenProject.Success()
+
+	return nil
 }

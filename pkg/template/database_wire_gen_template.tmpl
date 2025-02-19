@@ -8,7 +8,8 @@ package database
 // Injectors from wire.go:
 
 func NewDatabaseDriver() Drivers {
-	mongoDriver := NewMongoDbDriver()
-	databaseDrivers := NewDrivers(mongoDriver)
+	mongoDriver := NewMongoDBDriver()
+	mariaDriver := NewMariaDBDriver()
+	databaseDrivers := NewDrivers(mongoDriver, mariaDriver)
 	return databaseDrivers
 }

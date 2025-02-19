@@ -6,7 +6,7 @@ import (
 )
 
 /*
-NewMongoDbDriver a new instance
+NewMongoDBDriver a new instance
 MongoDB:
 (>) greater than - $gt
 
@@ -16,7 +16,7 @@ MongoDB:
 
 (<= ) less than equal to - $lte
 */
-func NewMongoDbDriver() mgodriver.MongoDriver {
+func NewMongoDBDriver() mgodriver.MongoDriver {
 	return mgodriver.New(mgodriver.Config{
 		User:         viper.GetString("mongodb.user"),
 		Pass:         viper.GetString("mongodb.pass"),

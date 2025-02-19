@@ -1,0 +1,103 @@
+package middleware
+
+import (
+	"github.com/gofiber/fiber/v2"
+	"{{.Module}}/pkg/core"
+	"{{.Module}}/pkg/requestx"
+)
+
+type OnRequestHandlerOption struct {
+	AuditLogRequired   bool
+	PermissionRequired bool
+}
+
+type OnRequestHandlerOptions func(opts *OnRequestHandlerOption)
+
+func AuditLogRequired() OnRequestHandlerOptions {
+	return func(opts *OnRequestHandlerOption) {
+		opts.AuditLogRequired = true
+	}
+}
+
+func PermissionRequired() OnRequestHandlerOptions {
+	return func(opts *OnRequestHandlerOption) {
+		opts.PermissionRequired = true
+	}
+}
+
+type Handler struct {
+}
+
+type OnRequest interface {
+	Handler(permissionId string, options ...OnRequestHandlerOptions) fiber.Handler
+}
+
+type OnRequestOptions struct {
+	HandleAuditLog   func(c *fiber.Ctx, permissionId string, userRequestInfo *core.UserRequestInfo) error
+	HandlePermission func(c *fiber.Ctx, permissionId string, userRequestInfo *core.UserRequestInfo) error
+}
+
+type onRequest struct {
+	apiHandler requestx.ApiHandler
+	options    *OnRequestOptions
+}
+
+func NewOnRequest(apiHandler requestx.ApiHandler, options *OnRequestOptions) OnRequest {
+	return &onRequest{
+		apiHandler: apiHandler,
+		options:    options,
+	}
+}
+
+func (p *onRequest) Handler(permissionId string, options ...OnRequestHandlerOptions) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		p.SetPermissionId(c, permissionId)
+
+		opts := p.initOnRequestHandlerOptions(options)
+		userRequestInfo := p.apiHandler.GetUserRequestInfo(c)
+		if opts.AuditLogRequired && p.options.HandleAuditLog != nil {
+			err := p.options.HandleAuditLog(c, permissionId, userRequestInfo)
+			if err != nil {
+				return err
+			}
+		}
+
+		if opts.PermissionRequired && p.options.HandlePermission != nil {
+			err := p.options.HandlePermission(c, permissionId, userRequestInfo)
+			if err != nil {
+				return err
+			}
+		}
+
+		return c.Next()
+	}
+}
+
+func (p *onRequest) initOnRequestHandlerOptions(options []OnRequestHandlerOptions) *OnRequestHandlerOption {
+	opts := &OnRequestHandlerOption{}
+	if len(options) == 0 {
+		return opts
+	}
+
+	for _, opt := range options {
+		opt(opts)
+	}
+	return opts
+}
+
+func (p *onRequest) SetPermissionId(c *fiber.Ctx, permissionId string) {
+	c.Locals("permissionId", permissionId)
+}
+
+func NewOnRequestPermission(apiHandler api.ApiHandler) OnRequest {
+	return NewOnRequest(apiHandler, &OnRequestOptions{
+		HandleAuditLog: func(c *fiber.Ctx, permissionId string, userRequestInfo *core.UserRequestInfo) error {
+			// TODO implementation
+			return nil
+		},
+		HandlePermission: func(c *fiber.Ctx, permissionId string, userRequestInfo *core.UserRequestInfo) error {
+			// TODO implementation
+			return nil
+		},
+	})
+}

@@ -22,7 +22,7 @@ type generator struct {
 
 func (f *generator) Generate(opt option.Options) {
 	if opt.Project != "" && opt.Module != "" {
-		NewProject(f.Fx, opt)
+		_ = NewProject(f.Fx, opt)
 	} else if opt.Feature != "" {
 		NewFeature(f.Fx, opt, f.WireInstaller, f.WireRunner)
 	} else if opt.Crud != "" {

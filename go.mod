@@ -1,6 +1,6 @@
 module github.com/prongbang/fibergen
 
-go 1.18
+go 1.23.4
 
 require (
 	github.com/ettle/strcase v0.2.0
@@ -21,7 +21,7 @@ require (
 	github.com/stretchr/testify v1.8.4 // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 	github.com/xrash/smetrics v0.0.0-20240312152122-5f08fbb34913 // indirect
-	golang.org/x/sys v0.6.0 // indirect
+	golang.org/x/sys v0.30.0 // indirect
 	golang.org/x/term v0.6.0 // indirect
 	golang.org/x/text v0.9.0 // indirect
 )

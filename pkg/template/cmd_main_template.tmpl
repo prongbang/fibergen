@@ -44,6 +44,8 @@ func main() {
 			}
 
 			dbDriver := database.NewDatabaseDriver()
+	        defer dbDriver.Close()
+
             apps := {{.PackageName}}.CreateApp(dbDriver)
             apps.StartAPI()
 
