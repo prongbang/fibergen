@@ -116,14 +116,18 @@ func featureCrudTemplates(pkg option.Package) map[string][]byte {
 		appPath = config.InternalPath
 	}
 
-	dsTmpl, _ := template.RenderText(template.CrudDatasourceTemplate, template.Project{Name: pkg.Name, Module: pkg.Module.Module, Path: pkg.Module.AppPath})
+	dsTmpl, _ := template.RenderText(template.CrudDatasourceTemplate, template.Project{Pk: pkg.Spec.Pk, Name: pkg.Name, Module: pkg.Module.Module, Path: pkg.Module.AppPath})
 	hdTmpl, _ := template.RenderText(template.CrudHandlerTemplate, template.Project{Name: pkg.Name})
 	pdTmpl, _ := template.RenderText(template.CrudProviderTemplate, template.Project{Name: pkg.Name})
 	pmTmpl, _ := template.RenderText(template.CrudPermissionTemplate, template.Project{Name: pkg.Name})
 	rpTmpl, _ := template.RenderText(template.CrudRepositoryTemplate, template.Project{Name: pkg.Name})
 	rtTmpl, _ := template.RenderText(template.CrudRouterTemplate, template.Project{Name: pkg.Name, Module: pkg.Module.Module})
 	ucTmpl, _ := template.RenderText(template.CrudUseCaseTemplate, template.Project{Name: pkg.Name})
-	mdTmpl, _ := template.RenderText(template.CrudModelTemplate, template.Project{Name: pkg.Name})
+	mdTmpl, _ := template.RenderText(template.CrudModelTemplate, template.Project{
+		Imports: pkg.Imports,
+		Fields:  pkg.Spec.Fields,
+		Name:    pkg.Name,
+	})
 
 	return map[string][]byte{
 		"datasource.go":                dsTmpl,

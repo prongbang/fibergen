@@ -5,6 +5,7 @@ import (
 	_ "embed"
 	"github.com/ettle/strcase"
 	"github.com/prongbang/fibergen/pkg/common"
+	"strings"
 	"text/template"
 )
 
@@ -266,7 +267,14 @@ var WireTemplate string
 type Any map[string]interface{}
 
 func RenderText[T any](tmpl string, data T) ([]byte, error) {
-	t := template.Must(template.New("message").Parse(tmpl))
+	funcs := template.FuncMap{
+		"split": strings.Split,
+		"sub": func(a, b int) int {
+			return a - b
+		},
+	}
+
+	t := template.Must(template.New("message").Funcs(funcs).Parse(tmpl))
 
 	var buf bytes.Buffer
 	err := t.Execute(&buf, data)
@@ -278,6 +286,9 @@ func RenderText[T any](tmpl string, data T) ([]byte, error) {
 }
 
 type Project struct {
+	Imports    []string
+	Fields     []string
+	Pk         string
 	Module     string
 	Name       string
 	Path       string
@@ -306,5 +317,9 @@ func (w Project) KebabName() string {
 }
 
 func (w Project) TagsName() string {
+	return strcase.ToSnake(w.Name)
+}
+
+func (w Project) TableName() string {
 	return strcase.ToSnake(w.Name)
 }
