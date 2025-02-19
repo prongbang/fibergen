@@ -4,7 +4,7 @@ import (
 	"bytes"
 	_ "embed"
 	"github.com/ettle/strcase"
-	"github.com/prongbang/fibergen/pkg/tocase"
+	"github.com/prongbang/fibergen/pkg/common"
 	"text/template"
 )
 
@@ -223,7 +223,7 @@ type Project struct {
 }
 
 func (w Project) PackageName() string {
-	return tocase.ToLower(w.Name)
+	return common.ToLower(w.Name)
 }
 
 func (w Project) ProjectName() string {

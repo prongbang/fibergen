@@ -1,4 +1,4 @@
-package tocase
+package common
 
 import (
 	"fmt"

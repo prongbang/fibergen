@@ -2,6 +2,7 @@ package generate
 
 import (
 	"fmt"
+	"github.com/prongbang/fibergen/pkg/common"
 	"github.com/prongbang/fibergen/pkg/config"
 	"github.com/prongbang/fibergen/pkg/option"
 	"strings"
@@ -9,7 +10,6 @@ import (
 	"github.com/ettle/strcase"
 
 	"github.com/prongbang/fibergen/pkg/filex"
-	"github.com/prongbang/fibergen/pkg/tocase"
 	"github.com/pterm/pterm"
 )
 
@@ -37,7 +37,7 @@ func AutoBinding(fx filex.FileX, pkg option.Package) {
 	wireImpPat2 := "// +fibergen:import wire:package"
 	wireImp := fmt.Sprintf(
 		`"%s/%s/api/%s"
-	%s`, pkg.Module.Module, pkg.Module.AppPath, tocase.ToLower(pkg.Name), wireImpPat1,
+	%s`, pkg.Module.Module, pkg.Module.AppPath, common.ToLower(pkg.Name), wireImpPat1,
 	)
 	wireText = strings.Replace(wireText, wireImpPat1, wireImp, 1)
 	wireText = strings.Replace(wireText, wireImpPat2, wireImp, 1)
@@ -46,7 +46,7 @@ func AutoBinding(fx filex.FileX, pkg option.Package) {
 	wireBuildPat2 := "// +fibergen:func wire:build"
 	wireBuild := fmt.Sprintf(
 		`%s.ProviderSet,
-		%s`, tocase.ToLower(pkg.Name), wireBuildPat1,
+		%s`, common.ToLower(pkg.Name), wireBuildPat1,
 	)
 	wireText = strings.Replace(wireText, wireBuildPat1, wireBuild, 1)
 	wireText = strings.Replace(wireText, wireBuildPat2, wireBuild, 1)
@@ -68,7 +68,7 @@ func AutoBinding(fx filex.FileX, pkg option.Package) {
 	routerImpPat2 := "// +fibergen:import routers:package"
 	routerImp := fmt.Sprintf(
 		`"%s/%s/api/%s"
-	%s`, pkg.Module.Module, pkg.Module.AppPath, tocase.ToLower(pkg.Name), routerImpPat1,
+	%s`, pkg.Module.Module, pkg.Module.AppPath, common.ToLower(pkg.Name), routerImpPat1,
 	)
 	routerText = strings.Replace(routerText, routerImpPat1, routerImp, 1)
 	routerText = strings.Replace(routerText, routerImpPat2, routerImp, 1)
@@ -77,7 +77,7 @@ func AutoBinding(fx filex.FileX, pkg option.Package) {
 	routerStructPat2 := "// +fibergen:struct routers"
 	routerStruct := fmt.Sprintf(
 		`%sRoute %s.Router
-	%s`, tocase.UpperCamelName(pkg.Name), tocase.ToLower(pkg.Name), routerStructPat1,
+	%s`, common.UpperCamelName(pkg.Name), common.ToLower(pkg.Name), routerStructPat1,
 	)
 	routerText = strings.Replace(routerText, routerStructPat1, routerStruct, 1)
 	routerText = strings.Replace(routerText, routerStructPat2, routerStruct, 1)
@@ -86,7 +86,7 @@ func AutoBinding(fx filex.FileX, pkg option.Package) {
 	routerInitPat2 := "// +fibergen:func initials"
 	routerInit := fmt.Sprintf(
 		`r.%sRoute.Initial(app)
-	%s`, tocase.UpperCamelName(pkg.Name), routerInitPat1,
+	%s`, common.UpperCamelName(pkg.Name), routerInitPat1,
 	)
 	routerText = strings.Replace(routerText, routerInitPat1, routerInit, 1)
 	routerText = strings.Replace(routerText, routerInitPat2, routerInit, 1)
@@ -95,7 +95,7 @@ func AutoBinding(fx filex.FileX, pkg option.Package) {
 	routerNewPat2 := "// +fibergen:func new:routers"
 	routerNew := fmt.Sprintf(
 		`	%sRoute %s.Router,
-	%s`, strcase.ToCamel(pkg.Name), tocase.ToLower(pkg.Name), routerNewPat1,
+	%s`, strcase.ToCamel(pkg.Name), common.ToLower(pkg.Name), routerNewPat1,
 	)
 	routerText = strings.Replace(routerText, routerNewPat1, routerNew, 1)
 	routerText = strings.Replace(routerText, routerNewPat2, routerNew, 1)
@@ -104,7 +104,7 @@ func AutoBinding(fx filex.FileX, pkg option.Package) {
 	routerBindPat2 := "// +fibergen:return &routers"
 	routerBind := fmt.Sprintf(
 		`%sRoute: %sRoute,
-		%s`, tocase.UpperCamelName(pkg.Name), strcase.ToCamel(pkg.Name), routerBindPat1,
+		%s`, common.UpperCamelName(pkg.Name), strcase.ToCamel(pkg.Name), routerBindPat1,
 	)
 	routerText = strings.Replace(routerText, routerBindPat1, routerBind, 1)
 	routerText = strings.Replace(routerText, routerBindPat2, routerBind, 1)

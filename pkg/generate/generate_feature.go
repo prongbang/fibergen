@@ -2,10 +2,9 @@ package generate
 
 import (
 	"fmt"
-	"github.com/prongbang/fibergen/pkg/option"
-	"github.com/prongbang/fibergen/pkg/tocase"
-
+	"github.com/prongbang/fibergen/pkg/common"
 	"github.com/prongbang/fibergen/pkg/filex"
+	"github.com/prongbang/fibergen/pkg/option"
 	"github.com/pterm/pterm"
 )
 
@@ -17,7 +16,7 @@ func FeatureGenerate(fx filex.FileX, pkg option.Package, filename string, tmpl s
 		spinnerGenFile.Fail()
 		return
 	}
-	currentDir = fmt.Sprintf("%s/%s", currentDir, tocase.ToLower(pkg.Name))
+	currentDir = fmt.Sprintf("%s/%s", currentDir, common.ToLower(pkg.Name))
 	err = fx.EnsureDir(currentDir)
 	if err != nil {
 		fmt.Println(err)

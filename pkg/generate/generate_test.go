@@ -2,12 +2,12 @@ package generate_test
 
 import (
 	"fmt"
+	"github.com/prongbang/fibergen/pkg/common"
 	"github.com/prongbang/fibergen/pkg/generate"
 	"testing"
 
 	"github.com/prongbang/fibergen/pkg/option"
 	"github.com/prongbang/fibergen/pkg/template"
-	"github.com/prongbang/fibergen/pkg/tocase"
 	"github.com/prongbang/fibergen/pkg/tools"
 
 	"github.com/prongbang/fibergen/pkg/filex"
@@ -252,14 +252,14 @@ func TestGetTemplate(t *testing.T) {
 
 func TestUpperCamelName(t *testing.T) {
 	feature := "hello_model"
-	if tocase.UpperCamelName(feature) != "HelloModel" {
+	if common.UpperCamelName(feature) != "HelloModel" {
 		t.Error("Error")
 	}
 }
 
 func TestLowerCamelName(t *testing.T) {
 	feature := "hello_model_test"
-	actual := tocase.LowerCamelName(feature)
+	actual := common.LowerCamelName(feature)
 	if actual != "helloModelTest" {
 		t.Error("Error", actual)
 	}
