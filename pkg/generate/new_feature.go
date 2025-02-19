@@ -30,7 +30,7 @@ func featureTemplates(pkg option.Package) map[string][]byte {
 	pdTmpl, _ := template.RenderText(template.PrototypeProviderTemplate, template.Project{Name: pkg.Name})
 	rpTmpl, _ := template.RenderText(template.PrototypeRepositoryTemplate, template.Project{Name: pkg.Name})
 	rtTmpl, _ := template.RenderText(template.PrototypeRouterTemplate, template.Project{Name: pkg.Name, Module: pkg.Module.Module})
-	ucTmpl, _ := template.RenderText(template.PrototypeUsecaseTemplate, template.Project{Name: pkg.Name})
+	ucTmpl, _ := template.RenderText(template.PrototypeUseCaseTemplate, template.Project{Name: pkg.Name})
 	mdTmpl, _ := template.RenderText(template.PrototypeModelTemplate, template.Project{Name: pkg.Name})
 
 	return map[string][]byte{

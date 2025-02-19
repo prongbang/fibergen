@@ -6,9 +6,9 @@ import (
 )
 
 func NewDB(driver Drivers) dbre.AppIDB {
-	return bun.NewIDB(driver.GetBunMariaDB())
+	return bun.NewIDB(driver.GetMariaDB())
 }
 
 func NewDBTx(driver Drivers) dbre.DBTx {
-	return bun.NewDBTx(driver.GetBunMariaDB())
+	return bun.NewDBTx(driver.GetMariaDB())
 }

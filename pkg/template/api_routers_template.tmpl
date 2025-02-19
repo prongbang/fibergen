@@ -3,6 +3,7 @@ package api
 import (
 	"github.com/gofiber/fiber/v2"
 	"{{.Module}}/pkg/core"
+	"{{.Module}}/internal/app/api/example"
 	//+fibergen:import routers:package
 )
 
@@ -11,17 +12,21 @@ type Routers interface {
 }
 
 type routers struct {
+    ExampleRoute example.Router
 	//+fibergen:struct routers
 }
 
 func (r *routers) Initials(app *fiber.App) {
+    r.ExampleRoute.Initials(app)
 	//+fibergen:func initials
 }
 
 func NewRouters(
+    exampleRoute example.Router,
 	//+fibergen:func new:routers
 ) Routers {
 	return &routers{
+	    ExampleRoute: exampleRoute,
 		//+fibergen:return &routers
 	}
 }

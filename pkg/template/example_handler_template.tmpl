@@ -1,0 +1,44 @@
+package example
+
+import (
+	"context"
+	"github.com/gofiber/fiber/v2"
+
+	"{{.Module}}/pkg/core"
+	"{{.Module}}/pkg/requestx"
+
+)
+
+type Handler interface {
+	Echo(c *fiber.Ctx) error
+}
+
+type handler struct {
+	Uc         UseCase
+	ApiHandler requestx.ApiHandler
+}
+
+// Echo
+// @Tags example
+// @Summary Echo
+// @Accept json
+// @Produce json
+// @Success 200 {object} core.Success{data=Example}
+// @Failure 400 {object} core.Error
+// @Failure 404 {object} core.Error
+// @Security JWTAuth
+// @Router /v1/example/echo [post]
+func (h *handler) Echo(c *fiber.Ctx) error {
+	request := &EchoExampleRequest{}
+	return h.ApiHandler.Do(c, request, true, func(ctx context.Context, requestInfo *core.RequestInfo) (interface{}, error) {
+		request.UserRequestInfo = requestInfo.UserRequestInfo
+		return h.Uc.Echo(ctx, request)
+	})
+}
+
+func NewHandler(uc UseCase, apiHandler requestx.ApiHandler) Handler {
+	return &handler{
+		Uc: 		uc,
+		ApiHandler: apiHandler,
+	}
+}

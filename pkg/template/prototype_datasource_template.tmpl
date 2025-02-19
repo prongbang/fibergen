@@ -6,11 +6,11 @@ type DataSource interface {
 }
 
 type dataSource struct {
-	Driver database.Drivers
+	db dbre.DB[{{.ModelName}}]
 }
 
-func NewDataSource(driver database.Drivers) DataSource {
+func NewDataSource(idb dbre.AppIDB) DataSource {
 	return &dataSource{
-		Driver: driver,
+		db: bun.New[{{.ModelName}}](idb),
 	}
 }

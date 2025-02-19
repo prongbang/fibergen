@@ -93,6 +93,44 @@ func getProjectConfig(currentDir string, opt option.Options) []FileConfig {
 			Data:     template.Project{Module: opt.Module},
 		},
 
+		// Example files
+		{
+			Path:     fmt.Sprintf("%s/internal/app/api/example/datasource.go", currentDir),
+			Template: template.ExampleDatasourceTemplate,
+			Data:     template.Project{Module: opt.Module},
+		},
+		{
+			Path:     fmt.Sprintf("%s/internal/app/api/example/handler.go", currentDir),
+			Template: template.ExampleHandlerTemplate,
+			Data:     template.Project{Module: opt.Module},
+		},
+		{
+			Path:     fmt.Sprintf("%s/internal/app/api/example/example.go", currentDir),
+			Template: template.ExampleModelTemplate,
+			Data:     template.Project{Module: opt.Module},
+		},
+		{
+			Path:     fmt.Sprintf("%s/internal/app/api/example/permission.go", currentDir),
+			Template: template.ExamplePermissionTemplate,
+		},
+		{
+			Path:     fmt.Sprintf("%s/internal/app/api/example/provider.go", currentDir),
+			Template: template.ExampleProviderTemplate,
+		},
+		{
+			Path:     fmt.Sprintf("%s/internal/app/api/example/repository.go", currentDir),
+			Template: template.ExampleRepositoryTemplate,
+		},
+		{
+			Path:     fmt.Sprintf("%s/internal/app/api/example/router.go", currentDir),
+			Template: template.ExampleRouterTemplate,
+			Data:     template.Project{Module: opt.Module},
+		},
+		{
+			Path:     fmt.Sprintf("%s/internal/app/api/example/usecase.go", currentDir),
+			Template: template.ExampleUseCaseTemplate,
+		},
+
 		// Database files
 		{
 			Path:     fmt.Sprintf("%s/internal/database/db.go", currentDir),
@@ -172,6 +210,10 @@ func getProjectConfig(currentDir string, opt option.Options) []FileConfig {
 		{
 			Path:     fmt.Sprintf("%s/pkg/core/header.go", currentDir),
 			Template: template.CoreHeaderTemplate,
+		},
+		{
+			Path:     fmt.Sprintf("%s/pkg/core/common.go", currentDir),
+			Template: template.CoreCommonTemplate,
 		},
 
 		// Other package files

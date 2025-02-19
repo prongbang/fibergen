@@ -62,6 +62,9 @@ var CoreSortingTemplate string
 //go:embed pkg_core_header_template.tmpl
 var CoreHeaderTemplate string
 
+//go:embed pkg_core_common_template.tmpl
+var CoreCommonTemplate string
+
 //go:embed pkg_core_jwt_template.tmpl
 var CoreJWTTemplate string
 
@@ -209,7 +212,33 @@ var PrototypeRepositoryTemplate string
 var PrototypeRouterTemplate string
 
 //go:embed prototype_usecase_template.tmpl
-var PrototypeUsecaseTemplate string
+var PrototypeUseCaseTemplate string
+
+// Example
+
+//go:embed example_datasource_template.tmpl
+var ExampleDatasourceTemplate string
+
+//go:embed example_handler_template.tmpl
+var ExampleHandlerTemplate string
+
+//go:embed example_model_template.tmpl
+var ExampleModelTemplate string
+
+//go:embed example_provider_template.tmpl
+var ExampleProviderTemplate string
+
+//go:embed example_repository_template.tmpl
+var ExampleRepositoryTemplate string
+
+//go:embed example_router_template.tmpl
+var ExampleRouterTemplate string
+
+//go:embed example_usecase_template.tmpl
+var ExampleUseCaseTemplate string
+
+//go:embed example_permission_template.tmpl
+var ExamplePermissionTemplate string
 
 // RequestX
 
