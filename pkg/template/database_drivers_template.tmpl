@@ -1,17 +1,17 @@
 package database
 
 import (
-	"github.com/dreamph/dbre"
-	"github.com/innotechdevops/mgo-driver/pkg/mgodriver"
+	"context"
 	"github.com/innotechdevops/bun-driver/pkg/bundriver"
+	"github.com/innotechdevops/mgo-driver/pkg/mgodriver"
 	"github.com/uptrace/bun"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type Drivers interface {
 	GetMongoDB() *mongo.Database
-    GetMariaDB() *bun.DB
-    Close()
+	GetMariaDB() *bun.DB
+	Close()
 }
 
 type drivers struct {

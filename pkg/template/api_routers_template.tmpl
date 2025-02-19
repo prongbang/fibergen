@@ -17,7 +17,7 @@ type routers struct {
 }
 
 func (r *routers) Initials(app *fiber.App) {
-    r.ExampleRoute.Initials(app)
+    r.ExampleRoute.Initial(app)
 	//+fibergen:func initials
 }
 

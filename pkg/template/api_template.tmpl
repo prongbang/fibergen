@@ -1,15 +1,13 @@
 package api
 
 import (
+	"errors"
 	"fmt"
-	"os"
-	"os/signal"
-	"syscall"
-	_ "time/tzdata"
 	swagger "github.com/arsmn/fiber-swagger/v2"
 	gojson "github.com/goccy/go-json"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
+	"github.com/gofiber/fiber/v2/middleware/adaptor"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
@@ -17,7 +15,12 @@ import (
 	"github.com/prongbang/fibererror"
 	"github.com/prongbang/goredoc"
 	"{{.Module}}/configuration"
+	"{{.Module}}/internal/middleware"
 	"{{.Module}}/internal/pkg/casbinx"
+	"os"
+	"os/signal"
+	"syscall"
+	_ "time/tzdata"
 )
 
 type FiberErrorHandler struct {
@@ -52,11 +55,12 @@ type API interface {
 }
 
 type api struct {
-	Router Routers
+	Router   Routers
+	Response fibererror.Response
 }
 
 func (a *api) Register() {
-	app := fiber.New(NewServerConfig(response.New()))
+	app := fiber.New(NewServerConfig(a.Response))
 
 	// Middleware
 	app.Use(logger.New())
@@ -68,12 +72,21 @@ func (a *api) Register() {
 		AllowMethods: "GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS",
 	}))
 
-	doc := goredoc.New(goredoc.Config{
-		Title:   "API Documentation",
-		SpecURL: "/swagger/doc.json",
-	})
-	app.Get("/docs", adaptor.HTTPHandlerFunc(doc.Handler()))
-	app.Use("/swagger", swagger.HandlerDefault)
+	if configuration.Config.Env != configuration.EnvProduction {
+		conf := swagger.ConfigDefault
+		conf.PersistAuthorization = true
+		conf.DisplayRequestDuration = true
+		conf.Filter = swagger.FilterConfig{
+			Enabled: true,
+		}
+		doc := goredoc.New(goredoc.Config{
+			Title:   "API Documentation",
+			SpecURL: "/swagger/doc.json",
+		})
+		app.Get("/docs", adaptor.HTTPHandlerFunc(doc.Handler()))
+		app.Use("/swagger", swagger.HandlerDefault)
+	}
+	app.Use(middleware.NewJWT(a.Response))
 	app.Use(casbinx.New())
 
 	app.Hooks().OnShutdown(func() error {
@@ -86,6 +99,7 @@ func (a *api) Register() {
 
 	// Serve
 	go func() {
+		log.Info(fmt.Sprintf("Swagger URL : http://localhost:%d/docs", configuration.Config.API.Port))
 		log.Fatal(app.Listen(fmt.Sprintf(":%d", configuration.Config.API.Port)))
 	}()
 
@@ -108,8 +122,9 @@ func wait(fn func(os.Signal)) {
 	fn(sig)
 }
 
-func New(router Routers) API {
+func New(router Routers, response fibererror.Response) API {
 	return &api{
-		Router: router,
+		Router:   router,
+		Response: response,
 	}
 }

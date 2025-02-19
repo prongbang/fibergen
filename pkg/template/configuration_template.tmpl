@@ -29,6 +29,13 @@ type configuration struct {
 		User     string `mapstructure:"user"`
 		Pass     string `mapstructure:"pass"`
 	} `mapstructure:"mongodb"`
+    Mariadb struct {
+        Host     string `mapstructure:"host"`
+        Port     int    `mapstructure:"port"`
+        Database string `mapstructure:"database"`
+        User     string `mapstructure:"user"`
+        Pass     string `mapstructure:"pass"`
+    } `mapstructure:"mariadb"`
 }
 
 var Config configuration

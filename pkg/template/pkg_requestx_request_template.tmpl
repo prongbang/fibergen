@@ -1,23 +1,23 @@
 package requestx
 
 import (
-    "context"
-    "fmt"
-    "net/http"
+	"context"
+	"fmt"
+	"net/http"
 
-    "golang.org/x/exp/slog"
+	"golang.org/x/exp/slog"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
-    "github.com/go-playground/validator/v10"
-    "github.com/prongbang/fibererror"
-    "github.com/prongbang/goerror"
+	"github.com/prongbang/fibererror"
+	"github.com/prongbang/goerror"
 
-    "{{.Module}}/internal/pkg/response"
-    "{{.Module}}/pkg/core"
-    "{{.Module}}/pkg/multipartx"
-    "{{.Module}}/pkg/typex"
+	"{{.Module}}/internal/pkg/response"
+	"{{.Module}}/pkg/core"
+	"{{.Module}}/pkg/multipartx"
+	"{{.Module}}/pkg/streamx"
 	"{{.Module}}/pkg/structx"
-    "{{.Module}}/pkg/streamx"
+	"{{.Module}}/pkg/typex"
 )
 
 type model[T any] struct {
@@ -42,7 +42,7 @@ func Get[T any](c *fiber.Ctx) *T {
 	return nil
 }
 
-func getUserRequestToken(c *fiber.Ctx) string {
+func GetRequestToken(c *fiber.Ctx) string {
 	requestToken := core.ExtractToken(core.Authorization(c))
 	if core.IsEmpty(requestToken) {
 		accessToken := core.AccessToken{}
@@ -52,10 +52,9 @@ func getUserRequestToken(c *fiber.Ctx) string {
 	return requestToken
 }
 
-func getUserRequestInfo(c *fiber.Ctx, onRequestToken func(c *fiber.Ctx) string) *core.UserRequestInfo {
+func GetRequestInfo(c *fiber.Ctx, onRequestToken func(c *fiber.Ctx) string) *core.UserRequestInfo {
 	userRequestInfo := &core.UserRequestInfo{
 		HasUserRequest: false,
-		IsBatch:        false,
 	}
 	userRequestToken := onRequestToken(c)
 	if core.IsEmpty(userRequestToken) {
@@ -96,11 +95,11 @@ type apiHandler struct {
 }
 
 func (h *apiHandler) GetUserRequestInfo(c *fiber.Ctx) *core.UserRequestInfo {
-	return getUserRequestInfo(c, func(c *fiber.Ctx) string {
+	return GetRequestInfo(c, func(c *fiber.Ctx) string {
 		if multipartx.IsMultipartForm(c) {
 			return c.FormValue("token")
 		}
-		return getUserRequestToken(c)
+		return GetRequestToken(c)
 	})
 }
 
