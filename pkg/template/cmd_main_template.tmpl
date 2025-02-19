@@ -42,6 +42,11 @@ func main() {
 			} else {
 				configuration.Load(configuration.EnvDevelopment)
 			}
+
+			dbDriver := database.NewDatabaseDriver()
+            apps := {{.PackageName}}.CreateApp(dbDriver)
+            apps.StartAPI()
+
 			return nil
 		},
 	}
@@ -49,8 +54,4 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	dbDriver := database.NewDatabaseDriver()
-	apps := {{.PackageName}}.CreateApp(dbDriver)
-	apps.StartAPI()
 }

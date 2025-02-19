@@ -9,7 +9,7 @@ import (
 )
 
 // API
-//
+
 //go:embed api_routers_template.tmpl
 var ApiRoutersTemplate string
 
@@ -17,12 +17,12 @@ var ApiRoutersTemplate string
 var ApiTemplate string
 
 // APP
-//
+
 //go:embed app_template.tmpl
 var AppTemplate string
 
 // Casbin
-//
+
 //go:embed casbin_model_template.tmpl
 var CasbinModelTemplate string
 
@@ -30,12 +30,12 @@ var CasbinModelTemplate string
 var CasbinPolicyTemplate string
 
 // CMD
-//
+
 //go:embed cmd_main_template.tmpl
 var CmdMainTemplate string
 
 // Configuration
-//
+
 //go:embed configuration_development_template.tmpl
 var ConfigurationDevelopmentTemplate string
 
@@ -49,39 +49,44 @@ var ConfigurationProductionTemplate string
 var ConfigurationTemplate string
 
 // Core
-//
-//go:embed core_flag_template.tmpl
+
+//go:embed pkg_core_flag_template.tmpl
 var CoreFlagTemplate string
 
-//go:embed core_handler_template.tmpl
+//go:embed pkg_core_handler_template.tmpl
 var CoreHandlerTemplate string
 
-//go:embed core_sorting_template.tmpl
+//go:embed pkg_core_sorting_template.tmpl
 var CoreSortingTemplate string
 
-//go:embed core_header_template.tmpl
+//go:embed pkg_core_header_template.tmpl
 var CoreHeaderTemplate string
 
-//go:embed core_jwt_template.tmpl
+//go:embed pkg_core_jwt_template.tmpl
 var CoreJWTTemplate string
 
-//go:embed core_paging_template.tmpl
+//go:embed pkg_core_paging_template.tmpl
 var CorePagingTemplate string
 
-//go:embed core_params_template.tmpl
+//go:embed pkg_core_params_template.tmpl
 var CoreParamsTemplate string
 
-//go:embed core_request_template.tmpl
+//go:embed pkg_core_request_template.tmpl
 var CoreRequestTemplate string
 
-//go:embed core_response_template.tmpl
+//go:embed pkg_core_response_template.tmpl
 var CoreResponseTemplate string
 
-//go:embed core_router_template.tmpl
+//go:embed pkg_core_router_template.tmpl
 var CoreRouterTemplate string
 
+// MultipartX
+
+//go:embed pkg_multipartx_template.tmpl
+var MultipartXTemplate string
+
 // CRUD
-//
+
 //go:embed crud_datasource_template.tmpl
 var CrudDatasourceTemplate string
 
@@ -101,10 +106,10 @@ var CrudRepositoryTemplate string
 var CrudRouterTemplate string
 
 //go:embed crud_usecase_template.tmpl
-var CrudUsecaseTemplate string
+var CrudUseCaseTemplate string
 
 // Database
-//
+
 //go:embed database_drivers_template.tmpl
 var DatabaseDriversTemplate string
 
@@ -118,7 +123,7 @@ var DatabaseWireGenTemplate string
 var DatabaseWireTemplate string
 
 // Deployments
-//
+
 //go:embed deployments_api_compose_template.tmpl
 var DeploymentsAPIComposeTemplate string
 
@@ -126,7 +131,7 @@ var DeploymentsAPIComposeTemplate string
 var DeploymentsDockerfileTemplate string
 
 // Documentation
-//
+
 //go:embed docs_swagger_json_template.tmpl
 var DocsSwaggerJSONTemplate string
 
@@ -137,7 +142,7 @@ var DocsSwaggerYAMLTemplate string
 var DocsTemplate string
 
 // Internal Packages
-//
+
 //go:embed internal_pkg_casbinx_template.tmpl
 var InternalPkgCasbinxTemplate string
 
@@ -147,18 +152,26 @@ var InternalPkgResponseTemplate string
 //go:embed internal_pkg_validator_template.tmpl
 var InternalPkgValidatorTemplate string
 
+// Internal Middleware
+
+//go:embed internal_middleware_jwt_template.tmpl
+var InternalMiddlewareJwtTemplate string
+
+//go:embed internal_middleware_api_key_template.tmpl
+var InternalMiddlewareApiKeyTemplate string
+
 // Makefile
-//
+
 //go:embed makefile_template.tmpl
 var MakefileTemplate string
 
 // Mod
-//
+
 //go:embed mod_template.tmpl
 var ModTemplate string
 
 // Prototype
-//
+
 //go:embed prototype_datasource_template.tmpl
 var PrototypeDatasourceTemplate string
 
@@ -181,22 +194,22 @@ var PrototypeRouterTemplate string
 var PrototypeUsecaseTemplate string
 
 // RequestX
-//
-//go:embed requestx_request_template.tmpl
+
+//go:embed pkg_requestx_request_template.tmpl
 var RequestXRequestTemplate string
 
 // Schema
-//
-//go:embed schema_sql_template.tmpl
+
+//go:embed pkg_schema_sql_template.tmpl
 var SchemaSQLTemplate string
 
 // StructX
-//
-//go:embed structx_template.tmpl
+
+//go:embed pkg_structx_template.tmpl
 var StructXTemplate string
 
 // Wire
-//
+
 //go:embed wire_gen_template.tmpl
 var WireGenTemplate string
 
