@@ -3,6 +3,8 @@ package generate
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/prongbang/fibergen/pkg/config"
+	"github.com/prongbang/fibergen/pkg/template"
 	"log"
 	"strings"
 
@@ -12,7 +14,6 @@ import (
 	"github.com/prongbang/fibergen/pkg/filex"
 	"github.com/prongbang/fibergen/pkg/mod"
 	"github.com/prongbang/fibergen/pkg/option"
-	"github.com/prongbang/fibergen/pkg/template"
 	"github.com/prongbang/fibergen/pkg/tools"
 )
 
@@ -100,11 +101,76 @@ func NewFeatureCrud(fx filex.FileX, opt option.Options, installer tools.Installe
 			Module:  module,
 			Spec:    spec,
 		}
-		for filename, tmpl := range template.FeatureCrudTemplates(pkg) {
-			FeatureGenerate(fx, pkg, filename, tmpl)
+		for filename, tmpl := range featureCrudTemplates(pkg) {
+			FeatureGenerate(fx, pkg, filename, string(tmpl))
 		}
 		AutoBinding(fx, pkg)
 
 		_ = wireRunner.Run()
+	}
+}
+
+func featureCrudTemplates(pkg option.Package) map[string][]byte {
+	appPath := pkg.Module.AppPath
+	if appPath == config.AppPath {
+		appPath = config.InternalPath
+	}
+
+	dsTmpl, _ := template.RenderText(template.CrudDatasourceTemplate, template.Project{Name: pkg.Name, Module: pkg.Module.Module, Path: pkg.Module.AppPath})
+	hdTmpl, _ := template.RenderText(template.CrudHandlerTemplate, template.Project{Name: pkg.Name})
+	pdTmpl, _ := template.RenderText(template.CrudProviderTemplate, template.Project{Name: pkg.Name})
+	pmTmpl, _ := template.RenderText(template.CrudPermissionTemplate, template.Project{Name: pkg.Name})
+	rpTmpl, _ := template.RenderText(template.CrudRepositoryTemplate, template.Project{Name: pkg.Name})
+	rtTmpl, _ := template.RenderText(template.CrudRouterTemplate, template.Project{Name: pkg.Name, Module: pkg.Module.Module})
+	ucTmpl, _ := template.RenderText(template.CrudUseCaseTemplate, template.Project{Name: pkg.Name})
+	mdTmpl, _ := template.RenderText(template.CrudModelTemplate, template.Project{Name: pkg.Name})
+
+	return map[string][]byte{
+		"datasource.go":                dsTmpl,
+		"handler.go":                   hdTmpl,
+		"provider.go":                  pdTmpl,
+		"permission.go":                pmTmpl,
+		"repository.go":                rpTmpl,
+		"router.go":                    rtTmpl,
+		"usecase.go":                   ucTmpl,
+		fmt.Sprintf("%s.go", pkg.Name): mdTmpl,
+		//"datasource.go": DataSourceCrud(
+		//	pkg.Name,
+		//	pkg.Module.Module,
+		//	appPath,
+		//	pkg.Spec.Pk,
+		//	pkg.Spec.Driver,
+		//	pkg.Spec.QueryColumns,
+		//	pkg.Spec.InsertValues,
+		//	pkg.Spec.InsertFields,
+		//	pkg.Spec.InsertQuestions,
+		//	pkg.Spec.UpdateSets,
+		//),
+		//"handler.go": HandlerCrud(
+		//	pkg.Name,
+		//	pkg.Module.Module,
+		//	pkg.Spec.Pk,
+		//),
+		//"provider.go": Provider(pkg.Name),
+		//"repository.go": RepositoryCrud(
+		//	pkg.Name,
+		//	pkg.Spec.Pk,
+		//),
+		//"router.go": RouterCrud(
+		//	pkg.Name,
+		//	pkg.Module.Module,
+		//),
+		//"usecase.go": UseCaseCrud(
+		//	pkg.Name,
+		//	pkg.Spec.Pk,
+		//),
+		//fmt.Sprintf("%s.go", pkg.Name): ModelCrud(
+		//	pkg.Imports,
+		//	pkg.Module.Module,
+		//	pkg.Spec.Pk,
+		//	pkg.Name,
+		//	pkg.Spec.Fields,
+		//	pkg.Spec.Columns,
+		//),
 	}
 }

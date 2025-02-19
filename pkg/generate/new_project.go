@@ -95,6 +95,10 @@ func getProjectConfig(currentDir string, opt option.Options) []FileConfig {
 
 		// Database files
 		{
+			Path:     fmt.Sprintf("%s/internal/database/db.go", currentDir),
+			Template: template.DatabaseDbTemplate,
+		},
+		{
 			Path:     fmt.Sprintf("%s/internal/database/drivers.go", currentDir),
 			Template: template.DatabaseDriversTemplate,
 		},

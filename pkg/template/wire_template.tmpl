@@ -6,24 +6,26 @@ package {{.PackageName}}
 import (
 	"github.com/google/wire"
 	"{{.Module}}/internal/app"
-	"{{.Module}}/internal/api"
+	"{{.Module}}/internal/app/api"
 	"{{.Module}}/internal/database"
 	"{{.Module}}/internal/pkg/response"
 	"{{.Module}}/internal/pkg/validator"
-	"{{.Module}}/internal/pkg/middleware"
+	"{{.Module}}/internal/middleware"
 	"{{.Module}}/pkg/requestx"
 	//+fibergen:import wire:package
 )
 
 func CreateApp(dbDriver database.Drivers) app.App {
 	wire.Build(
+		database.NewDB,
+		database.NewDBTx,
 		app.NewApp,
 		api.New,
 		api.NewRouters,
 		response.New,
 		validator.New,
-		requestx.NewApiHandler,
-		middleware.NewOnRequestPermission,
+		requestx.NewRequestHandler,
+		middleware.NewOnRequestGuard,
 		//+fibergen:func wire:build
 	)
 	return nil

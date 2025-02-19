@@ -12,20 +12,18 @@ func FeatureGenerate(fx filex.FileX, pkg option.Package, filename string, tmpl s
 	spinnerGenFile, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Generate file %s", filename))
 	currentDir, err := fx.Getwd()
 	if err != nil {
-		fmt.Println(err)
-		spinnerGenFile.Fail()
+		spinnerGenFile.Fail(err)
 		return
 	}
 	currentDir = fmt.Sprintf("%s/%s", currentDir, common.ToLower(pkg.Name))
 	err = fx.EnsureDir(currentDir)
 	if err != nil {
-		fmt.Println(err)
-		spinnerGenFile.Fail()
+		spinnerGenFile.Fail(err)
 		return
 	}
 	target := fmt.Sprintf("%s/%s", currentDir, filename)
-	if err := fx.WriteFile(target, []byte(tmpl)); err != nil {
-		spinnerGenFile.Fail()
+	if err = fx.WriteFile(target, []byte(tmpl)); err != nil {
+		spinnerGenFile.Fail(err)
 	} else {
 		spinnerGenFile.Success()
 	}

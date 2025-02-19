@@ -1,0 +1,14 @@
+package database
+
+import (
+	"github.com/dreamph/dbre"
+	"github.com/dreamph/dbre/adapters/bun"
+)
+
+func NewDB(driver Drivers) dbre.AppIDB {
+	return bun.NewIDB(driver.GetBunMariaDB())
+}
+
+func NewDBTx(driver Drivers) dbre.DBTx {
+	return bun.NewDBTx(driver.GetBunMariaDB())
+}

@@ -89,7 +89,7 @@ func (p *onRequest) SetPermissionId(c *fiber.Ctx, permissionId string) {
 	c.Locals("permissionId", permissionId)
 }
 
-func NewOnRequestPermission(apiHandler api.ApiHandler) OnRequest {
+func NewOnRequestGuard(apiHandler api.ApiHandler) OnRequest {
 	return NewOnRequest(apiHandler, &OnRequestOptions{
 		HandleAuditLog: func(c *fiber.Ctx, permissionId string, userRequestInfo *core.UserRequestInfo) error {
 			// TODO implementation

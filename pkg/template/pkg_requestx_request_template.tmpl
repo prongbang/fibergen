@@ -226,7 +226,7 @@ func (h *apiHandler) bodyParserIfRequired(c *fiber.Ctx, requestPtr interface{}) 
 	return true, nil
 }
 
-func NewApiHandler(response fibererror.Response, validate *validator.Validate) ApiHandler {
+func NewRequestHandler(response fibererror.Response, validate *validator.Validate) ApiHandler {
 	return &apiHandler{
 		Response: response,
 		Validate: validate,

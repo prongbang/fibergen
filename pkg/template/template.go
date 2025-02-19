@@ -113,6 +113,9 @@ var CrudPermissionTemplate string
 
 // Database
 
+//go:embed database_db_template.tmpl
+var DatabaseDbTemplate string
+
 //go:embed database_drivers_template.tmpl
 var DatabaseDriversTemplate string
 
@@ -246,8 +249,11 @@ func RenderText[T any](tmpl string, data T) ([]byte, error) {
 }
 
 type Project struct {
-	Module string
-	Name   string
+	Module     string
+	Name       string
+	Path       string
+	ListQuery  string
+	SortFields map[string]string
 }
 
 func (w Project) PackageName() string {

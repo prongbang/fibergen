@@ -1,45 +1,55 @@
 package {{.PackageName}}
 
+import (
+	"context"
+	"github.com/dreamph/dbre"
+)
+
 type Repository interface {
-	Count(params Params) int64
-	FindList(params Params) []{{.ModelName}}
-	FindLiteList(params LiteParams) []Lite{{.ModelName}}
-	FindOne(id {{.Pk}}) {{.ModelName}}
-	Create(data *Create{{.ModelName}}) error
-	Update(data *Update{{.ModelName}}) error
-	Delete(id {{.Pk}}) error
+	FindOne(ctx context.Context, obj *One{{.ModelName}}Criteria) (*{{.ModelName}}, error)
+	FindList(ctx context.Context, obj *List{{.ModelName}}Criteria) (*[]{{.ModelName}}Data, int64, error)
+	FindLiteList(ctx context.Context, obj *LiteList{{.ModelName}}Criteria) (*[]Lite{{.ModelName}}, error)
+	Create(ctx context.Context, obj *{{.ModelName}}) (*{{.ModelName}}, error)
+	CreateList(ctx context.Context, obj *[]{{.ModelName}}) (*[]{{.ModelName}}, error)
+	Update(ctx context.Context, obj *{{.ModelName}}) (*{{.ModelName}}, error)
+	UpdateList(ctx context.Context, obj *[]{{.ModelName}})) (*[]{{.ModelName}}), error)
+	Delete(ctx context.Context, id {{.Pk}}) error
 }
 
 type repository struct {
 	Ds DataSource
 }
 
-func (r *repository) Count(params Params) int64 {
-	return r.Ds.Count(params)
+func (r *repository) FindOne(ctx context.Context, obj *One{{.ModelName}}Criteria) (*{{.ModelName}}, error) {
+	return r.Ds.FindOne(ctx, obj)
 }
 
-func (r *repository) FindList(params Params) []{{.ModelName}} {
-	return r.Ds.FindList(params)
+func (r *repository) FindList(ctx context.Context, obj *List{{.ModelName}}Criteria) (*[]{{.ModelName}}Data, int64, error) {
+	return r.Ds.FindList(ctx, obj)
 }
 
-func (r *repository) FindLiteList(params LiteParams) []Lite{{.ModelName}} {
-	return r.Ds.FindLiteList(params)
+func (r *repository) FindLiteList(ctx context.Context, obj *LiteList{{.ModelName}}Criteria) (*[]Lite{{.ModelName}}, error) {
+	return r.Ds.FindLiteList(ctx, obj)
 }
 
-func (r *repository) FindOne(id {{.Pk}}) {{.ModelName}} {
-	return r.Ds.FindOne(id)
+func (r *repository) Create(ctx context.Context, obj *{{.ModelName}}) (*{{.ModelName}}, error) {
+	return r.Ds.Create(ctx, obj)
 }
 
-func (r *repository) Create(data *Create{{.ModelName}}) error {
-	return r.Ds.Create(data)
+func (r *repository) CreateList(ctx context.Context, obj *[]{{.ModelName}}) (*[]{{.ModelName}}, error) {
+	return r.Ds.CreateList(ctx, obj)
 }
 
-func (r *repository) Update(data *Update{{.ModelName}}) error {
-	return r.Ds.Update(data)
+func (r *repository) Update(ctx context.Context, obj *{{.ModelName}}) (*{{.ModelName}}, error) {
+	return r.Ds.Update(ctx, obj)
 }
 
-func (r *repository) Delete(id {{.Pk}}) error {
-	return r.Ds.Delete(id)
+func (r *repository) UpdateList(ctx context.Context, obj *[]{{.ModelName}})) (*[]{{.ModelName}}), error) {
+	return r.Ds.UpdateList(ctx, obj)
+}
+
+func (r *repository) Delete(ctx context.Context, id {{.Pk}}) error {
+	return r.Ds.Delete(ctx, id)
 }
 
 func NewRepository(ds DataSource) Repository {
