@@ -36,7 +36,24 @@ func NewFeatureCrud(fx filex.FileX, opt option.Options, installer tools.Installe
 	insertFields := []string{}
 	insertQuestions := []string{}
 	updateSets := []string{}
-	fields := []string{}
+	fields := []template.Field{
+		{
+			Name:    "CreatedBy",
+			Type:    "string",
+			JsonTag: "createdBy",
+			DbTag:   "created_by",
+			Update:  false,
+			Create:  false,
+		},
+		{
+			Name:    "UpdatedBy",
+			Type:    "string",
+			JsonTag: "updatedBy",
+			DbTag:   "updated_by",
+			Update:  false,
+			Create:  false,
+		},
+	}
 	columns := []string{}
 	for key, value := range result {
 		snakeTag := strcase.ToSnake(key)
@@ -61,14 +78,18 @@ func NewFeatureCrud(fx filex.FileX, opt option.Options, installer tools.Installe
 		columns = append(columns, snakeTag)
 
 		// Fields
-		fields = append(fields, fmt.Sprintf("\t%s\t%s `json:\"%s\" db:\"%s\"`", vars, typeValue, camelTag, snakeTag))
+		fields = append(fields, template.Field{Name: vars, Type: typeValue, JsonTag: camelTag, DbTag: snakeTag, Update: true, Create: true})
 
 		// Query
 		queryColumns = append(queryColumns, fmt.Sprintf("%s.%s", alias, snakeTag))
 
 		// Pk
 		if strings.ToUpper(key) == "ID" {
-			spec.Pk = typeValue
+			spec.PrimaryField = template.PrimaryField{
+				Name:    "Id",
+				Type:    typeValue,
+				JsonTag: "id",
+			}
 		} else {
 			// Insert
 			insertValues = append(insertValues, fmt.Sprintf("\tdata.%s,\n", vars))
@@ -89,7 +110,7 @@ func NewFeatureCrud(fx filex.FileX, opt option.Options, installer tools.Installe
 	spec.InsertFields = strings.Join(insertFields, ", ")
 	spec.InsertQuestions = strings.Join(insertQuestions, ", ")
 	spec.UpdateSets = strings.Join(updateSets, "\n\t")
-	spec.Fields = strings.Join(fields, "\n")
+	spec.Fields = fields
 	spec.Columns = columns
 
 	// Install library
@@ -116,18 +137,14 @@ func featureCrudTemplates(pkg option.Package) map[string][]byte {
 		appPath = config.InternalPath
 	}
 
-	dsTmpl, _ := template.RenderText(template.CrudDatasourceTemplate, template.Project{Pk: pkg.Spec.Pk, Name: pkg.Name, Module: pkg.Module.Module, Path: pkg.Module.AppPath})
-	hdTmpl, _ := template.RenderText(template.CrudHandlerTemplate, template.Project{Name: pkg.Name})
+	dsTmpl, _ := template.RenderText(template.CrudDatasourceTemplate, template.Project{Name: pkg.Name, PrimaryField: pkg.Spec.PrimaryField, Module: pkg.Module.Module, Path: pkg.Module.AppPath})
+	hdTmpl, _ := template.RenderText(template.CrudHandlerTemplate, template.Project{Name: pkg.Name, Module: pkg.Module.Module})
 	pdTmpl, _ := template.RenderText(template.CrudProviderTemplate, template.Project{Name: pkg.Name})
 	pmTmpl, _ := template.RenderText(template.CrudPermissionTemplate, template.Project{Name: pkg.Name})
-	rpTmpl, _ := template.RenderText(template.CrudRepositoryTemplate, template.Project{Name: pkg.Name})
+	rpTmpl, _ := template.RenderText(template.CrudRepositoryTemplate, template.Project{Name: pkg.Name, PrimaryField: pkg.Spec.PrimaryField})
 	rtTmpl, _ := template.RenderText(template.CrudRouterTemplate, template.Project{Name: pkg.Name, Module: pkg.Module.Module})
-	ucTmpl, _ := template.RenderText(template.CrudUseCaseTemplate, template.Project{Name: pkg.Name})
-	mdTmpl, _ := template.RenderText(template.CrudModelTemplate, template.Project{
-		Imports: pkg.Imports,
-		Fields:  pkg.Spec.Fields,
-		Name:    pkg.Name,
-	})
+	ucTmpl, _ := template.RenderText(template.CrudUseCaseTemplate, template.Project{Name: pkg.Name, Module: pkg.Module.Module, Fields: pkg.Spec.Fields})
+	mdTmpl, _ := template.RenderText(template.CrudModelTemplate, template.Project{Imports: pkg.Imports, Module: pkg.Module.Module, Fields: pkg.Spec.Fields, PrimaryField: pkg.Spec.PrimaryField, Name: pkg.Name})
 
 	return map[string][]byte{
 		"datasource.go":                dsTmpl,
@@ -138,43 +155,5 @@ func featureCrudTemplates(pkg option.Package) map[string][]byte {
 		"router.go":                    rtTmpl,
 		"usecase.go":                   ucTmpl,
 		fmt.Sprintf("%s.go", pkg.Name): mdTmpl,
-		//"datasource.go": DataSourceCrud(
-		//	pkg.Name,
-		//	pkg.Module.Module,
-		//	appPath,
-		//	pkg.Spec.Pk,
-		//	pkg.Spec.Driver,
-		//	pkg.Spec.QueryColumns,
-		//	pkg.Spec.InsertValues,
-		//	pkg.Spec.InsertFields,
-		//	pkg.Spec.InsertQuestions,
-		//	pkg.Spec.UpdateSets,
-		//),
-		//"handler.go": HandlerCrud(
-		//	pkg.Name,
-		//	pkg.Module.Module,
-		//	pkg.Spec.Pk,
-		//),
-		//"provider.go": Provider(pkg.Name),
-		//"repository.go": RepositoryCrud(
-		//	pkg.Name,
-		//	pkg.Spec.Pk,
-		//),
-		//"router.go": RouterCrud(
-		//	pkg.Name,
-		//	pkg.Module.Module,
-		//),
-		//"usecase.go": UseCaseCrud(
-		//	pkg.Name,
-		//	pkg.Spec.Pk,
-		//),
-		//fmt.Sprintf("%s.go", pkg.Name): ModelCrud(
-		//	pkg.Imports,
-		//	pkg.Module.Module,
-		//	pkg.Spec.Pk,
-		//	pkg.Name,
-		//	pkg.Spec.Fields,
-		//	pkg.Spec.Columns,
-		//),
 	}
 }

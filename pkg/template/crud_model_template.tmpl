@@ -9,24 +9,26 @@ import (
 )
 
 {{- $fields := .Fields }}
-{{- range .Models }}
 type {{.ModelName}} struct {
     bun.BaseModel `bun:"table:{{.TableName}},alias:{{- $name := .TableName }}
     {{- range $index, $word := split $name "_" }}
         {{- printf "%.1s" $word }}{{- if ne $index (sub (len (split $name "_")) 1) }}_{{- end }}
     {{- end }}" json:"-" swaggerignore:"true"`
 {{- range $field := $fields }}
-	{{ $field.Name }} {{ $field.Type }} `json:"{{ $field.JSONName }}"`
+	{{ $field.Name }} {{ $field.Type }} `json:"{{ $field.JsonTag }}" db:"{{ $field.DbTag }}"`
 {{- end }}
 }
 
 // TableName sets the insert table name for this struct type
-func (u *Example) TableName() string {
+func (u *{{.ModelName}}) TableName() string {
 	return "{{.TableName}}"
 }
 
 type {{.ModelName}}Data struct {
 	*{{.ModelName}}
+}
+
+type Delete{{.ModelName}}Data struct {
 }
 
 type {{.ModelName}}Paged struct {
@@ -35,28 +37,37 @@ type {{.ModelName}}Paged struct {
 
 type Lite{{.ModelName}} struct {
 {{- range $field := $fields }}
-	{{ $field.Name }} {{ $field.Type }} `json:"{{ $field.JSONName }}"`
+	{{ $field.Name }} {{ $field.Type }} `json:"{{ $field.JsonTag }}" db:"{{ $field.DbTag }}"`
 {{- end }}
 }
 
-type Create{{.ModelName}} struct {
+type Create{{.ModelName}}Request struct {
+	UserRequestInfo *core.UserRequestInfo `json:"-"`
 {{- range $field := $fields }}
-	{{ $field.Name }} {{ $field.Type }} `json:"{{ $field.JSONName }}"`
+	{{ $field.Name }} {{ $field.Type }} `json:"{{ $field.JsonTag }}" db:"{{ $field.DbTag }}"`
 {{- end }}
 }
 
-type Update{{.ModelName}} struct {
+type CreateList{{.ModelName}}Request struct {
+	UserRequestInfo *core.UserRequestInfo `json:"-"`
+	{{.ModelName}}s *[]Create{{.ModelName}}Request
+}
+
+type Update{{.ModelName}}Request struct {
+	UserRequestInfo *core.UserRequestInfo `json:"-"`
 {{- range $field := $fields }}
-	{{ $field.Name }} {{ $field.Type }} `json:"{{ $field.JSONName }}"`
+	{{ $field.Name }} {{ $field.Type }} `json:"{{ $field.JsonTag }}" db:"{{ $field.DbTag }}"`
 {{- end }}
 }
-{{- end }}
+
+type UpdateList{{.ModelName}}Request struct {
+	UserRequestInfo *core.UserRequestInfo `json:"-"`
+	{{.ModelName}}s *[]Update{{.ModelName}}Request
+}
 
 type Delete{{.ModelName}}Request struct {
-	Id {{.Pk}} {{.JsonId}}
-}
-
-type Delete{{.ModelName}}Data struct {
+	UserRequestInfo *core.UserRequestInfo `json:"-"`
+	{{ .PrimaryField.Name }} {{ .PrimaryField.Type }} `json:"{{ .PrimaryField.JsonTag }}"`
 }
 
 type List{{.ModelName}}Request struct {
@@ -86,5 +97,5 @@ type LiteList{{.ModelName}}Criteria struct {
 }
 
 type One{{.ModelName}}Criteria struct {
-    Id {{.Pk}}
+    {{ .PrimaryField.Name }} {{ .PrimaryField.Type }}
 }

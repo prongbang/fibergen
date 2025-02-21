@@ -3,18 +3,18 @@ package {{.PackageName}}
 import (
 	"context"
 	"{{.Module}}/pkg/core"
-	"time"
+	"github.com/prongbang/goerror"
 )
 
 type UseCase interface {
 	FindOne(ctx context.Context, obj *One{{.ModelName}}Request) (*{{.ModelName}}, error)
 	FindList(ctx context.Context, obj *List{{.ModelName}}Request) (*[]{{.ModelName}}Data, int64, error)
 	FindLiteList(ctx context.Context, obj *LiteList{{.ModelName}}Request) (*[]Lite{{.ModelName}}, error)
-	Create(ctx context.Context, obj *{{.ModelName}}) (*{{.ModelName}}, error)
-	CreateList(ctx context.Context, obj *[]{{.ModelName}}) (*[]{{.ModelName}}, error)
-	Update(ctx context.Context, obj *{{.ModelName}}) (*{{.ModelName}}, error)
-	UpdateList(ctx context.Context, obj *[]{{.ModelName}})) (*[]{{.ModelName}}), error)
-	Delete(ctx context.Context, request *Delete{{.ModelName}}Request) (*Delete{{.ModelName}}Data, error)
+	Create(ctx context.Context, obj *Create{{.ModelName}}Request) (*{{.ModelName}}, error)
+	CreateList(ctx context.Context, obj *CreateList{{.ModelName}}Request) (*[]{{.ModelName}}, error)
+	Update(ctx context.Context, obj *Update{{.ModelName}}Request) (*{{.ModelName}}, error)
+	UpdateList(ctx context.Context, obj *UpdateList{{.ModelName}}Request) (*[]{{.ModelName}}, error)
+	Delete(ctx context.Context, obj *Delete{{.ModelName}}Request) (*Delete{{.ModelName}}Data, error)
 }
 
 type useCase struct {
@@ -22,7 +22,7 @@ type useCase struct {
 }
 
 func (uc *useCase) FindOne(ctx context.Context, obj *One{{.ModelName}}Request) (*{{.ModelName}}, error) {
-	data, err := uc.Repo.FindOne(ctx, request.One{{.ModelName}}Criteria)
+	data, err := uc.Repo.FindOne(ctx, obj.One{{.ModelName}}Criteria)
 	if err != nil {
 		return nil, err
 	}
@@ -30,45 +30,61 @@ func (uc *useCase) FindOne(ctx context.Context, obj *One{{.ModelName}}Request) (
 }
 
 func (uc *useCase) FindList(ctx context.Context, obj *List{{.ModelName}}Request) (*[]{{.ModelName}}Data, int64, error) {
-	data, err := uc.Repo.FindList(ctx, request.List{{.ModelName}}Criteria)
+	data, total, err := uc.Repo.FindList(ctx, obj.List{{.ModelName}}Criteria)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
-	return data, nil
+	return data, total, nil
 }
 
 func (uc *useCase) FindLiteList(ctx context.Context, obj *LiteList{{.ModelName}}Request) (*[]Lite{{.ModelName}}, error) {
-	data, err := uc.Repo.FindLiteList(ctx, request.LiteList{{.ModelName}}Criteria)
+	data, err := uc.Repo.FindLiteList(ctx, obj.LiteList{{.ModelName}}Criteria)
 	if err != nil {
 		return nil, err
 	}
 	return data, nil
 }
 
-func (uc *useCase) Create(ctx context.Context, obj *{{.ModelName}}) (*{{.ModelName}}, error) {
-	obj.CreatedBy = request.UserRequestInfo.Id,
-
-	_, err := uc.Repo.Create(ctx, obj)
-	if err != nil {
-		return nil, err
-	}
-	return data, nil
-}
-
-func (uc *useCase) CreateList(ctx context.Context, obj *[]{{.ModelName}}) (*[]{{.ModelName}}, error) {
-    for i, record := range *obj {
-        (*obj)[i].CreatedBy = request.UserRequestInfo.Id,
+{{- $fields := .Fields }}
+func (uc *useCase) Create(ctx context.Context, obj *Create{{.ModelName}}Request) (*{{.ModelName}}, error) {
+	data := &{{.ModelName}}{
+    {{- range $field := $fields }}
+    {{- if $field.Update }}
+        {{ $field.Name }}: obj.{{ $field.Name }},
+    {{- end }}
+    {{- end }}
+        CreatedBy: obj.UserRequestInfo.Id,
     }
 
-	_, err := uc.Repo.CreateList(ctx, obj)
+	_, err := uc.Repo.Create(ctx, data)
 	if err != nil {
 		return nil, err
 	}
 	return data, nil
 }
 
-func (uc *useCase) Update(ctx context.Context, request *Update{{.ModelName}}Request) (*{{.ModelName}}, error) {
-	data, err := uc.Repo.FindOne(ctx, request.One{{.ModelName}}Criteria{Id: request.Id})
+func (uc *useCase) CreateList(ctx context.Context, obj *CreateList{{.ModelName}}Request) (*[]{{.ModelName}}, error) {
+    data := []{{.ModelName}}{}
+    for _, record := range *(obj).{{.ModelName}}s {
+        data = append(data, {{.ModelName}}{
+        {{- range $field := $fields }}
+        {{- if $field.Update }}
+            {{ $field.Name }}: record.{{ $field.Name }},
+        {{- end }}
+        {{- end }}
+            CreatedBy: obj.UserRequestInfo.Id,
+        })
+    }
+
+	_, err := uc.Repo.CreateList(ctx, &data)
+	if err != nil {
+		return nil, err
+	}
+	return &data, nil
+}
+
+func (uc *useCase) Update(ctx context.Context, obj *Update{{.ModelName}}Request) (*{{.ModelName}}, error) {
+	data, err := uc.Repo.FindOne(ctx, &One{{.ModelName}}Criteria{Id: obj.Id})
 	if err != nil {
 		return nil, err
 	}
@@ -76,7 +92,12 @@ func (uc *useCase) Update(ctx context.Context, request *Update{{.ModelName}}Requ
 		return nil, goerror.NewNotFound()
 	}
 
-	data.UpdatedBy = request.UserRequestInfo.Id
+{{- range $field := $fields }}
+{{- if $field.Update }}
+    data.{{ $field.Name }} = obj.{{ $field.Name }}
+{{- end }}
+{{- end }}
+	data.UpdatedBy = obj.UserRequestInfo.Id
 
 	_, err = uc.Repo.Update(ctx, data)
 	if err != nil {
@@ -86,21 +107,29 @@ func (uc *useCase) Update(ctx context.Context, request *Update{{.ModelName}}Requ
 	return data, nil
 }
 
-func (uc *useCase) UpdateList(ctx context.Context, obj *[]{{.ModelName}})) (*[]{{.ModelName}}), error) {
-	for i, record := range *obj {
-        (*obj)[i].UpdatedBy = request.UserRequestInfo.Id,
+func (uc *useCase) UpdateList(ctx context.Context, obj *UpdateList{{.ModelName}}Request) (*[]{{.ModelName}}, error) {
+    data := []{{.ModelName}}{}
+    for _, record := range *(obj).{{.ModelName}}s {
+        data = append(data, {{.ModelName}}{
+        {{- range $field := $fields }}
+        {{- if $field.Update }}
+            {{ $field.Name }}: record.{{ $field.Name }},
+        {{- end }}
+        {{- end }}
+            UpdatedBy: obj.UserRequestInfo.Id,
+        })
     }
 
-	_, err = uc.Repo.UpdateList(ctx, data)
+	_, err := uc.Repo.UpdateList(ctx, &data)
 	if err != nil {
 		return nil, err
 	}
 
-	return data, nil
+	return &data, nil
 }
 
-func (uc *useCase) Delete(ctx context.Context, request *Delete{{.ModelName}}Request) (*Delete{{.ModelName}}Data, error) {
-	data, err := uc.Repo.FindOne(ctx, request.One{{.ModelName}}Criteria{Id: request.Id})
+func (uc *useCase) Delete(ctx context.Context, obj *Delete{{.ModelName}}Request) (*Delete{{.ModelName}}Data, error) {
+	data, err := uc.Repo.FindOne(ctx, &One{{.ModelName}}Criteria{Id: obj.Id})
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +137,7 @@ func (uc *useCase) Delete(ctx context.Context, request *Delete{{.ModelName}}Requ
 		return nil, goerror.NewNotFound()
 	}
 
-	err = uc.Repo.Delete(ctx, request.Id)
+	err = uc.Repo.Delete(ctx, obj.Id)
 	if err != nil {
 		return nil, err
 	}

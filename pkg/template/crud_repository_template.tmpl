@@ -2,7 +2,6 @@ package {{.PackageName}}
 
 import (
 	"context"
-	"github.com/dreamph/dbre"
 )
 
 type Repository interface {
@@ -12,8 +11,8 @@ type Repository interface {
 	Create(ctx context.Context, obj *{{.ModelName}}) (*{{.ModelName}}, error)
 	CreateList(ctx context.Context, obj *[]{{.ModelName}}) (*[]{{.ModelName}}, error)
 	Update(ctx context.Context, obj *{{.ModelName}}) (*{{.ModelName}}, error)
-	UpdateList(ctx context.Context, obj *[]{{.ModelName}})) (*[]{{.ModelName}}), error)
-	Delete(ctx context.Context, id {{.Pk}}) error
+	UpdateList(ctx context.Context, obj *[]{{.ModelName}}) (*[]{{.ModelName}}, error)
+	Delete(ctx context.Context, id {{.PrimaryField.Type}}) error
 }
 
 type repository struct {
@@ -44,11 +43,11 @@ func (r *repository) Update(ctx context.Context, obj *{{.ModelName}}) (*{{.Model
 	return r.Ds.Update(ctx, obj)
 }
 
-func (r *repository) UpdateList(ctx context.Context, obj *[]{{.ModelName}})) (*[]{{.ModelName}}), error) {
+func (r *repository) UpdateList(ctx context.Context, obj *[]{{.ModelName}}) (*[]{{.ModelName}}, error) {
 	return r.Ds.UpdateList(ctx, obj)
 }
 
-func (r *repository) Delete(ctx context.Context, id {{.Pk}}) error {
+func (r *repository) Delete(ctx context.Context, id {{.PrimaryField.Type}}) error {
 	return r.Ds.Delete(ctx, id)
 }
 

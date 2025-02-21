@@ -1,14 +1,13 @@
-package {{.ModelName}}
+package {{.PackageName}}
 
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
-	"{{.Module}}/pkg/mapper"
 
 	"github.com/dreamph/dbre"
 	"github.com/dreamph/dbre/adapters/bun"
-	"{{.Module}}/configuration"
 	"{{.Module}}/pkg/core"
 )
 
@@ -19,8 +18,8 @@ type DataSource interface {
 	Create(ctx context.Context, obj *{{.ModelName}}) (*{{.ModelName}}, error)
 	CreateList(ctx context.Context, obj *[]{{.ModelName}}) (*[]{{.ModelName}}, error)
 	Update(ctx context.Context, obj *{{.ModelName}}) (*{{.ModelName}}, error)
-	UpdateList(ctx context.Context, obj *[]{{.ModelName}})) (*[]{{.ModelName}}), error)
-	Delete(ctx context.Context, id {{.Pk}}) error
+	UpdateList(ctx context.Context, obj *[]{{.ModelName}}) (*[]{{.ModelName}}, error)
+	Delete(ctx context.Context, id {{.PrimaryField.Type}}) error
 }
 
 type dataSource struct {
@@ -106,9 +105,12 @@ func (d *dataSource) FindOne(ctx context.Context, obj *One{{.ModelName}}Criteria
         whereBuilder.Where("id = ?", obj.Id)
     }
 
-    result, err = d.db.ListWhere(ctx, whereBuilder.WhereCauses(), nil, nil)
-    if len(result) > 0 {
-        return result[0], nil
+    result, err := d.db.ListWhere(ctx, whereBuilder.WhereCauses(), nil, nil)
+	if err != nil {
+		return nil, err
+	}
+    if result!=nil && len(*result) > 0 {
+        return &(*result)[0], nil
     }
 
     return nil, errors.New("not found")
@@ -126,11 +128,11 @@ func (d *dataSource) Update(ctx context.Context, obj *{{.ModelName}}) (*{{.Model
 	return d.db.Update(ctx, obj)
 }
 
-func (d *dataSource) UpdateList(ctx context.Context, obj *[]{{.ModelName}})) (*[]{{.ModelName}}), error) {
-	return d.db.Update(ctx, obj)
+func (d *dataSource) UpdateList(ctx context.Context, obj *[]{{.ModelName}}) (*[]{{.ModelName}}, error) {
+	return d.db.UpdateList(ctx, obj)
 }
 
-func (d *dataSource) Delete(ctx context.Context, id {{.Pk}}) error {
+func (d *dataSource) Delete(ctx context.Context, id {{.PrimaryField.Type}}) error {
 	return d.db.Delete(ctx, &{{.ModelName}}{Id: id})
 }
 

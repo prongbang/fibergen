@@ -32,7 +32,7 @@ func CreateApp(dbDriver database.Drivers) app.App {
 	onRequest := middleware.NewOnRequestGuard(apiHandler)
 	router := example.NewRouter(handler, onRequest)
 	routers := api.NewRouters(router)
-	apiAPI := api.New(routers)
+	apiAPI := api.New(routers, fibererrorResponse)
 	appApp := app.NewApp(apiAPI)
 	return appApp
 }

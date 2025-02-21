@@ -285,15 +285,30 @@ func RenderText[T any](tmpl string, data T) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
+type Field struct {
+	Name    string
+	Type    string
+	JsonTag string
+	DbTag   string
+	Update  bool
+	Create  bool
+}
+
+type PrimaryField struct {
+	Name    string
+	Type    string
+	JsonTag string
+}
+
 type Project struct {
-	Imports    []string
-	Fields     []string
-	Pk         string
-	Module     string
-	Name       string
-	Path       string
-	ListQuery  string
-	SortFields map[string]string
+	Imports      []string
+	Fields       []Field
+	Module       string
+	Name         string
+	Path         string
+	ListQuery    string
+	SortFields   map[string]string
+	PrimaryField PrimaryField
 }
 
 func (w Project) PackageName() string {

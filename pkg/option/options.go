@@ -1,5 +1,7 @@
 package option
 
+import "github.com/prongbang/fibergen/pkg/template"
+
 type Options struct {
 	Project string
 	Module  string
@@ -10,10 +12,10 @@ type Options struct {
 }
 
 type Spec struct {
-	Pk              string
 	Driver          string
 	QueryColumns    string
-	Fields          string
+	Fields          []template.Field
+	PrimaryField    template.PrimaryField
 	Columns         []string
 	InsertValues    string
 	InsertFields    string
