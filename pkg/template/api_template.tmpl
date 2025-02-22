@@ -1,0 +1,130 @@
+package api
+
+import (
+	"errors"
+	"fmt"
+	swagger "github.com/arsmn/fiber-swagger/v2"
+	gojson "github.com/goccy/go-json"
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/log"
+	"github.com/gofiber/fiber/v2/middleware/adaptor"
+	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gofiber/fiber/v2/middleware/recover"
+	"github.com/gofiber/fiber/v2/middleware/requestid"
+	"github.com/prongbang/fibererror"
+	"github.com/prongbang/goredoc"
+	"{{.Module}}/configuration"
+	"{{.Module}}/internal/middleware"
+	"{{.Module}}/internal/pkg/casbinx"
+	"os"
+	"os/signal"
+	"syscall"
+	_ "time/tzdata"
+)
+
+type FiberErrorHandler struct {
+	response fibererror.Response
+}
+
+func (f *FiberErrorHandler) ErrorHandler(c *fiber.Ctx, err error) error {
+	fiberError := fiber.ErrInternalServerError
+	var e *fiber.Error
+	if errors.As(err, &e) {
+		fiberError = e
+	}
+	_ = c.SendStatus(fiberError.Code)
+
+	return f.response.With(c).Response(err)
+}
+
+func NewServerConfig(response fibererror.Response) fiber.Config {
+	fe := FiberErrorHandler{
+		response: response,
+	}
+	cfg := fiber.Config{
+		ErrorHandler: fe.ErrorHandler,
+		JSONEncoder:  gojson.Marshal,
+		JSONDecoder:  gojson.Unmarshal,
+	}
+	return cfg
+}
+
+type API interface {
+	Register()
+}
+
+type api struct {
+	Router   Routers
+	Response fibererror.Response
+}
+
+func (a *api) Register() {
+	app := fiber.New(NewServerConfig(a.Response))
+
+	// Middleware
+	app.Use(logger.New())
+	app.Use(recover.New())
+	app.Use(requestid.New())
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: "*",
+		AllowHeaders: "X-Platform, X-Api-Key, Authorization, Access-Control-Allow-Credentials, Access-Control-Allow-Origin, Access-Control-Allow-Headers, Origin, Content-Type, Accept",
+		AllowMethods: "GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS",
+	}))
+
+	if configuration.Config.Env != configuration.EnvProduction {
+		conf := swagger.ConfigDefault
+		conf.PersistAuthorization = true
+		conf.DisplayRequestDuration = true
+		conf.Filter = swagger.FilterConfig{
+			Enabled: true,
+		}
+		doc := goredoc.New(goredoc.Config{
+			Title:   "API Documentation",
+			SpecURL: "/swagger/doc.json",
+		})
+		app.Get("/docs", adaptor.HTTPHandlerFunc(doc.Handler()))
+		app.Use("/swagger", swagger.HandlerDefault)
+	}
+	app.Use(middleware.NewJWT(a.Response))
+	app.Use(casbinx.New())
+
+	app.Hooks().OnShutdown(func() error {
+		log.Info("On server shutting down")
+		return nil
+	})
+
+	// Routers
+	a.Router.Initials(app)
+
+	// Serve
+	go func() {
+		log.Info(fmt.Sprintf("Swagger URL : http://localhost:%d/docs", configuration.Config.API.Port))
+		log.Fatal(app.Listen(fmt.Sprintf(":%d", configuration.Config.API.Port)))
+	}()
+
+	wait(func(sig os.Signal) {
+		log.Info("Gracefully shutting down...")
+		log.Info("Waiting for all request to finish")
+		err := app.Shutdown()
+		if err != nil {
+			log.Fatal(err)
+		}
+		log.Info("Running cleanup tasks...")
+		log.Info("Server was successful shutdown.")
+	})
+}
+
+func wait(fn func(os.Signal)) {
+	termChan := make(chan os.Signal, 1)
+	signal.Notify(termChan, os.Interrupt, syscall.SIGTERM)
+	sig := <-termChan
+	fn(sig)
+}
+
+func New(router Routers, response fibererror.Response) API {
+	return &api{
+		Router:   router,
+		Response: response,
+	}
+}

@@ -1,0 +1,45 @@
+package middleware
+
+import (
+	"github.com/gofiber/fiber/v2"
+	"github.com/innotechdevops/core/finder"
+	"github.com/prongbang/fibererror"
+	"github.com/prongbang/goerror"
+	"{{.Module}}/configuration"
+	"{{.Module}}/pkg/core"
+)
+
+var (
+	ExcludeUrls = []string{
+		"/auth/basic",
+		"/auth/pwd",
+		"/auth/rf",
+	}
+)
+
+func NewJWT(response fibererror.Response) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		// Non-Required auth
+		if finder.Contains(c.Path(), ExcludeUrls...) {
+			return c.Next()
+		}
+
+		requestToken := core.ExtractToken(core.Authorization(c))
+		if core.IsEmpty(requestToken) {
+			body := core.AccessToken{}
+			if err := c.BodyParser(&body); err != nil {
+				return response.With(c).Response(goerror.NewUnauthorized())
+			}
+			requestToken = body.Token
+		}
+
+		tokenData, err := core.ValidateJwtToken(requestToken, configuration.Config.Jwt.Secret)
+		if err != nil {
+			return response.With(c).Response(goerror.NewUnauthorized())
+		}
+
+		_ = c.Locals(core.UID, tokenData.UserID)
+
+		return c.Next()
+	}
+}

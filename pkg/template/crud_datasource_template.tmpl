@@ -1,0 +1,143 @@
+package {{.PackageName}}
+
+import (
+	"context"
+	"database/sql"
+	"errors"
+	"fmt"
+
+	"github.com/dreamph/dbre"
+	"github.com/dreamph/dbre/adapters/bun"
+	"{{.Module}}/pkg/core"
+)
+
+type DataSource interface {
+	FindList(ctx context.Context, obj *List{{.ModelName}}Criteria) (*[]{{.ModelName}}Data, int64, error)
+	FindLiteList(ctx context.Context, obj *LiteList{{.ModelName}}Criteria) (*[]Lite{{.ModelName}}, error)
+	FindOne(ctx context.Context, obj *One{{.ModelName}}Criteria) (*{{.ModelName}}, error)
+	Create(ctx context.Context, obj *{{.ModelName}}) (*{{.ModelName}}, error)
+	CreateList(ctx context.Context, obj *[]{{.ModelName}}) (*[]{{.ModelName}}, error)
+	Update(ctx context.Context, obj *{{.ModelName}}) (*{{.ModelName}}, error)
+	UpdateList(ctx context.Context, obj *[]{{.ModelName}}) (*[]{{.ModelName}}, error)
+	Delete(ctx context.Context, id {{.PrimaryField.Type}}) error
+}
+
+type dataSource struct {
+	db dbre.DB[{{.ModelName}}]
+}
+
+func (d *dataSource) FindList(ctx context.Context, obj *List{{.ModelName}}Criteria) (*[]{{.ModelName}}Data, int64, error) {
+	result := &[]{{.ModelName}}Data{}
+	var total int64
+
+	queryBuilder := dbre.NewSQLQueryBuilder()
+	queryBuilder.AddQueryWithParam(`{{.ListQuery}}`)
+
+	// Where
+	queryBuilder.AddQuery("WHERE 1=1")
+
+	// Query: count
+	countStatement := fmt.Sprintf("SELECT COUNT(1) FROM (%s) AS t", queryBuilder.ToSQLQuery())
+	err := d.db.RawQuery(ctx, countStatement, queryBuilder.GetQueryParams(), &total)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	// Query: list
+	if total > 0 {
+		// Sort
+		sortSQL, err := dbre.SortSQL(&dbre.SortParam{
+			SortFieldMapping: map[string]string{
+				{{- range $key, $value := .SortFields }}
+                "{{$key}}": "{{$value}}",
+                {{- end }}
+			},
+			Sort:        &dbre.Sort{SortBy: obj.Sort, SortDirection: obj.Order},
+			DefaultSort: &dbre.Sort{SortBy: "id", SortDirection: dbre.ASC},
+		})
+		if err != nil {
+			return nil, 0, err
+		}
+		if core.IsNotEmpty(sortSQL) {
+			queryBuilder.AddQuery(fmt.Sprintf("ORDER BY %s", sortSQL))
+		}
+
+		// Paged
+		if obj.Page > 0 && obj.Limit > 0 {
+		    pageQuery := core.GetPageQuery(obj.Page, obj.Limit)
+            queryBuilder.AddQueryWithParam("LIMIT @limit OFFSET @offset",
+                sql.Named("limit", pageQuery.Limit),
+                sql.Named("offset", pageQuery.Offset),
+            )
+		}
+
+		err = d.db.RawQuery(ctx, queryBuilder.ToSQLQuery(), queryBuilder.GetQueryParams(), result)
+		if err != nil {
+			return nil, 0, err
+		}
+	}
+
+	return result, total, nil
+}
+
+func (d *dataSource) FindLiteList(ctx context.Context, obj *LiteList{{.ModelName}}Criteria) (*[]Lite{{.ModelName}}, error) {
+	result := &[]Lite{{.ModelName}}{}
+
+	queryBuilder := dbre.NewSQLQueryBuilder()
+	queryBuilder.AddQueryWithParam(`{{.ListQuery}}`)
+
+	// Where
+	queryBuilder.AddQuery("WHERE 1=1")
+
+	err := d.db.RawQuery(ctx, queryBuilder.ToSQLQuery(), queryBuilder.GetQueryParams(), result)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (d *dataSource) FindOne(ctx context.Context, obj *One{{.ModelName}}Criteria) (*{{.ModelName}}, error) {
+	result := &[]{{.ModelName}}{}
+    whereBuilder := dbre.NewWhereBuilder()
+
+    if core.IsNotEmpty(obj.Id) {
+        whereBuilder.Where("id = ?", obj.Id)
+    }
+
+    result, err := d.db.ListWhere(ctx, whereBuilder.WhereCauses(), nil, nil)
+	if err != nil {
+		return nil, err
+	}
+    if result!=nil && len(*result) > 0 {
+        return &(*result)[0], nil
+    }
+
+    return nil, errors.New("not found")
+}
+
+func (d *dataSource) Create(ctx context.Context, obj *{{.ModelName}}) (*{{.ModelName}}, error) {
+	return d.db.Create(ctx, obj)
+}
+
+func (d *dataSource) CreateList(ctx context.Context, obj *[]{{.ModelName}}) (*[]{{.ModelName}}, error) {
+	return d.db.CreateList(ctx, obj)
+}
+
+func (d *dataSource) Update(ctx context.Context, obj *{{.ModelName}}) (*{{.ModelName}}, error) {
+	return d.db.Update(ctx, obj)
+}
+
+func (d *dataSource) UpdateList(ctx context.Context, obj *[]{{.ModelName}}) (*[]{{.ModelName}}, error) {
+	return d.db.UpdateList(ctx, obj)
+}
+
+func (d *dataSource) Delete(ctx context.Context, id {{.PrimaryField.Type}}) error {
+	return d.db.Delete(ctx, &{{.ModelName}}{Id: id})
+}
+
+func NewDataSource(idb dbre.AppIDB) DataSource {
+	return &dataSource{
+		db: bun.New[{{.ModelName}}](idb),
+	}
+}

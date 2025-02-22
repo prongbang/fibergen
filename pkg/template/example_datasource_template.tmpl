@@ -1,0 +1,19 @@
+package example
+
+import (
+    "github.com/dreamph/dbre"
+	"github.com/dreamph/dbre/adapters/bun"
+)
+
+type DataSource interface {
+}
+
+type dataSource struct {
+	db dbre.DB[Example]
+}
+
+func NewDataSource(idb dbre.AppIDB) DataSource {
+	return &dataSource{
+		db: bun.New[Example](idb),
+	}
+}

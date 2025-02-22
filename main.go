@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/prongbang/fibergen/pkg/generate"
 	"log"
 	"os"
 	"strings"
@@ -11,7 +12,6 @@ import (
 	"github.com/prongbang/fibergen/pkg/arch"
 	"github.com/prongbang/fibergen/pkg/command"
 	"github.com/prongbang/fibergen/pkg/filex"
-	"github.com/prongbang/fibergen/pkg/genx"
 	"github.com/prongbang/fibergen/pkg/option"
 	"github.com/prongbang/fibergen/pkg/tools"
 	"github.com/urfave/cli/v2"
@@ -106,7 +106,7 @@ func main() {
 			arc := arch.New()
 			wireInstaller := tools.NewWireInstaller(cmd)
 			wireRunner := tools.NewWireRunner(cmd)
-			gen := genx.NewGenerator(
+			gen := generate.NewGenerator(
 				filex.NewFileX(),
 				tools.New(
 					wireInstaller,

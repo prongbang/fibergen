@@ -1,0 +1,12 @@
+//+build wireinject
+
+package database
+
+import (
+	"github.com/google/wire"
+)
+
+func NewDatabaseDriver() Drivers {
+	wire.Build(NewMongoDBDriver, NewMariaDBDriver, NewDrivers)
+	return nil
+}

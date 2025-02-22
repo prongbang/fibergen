@@ -1,0 +1,15 @@
+package middleware
+
+import (
+	"github.com/gofiber/fiber/v2"
+)
+
+func NewAPIKey(apiKey string) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		key := c.Get("X-API-KEY")
+		if key == apiKey && apiKey != "" {
+			return c.Next()
+		}
+		return fiber.ErrUnauthorized
+	}
+}

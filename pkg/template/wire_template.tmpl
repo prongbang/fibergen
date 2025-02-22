@@ -1,0 +1,34 @@
+//go:build wireinject
+// +build wireinject
+
+package {{.PackageName}}
+
+import (
+	"github.com/google/wire"
+	"{{.Module}}/internal/app"
+	"{{.Module}}/internal/app/api"
+	"{{.Module}}/internal/app/api/example"
+	"{{.Module}}/internal/database"
+	"{{.Module}}/internal/pkg/response"
+	"{{.Module}}/internal/pkg/validator"
+	"{{.Module}}/internal/middleware"
+	"{{.Module}}/pkg/requestx"
+	//+fibergen:import wire:package
+)
+
+func CreateApp(dbDriver database.Drivers) app.App {
+	wire.Build(
+		database.NewDB,
+		database.NewDBTx,
+		app.NewApp,
+		api.New,
+		api.NewRouters,
+		response.New,
+		validator.New,
+		requestx.NewRequestHandler,
+		middleware.NewOnRequestGuard,
+		example.ProviderSet,
+		//+fibergen:func wire:build
+	)
+	return nil
+}

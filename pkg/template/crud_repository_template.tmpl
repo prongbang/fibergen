@@ -1,0 +1,58 @@
+package {{.PackageName}}
+
+import (
+	"context"
+)
+
+type Repository interface {
+	FindOne(ctx context.Context, obj *One{{.ModelName}}Criteria) (*{{.ModelName}}, error)
+	FindList(ctx context.Context, obj *List{{.ModelName}}Criteria) (*[]{{.ModelName}}Data, int64, error)
+	FindLiteList(ctx context.Context, obj *LiteList{{.ModelName}}Criteria) (*[]Lite{{.ModelName}}, error)
+	Create(ctx context.Context, obj *{{.ModelName}}) (*{{.ModelName}}, error)
+	CreateList(ctx context.Context, obj *[]{{.ModelName}}) (*[]{{.ModelName}}, error)
+	Update(ctx context.Context, obj *{{.ModelName}}) (*{{.ModelName}}, error)
+	UpdateList(ctx context.Context, obj *[]{{.ModelName}}) (*[]{{.ModelName}}, error)
+	Delete(ctx context.Context, id {{.PrimaryField.Type}}) error
+}
+
+type repository struct {
+	Ds DataSource
+}
+
+func (r *repository) FindOne(ctx context.Context, obj *One{{.ModelName}}Criteria) (*{{.ModelName}}, error) {
+	return r.Ds.FindOne(ctx, obj)
+}
+
+func (r *repository) FindList(ctx context.Context, obj *List{{.ModelName}}Criteria) (*[]{{.ModelName}}Data, int64, error) {
+	return r.Ds.FindList(ctx, obj)
+}
+
+func (r *repository) FindLiteList(ctx context.Context, obj *LiteList{{.ModelName}}Criteria) (*[]Lite{{.ModelName}}, error) {
+	return r.Ds.FindLiteList(ctx, obj)
+}
+
+func (r *repository) Create(ctx context.Context, obj *{{.ModelName}}) (*{{.ModelName}}, error) {
+	return r.Ds.Create(ctx, obj)
+}
+
+func (r *repository) CreateList(ctx context.Context, obj *[]{{.ModelName}}) (*[]{{.ModelName}}, error) {
+	return r.Ds.CreateList(ctx, obj)
+}
+
+func (r *repository) Update(ctx context.Context, obj *{{.ModelName}}) (*{{.ModelName}}, error) {
+	return r.Ds.Update(ctx, obj)
+}
+
+func (r *repository) UpdateList(ctx context.Context, obj *[]{{.ModelName}}) (*[]{{.ModelName}}, error) {
+	return r.Ds.UpdateList(ctx, obj)
+}
+
+func (r *repository) Delete(ctx context.Context, id {{.PrimaryField.Type}}) error {
+	return r.Ds.Delete(ctx, id)
+}
+
+func NewRepository(ds DataSource) Repository {
+	return &repository{
+		Ds: ds,
+	}
+}

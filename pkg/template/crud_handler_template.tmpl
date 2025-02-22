@@ -1,0 +1,140 @@
+package {{.PackageName}}
+
+import (
+	"github.com/gofiber/fiber/v2"
+	"{{.Module}}/pkg/core"
+	"{{.Module}}/pkg/requestx"
+	"{{.Module}}/pkg/core"
+)
+
+type Handler interface {
+	FindOne(c *fiber.Ctx) error
+	FindList(c *fiber.Ctx) error
+	FindLiteList(c *fiber.Ctx) error
+	Create(c *fiber.Ctx) error
+	Update(c *fiber.Ctx) error
+	Delete(c *fiber.Ctx) error
+}
+
+type handler struct {
+	Uc 		   UseCase
+	ApiHandler requestx.ApiHandler
+}
+
+// FindOne
+// @Tags {{.TagsName}}
+// @Summary Find a {{.TagsName}} by id or any
+// @Accept json
+// @Produce json
+// @Param query body FindOne{{.ModelName}}Request{} true "query"
+// @Success 200 {object} core.Success{data={{.ModelName}}}
+// @Failure 400 {object} core.Error
+// @Failure 404 {object} core.Error
+// @Security JWTAuth
+// @Router /v1/{{.RouteName}}/one [post]
+func (h *handler) FindOne(c *fiber.Ctx) error {
+	request := &One{{.ModelName}}Request{}
+	return h.ApiHandler.Do(c, request, true, func(ctx context.Context, requestInfo *core.RequestInfo) (interface{}, error) {
+		request.UserRequestInfo = requestInfo.UserRequestInfo
+		return h.Uc.FindOne(ctx, request)
+	})
+}
+
+// FindList
+// @Tags {{.TagsName}}
+// @Summary Find a list of {{.TagsName}}
+// @Accept json
+// @Produce json
+// @Param query body List{{.ModelName}}Request true "query"
+// @Success 200 {object} core.Success{data={{.ModelName}}Paged}
+// @Failure 400 {object} core.Error
+// @Security JWTAuth
+// @Router /v1/{{.RouteName}}/many [post]
+func (h *handler) FindList(c *fiber.Ctx) error {
+	request := &List{{.ModelName}}Request{}
+	return h.ApiHandler.Do(c, request, true, func(ctx context.Context, requestInfo *core.RequestInfo) (interface{}, error) {
+		request.UserRequestInfo = requestInfo.UserRequestInfo
+		return h.Uc.FindList(ctx, request)
+	})
+}
+
+// FindLiteList
+// @Tags {{.TagsName}}
+// @Summary Find a lite list of {{.TagsName}}
+// @Accept json
+// @Produce json
+// @Param query body LiteList{{.ModelName}}Request true "query"
+// @Success 200 {object} core.Success{data=[]Lite{{.ModelName}}}
+// @Failure 400 {object} core.Error
+// @Security JWTAuth
+// @Router /v1/{{.RouteName}}/many/lite [post]
+func (h *handler) FindLiteList(c *fiber.Ctx) error {
+	request := &LiteList{{.ModelName}}Request{}
+	return h.ApiHandler.Do(c, request, true, func(ctx context.Context, requestInfo *core.RequestInfo) (interface{}, error) {
+		request.UserRequestInfo = requestInfo.UserRequestInfo
+		return h.Uc.FindLiteList(ctx, request)
+	})
+}
+
+// Create
+// @Tags {{.TagsName}}
+// @Summary Create a {{.TagsName}}
+// @Accept json
+// @Produce json
+// @Param query body Create{{.ModelName}}Request true "query"
+// @Success 201 {object} core.Success{data={{.ModelName}}}
+// @Failure 400 {object} core.Error
+// @Security JWTAuth
+// @Router /v1/{{.RouteName}}/create [post]
+func (h *handler) Create(c *fiber.Ctx) error {
+	request := &Create{{.ModelName}}Request{}
+	return h.ApiHandler.Do(c, request, true, func(ctx context.Context, requestInfo *core.RequestInfo) (interface{}, error) {
+		request.UserRequestInfo = requestInfo.UserRequestInfo
+		return h.Uc.Create(ctx, request)
+	})
+}
+
+// Update
+// @Tags {{.TagsName}}
+// @Summary Update a {{.TagsName}}
+// @Accept json
+// @Produce json
+// @Param query body Update{{.ModelName}}Request true "query"
+// @Success 200 {object} core.Success{data={{.ModelName}}}
+// @Failure 400 {object} core.Error
+// @Failure 404 {object} core.Error
+// @Security JWTAuth
+// @Router /v1/{{.RouteName}}/update [post]
+func (h *handler) Update(c *fiber.Ctx) error {
+	request := &Update{{.ModelName}}Request{}
+	return h.ApiHandler.Do(c, request, true, func(ctx context.Context, requestInfo *core.RequestInfo) (interface{}, error) {
+		request.UserRequestInfo = requestInfo.UserRequestInfo
+		return h.Uc.Update(ctx, request)
+	})
+}
+
+// Delete
+// @Tags {{.TagsName}}
+// @Summary Delete a {{.TagsName}} by id
+// @Accept json
+// @Produce json
+// @Param query body Delete{{.ModelName}}Request true "query"
+// @Success 200 {object} core.Success
+// @Failure 400 {object} core.Error
+// @Failure 404 {object} core.Error
+// @Security JWTAuth
+// @Router /v1/{{.RouteName}}/delete [post]
+func (h *handler) Delete(c *fiber.Ctx) error {
+	request := &Delete{{.ModelName}}Request{}
+	return h.ApiHandler.Do(c, request, true, func(ctx context.Context, requestInfo *core.RequestInfo) (interface{}, error) {
+		request.UserRequestInfo = requestInfo.UserRequestInfo
+		return h.Uc.Delete(ctx, request)
+	})
+}
+
+func NewHandler(uc UseCase, apiHandler requestx.ApiHandler) Handler {
+	return &handler{
+		Uc: 		uc,
+		ApiHandler: apiHandler,
+	}
+}

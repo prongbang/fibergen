@@ -1,0 +1,47 @@
+package database
+
+import (
+	"context"
+	"github.com/innotechdevops/bun-driver/pkg/bundriver"
+	"github.com/innotechdevops/mgo-driver/pkg/mgodriver"
+	"github.com/uptrace/bun"
+	"go.mongodb.org/mongo-driver/mongo"
+)
+
+type Drivers interface {
+	GetMongoDB() *mongo.Database
+	GetMariaDB() *bun.DB
+	Close()
+}
+
+type drivers struct {
+	MongoDB     *mongo.Database
+	MariaDB     *bun.DB
+	MongoDriver mgodriver.MongoDriver
+	MariaDriver bundriver.MariaDBDriver
+}
+
+func (d *drivers) GetMongoDB() *mongo.Database {
+	return d.MongoDB
+}
+
+func (d *drivers) GetMariaDB() *bun.DB {
+	return d.MariaDB
+}
+
+func (d *drivers) Close() {
+	_ = d.MongoDB.Client().Disconnect(context.Background())
+	_ = d.MariaDB.Close()
+}
+
+func NewDrivers(
+	mongoDriver mgodriver.MongoDriver,
+	mariaDriver bundriver.MariaDBDriver,
+) Drivers {
+	return &drivers{
+		MongoDB:     mongoDriver.Connect(),
+		MongoDriver: mongoDriver,
+		MariaDB:     mariaDriver.Connect(),
+		MariaDriver: mariaDriver,
+	}
+}

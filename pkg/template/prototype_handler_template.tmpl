@@ -1,0 +1,37 @@
+package {{.PackageName}}
+
+import (
+	"github.com/gofiber/fiber/v2"
+	"github.com/prongbang/fibererror"
+	"github.com/prongbang/goerror"
+)
+
+type Handler interface {
+	Example(c *fiber.Ctx) error
+}
+
+type handler struct {
+	Uc       UseCase
+	Response fibererror.Response
+}
+
+// Example
+// @Tags {{.TagsName}}
+// @Summary Example
+// @Accept json
+// @Produce json
+// @Success 200 {object} core.Success{data={{.ModelName}}}
+// @Failure 400 {object} core.Error
+// @Failure 404 {object} core.Error
+// @Security JWTAuth
+// @Router /v1/{{.RouteName}}/example [post]
+func (h *handler) Example(c *fiber.Ctx) error {
+	return h.Response.With(c).Response(goerror.NewOK(nil))
+}
+
+func NewHandler(uc UseCase, response fibererror.Response) Handler {
+	return &handler{
+		Uc: 	  uc,
+		Response: response,
+	}
+}
