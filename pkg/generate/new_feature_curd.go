@@ -60,6 +60,7 @@ func NewFeatureCrud(fx filex.FileX, opt option.Options, installer tools.Installe
 		camelTag := strcase.ToCamel(key)
 		vars := strcase.ToPascal(key)
 		typeValue := typer.Get(value)
+		isPrimaryKey := strings.ToUpper(key) == "ID"
 
 		// Imports
 		if strings.Contains(typeValue, "time.Time") {
@@ -78,13 +79,13 @@ func NewFeatureCrud(fx filex.FileX, opt option.Options, installer tools.Installe
 		columns = append(columns, snakeTag)
 
 		// Fields
-		fields = append(fields, template.Field{Name: vars, Type: typeValue, JsonTag: camelTag, DbTag: snakeTag, Update: true, Create: true})
+		fields = append(fields, template.Field{PrimaryKey: isPrimaryKey, Name: vars, Type: typeValue, JsonTag: camelTag, DbTag: snakeTag, Update: true, Create: true})
 
 		// Query
 		queryColumns = append(queryColumns, fmt.Sprintf("%s.%s", alias, snakeTag))
 
 		// Pk
-		if strings.ToUpper(key) == "ID" {
+		if isPrimaryKey {
 			spec.PrimaryField = template.PrimaryField{
 				Name:    "Id",
 				Type:    typeValue,

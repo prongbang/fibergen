@@ -286,12 +286,13 @@ func RenderText[T any](tmpl string, data T) ([]byte, error) {
 }
 
 type Field struct {
-	Name    string
-	Type    string
-	JsonTag string
-	DbTag   string
-	Update  bool
-	Create  bool
+	PrimaryKey bool
+	Name       string
+	Type       string
+	JsonTag    string
+	DbTag      string
+	Update     bool
+	Create     bool
 }
 
 type PrimaryField struct {

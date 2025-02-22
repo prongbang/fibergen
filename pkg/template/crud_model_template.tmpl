@@ -15,7 +15,11 @@ type {{.ModelName}} struct {
         {{- printf "%.1s" $word }}{{- if ne $index (sub (len (split $name "_")) 1) }}_{{- end }}
     {{- end }}" json:"-" swaggerignore:"true"`
 {{- range $field := $fields }}
-	{{ $field.Name }} {{ $field.Type }} `json:"{{ $field.JsonTag }}" db:"{{ $field.DbTag }}"`
+	{{- if $field.PrimaryKey }}
+	{{ $field.Name }} {{ $field.Type }} `bun:"{{ $field.DbTag }},pk" json:"{{ $field.JsonTag }}" db:"{{ $field.DbTag }}"`
+	{{- else }}
+	{{ $field.Name }} {{ $field.Type }} `bun:"{{ $field.DbTag }}" json:"{{ $field.JsonTag }}" db:"{{ $field.DbTag }}"`
+	{{- end }}
 {{- end }}
 }
 
