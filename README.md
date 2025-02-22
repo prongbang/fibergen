@@ -11,6 +11,12 @@ Generate a Clean Architecture for REST API with support for the Fiber Web Framew
 ## Install
 
 ```shell
+go install github.com/prongbang/fibergen@v1.3.0
+```
+
+or old project
+
+```shell
 go install github.com/prongbang/fibergen@v1.2.5
 ```
 
@@ -153,5 +159,5 @@ user
 - gen
 
 ```shell
-fibergen -crud auth -s spec/auth.json -d mariadb
+fibergen -crud auth -s spec/auth.json
 ```
