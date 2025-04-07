@@ -19,8 +19,8 @@ func (r *router) Initial(app *fiber.App) {
 	v1 := app.Group("/v1")
 	{
         v1.Post("/{{.RouteName}}/one", r.OnRequest.Handler(PermissionFindOne, middleware.AuditLogRequired(), middleware.PermissionRequired()), r.Handle.FindOne)
-        v1.Post("/{{.RouteName}}/many", r.OnRequest.Handler(PermissionList, middleware.AuditLogRequired(), middleware.PermissionRequired()), r.Handle.FindList)
-        v1.Post("/{{.RouteName}}/many/lite", r.OnRequest.Handler(PermissionList, middleware.AuditLogRequired(), middleware.PermissionRequired()), r.Handle.FindLiteList)
+        v1.Post("/{{.RouteName}}/many", r.OnRequest.Handler(PermissionFindList, middleware.AuditLogRequired(), middleware.PermissionRequired()), r.Handle.FindList)
+        v1.Post("/{{.RouteName}}/many/lite", r.OnRequest.Handler(PermissionFindList, middleware.AuditLogRequired(), middleware.PermissionRequired()), r.Handle.FindLiteList)
         v1.Post("/{{.RouteName}}/create", r.OnRequest.Handler(PermissionCreate, middleware.AuditLogRequired(), middleware.PermissionRequired()), r.Handle.Create)
         v1.Post("/{{.RouteName}}/update", r.OnRequest.Handler(PermissionUpdate, middleware.AuditLogRequired(), middleware.PermissionRequired()), r.Handle.Update)
         v1.Post("/{{.RouteName}}/delete", r.OnRequest.Handler(PermissionDelete, middleware.AuditLogRequired(), middleware.PermissionRequired()), r.Handle.Delete)

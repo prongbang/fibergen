@@ -65,11 +65,11 @@ func NewFeatureCrud(fx filex.FileX, opt option.Options, installer tools.Installe
 		// Imports
 		if strings.Contains(typeValue, "time.Time") {
 			if len(imports) == 0 {
-				imports = append(imports, `"time"`)
+				imports = append(imports, "time")
 			} else {
 				for _, imp := range imports {
-					if imp != `"time"` {
-						imports = append(imports, `"time"`)
+					if imp != "time" {
+						imports = append(imports, "time")
 					}
 				}
 			}

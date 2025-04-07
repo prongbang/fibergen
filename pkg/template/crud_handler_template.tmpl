@@ -1,8 +1,8 @@
 package {{.PackageName}}
 
 import (
+    "context"
 	"github.com/gofiber/fiber/v2"
-	"{{.Module}}/pkg/core"
 	"{{.Module}}/pkg/requestx"
 	"{{.Module}}/pkg/core"
 )
@@ -26,7 +26,7 @@ type handler struct {
 // @Summary Find a {{.TagsName}} by id or any
 // @Accept json
 // @Produce json
-// @Param query body FindOne{{.ModelName}}Request{} true "query"
+// @Param query body One{{.ModelName}}Request{} true "query"
 // @Success 200 {object} core.Success{data={{.ModelName}}}
 // @Failure 400 {object} core.Error
 // @Failure 404 {object} core.Error
@@ -54,7 +54,11 @@ func (h *handler) FindList(c *fiber.Ctx) error {
 	request := &List{{.ModelName}}Request{}
 	return h.ApiHandler.Do(c, request, true, func(ctx context.Context, requestInfo *core.RequestInfo) (interface{}, error) {
 		request.UserRequestInfo = requestInfo.UserRequestInfo
-		return h.Uc.FindList(ctx, request)
+		data, total, err := h.Uc.FindList(ctx, request)
+		if err != nil {
+			return nil, err
+		}
+		return &core.Paging{List: data, PageInfo: *core.GetPageResult(request.Page, request.Limit, total)}, err
 	})
 }
 
