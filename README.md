@@ -23,7 +23,7 @@
 
 Latest version:
 ```shell
-go install github.com/prongbang/fibergen@v1.3.0
+go install github.com/prongbang/fibergen@v1.3.1
 ```
 
 For older projects:

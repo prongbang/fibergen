@@ -1,9 +1,10 @@
 package {{.PackageName}}
 
 import (
+	"context"
 	"github.com/gofiber/fiber/v2"
-	"github.com/prongbang/fibererror"
-	"github.com/prongbang/goerror"
+	"{{.Module}}/pkg/core"
+	"{{.Module}}/pkg/requestx"
 )
 
 type Handler interface {
@@ -11,8 +12,8 @@ type Handler interface {
 }
 
 type handler struct {
-	Uc       UseCase
-	Response fibererror.Response
+	Uc         UseCase
+	ApiHandler requestx.ApiHandler
 }
 
 // Example
@@ -26,12 +27,16 @@ type handler struct {
 // @Security JWTAuth
 // @Router /v1/{{.RouteName}}/example [post]
 func (h *handler) Example(c *fiber.Ctx) error {
-	return h.Response.With(c).Response(goerror.NewOK(nil))
+		request := &One{{.ModelName}}Request{}
+    	return h.ApiHandler.Do(c, request, true, func(ctx context.Context, requestInfo *core.RequestInfo) (interface{}, error) {
+    		request.UserRequestInfo = requestInfo.UserRequestInfo
+    		return h.Uc.Example(ctx, request)
+    	})
 }
 
-func NewHandler(uc UseCase, response fibererror.Response) Handler {
+func NewHandler(uc UseCase, apiHandler requestx.ApiHandler) Handler {
 	return &handler{
-		Uc: 	  uc,
-		Response: response,
+		Uc:         uc,
+		ApiHandler: apiHandler,
 	}
 }

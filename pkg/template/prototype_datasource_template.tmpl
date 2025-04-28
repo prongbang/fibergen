@@ -1,19 +1,11 @@
 package {{.PackageName}}
 
-import (
-	"github.com/dreamph/dbre"
-	"github.com/dreamph/dbre/adapters/bun"
-)
-
 type DataSource interface {
 }
 
 type dataSource struct {
-	db dbre.DB[Auth]
 }
 
-func NewDataSource(idb dbre.AppIDB) DataSource {
-	return &dataSource{
-		db: bun.New[Auth](idb),
-	}
+func NewDataSource() DataSource {
+	return &dataSource{}
 }

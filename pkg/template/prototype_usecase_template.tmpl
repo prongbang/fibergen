@@ -1,10 +1,19 @@
 package {{.PackageName}}
 
+import (
+	"context"
+)
+
 type UseCase interface {
+    Example(ctx context.Context, request *One{{.ModelName}}Request) (*{{.ModelName}}, error)
 }
 
 type useCase struct {
 	Repo Repository
+}
+
+func (u *useCase) Example(ctx context.Context, request *One{{.ModelName}}Request) (*{{.ModelName}}, error) {
+    return nil, nil
 }
 
 func NewUseCase(repo Repository) UseCase {

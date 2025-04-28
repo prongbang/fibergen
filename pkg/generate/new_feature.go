@@ -26,12 +26,12 @@ func NewFeature(fx filex.FileX, opt option.Options, wireInstaller tools.Installe
 func featureTemplates(pkg option.Package) map[string][]byte {
 
 	dsTmpl, _ := template.RenderText(template.PrototypeDatasourceTemplate, template.Project{Name: pkg.Name, Module: pkg.Module.Module, Path: pkg.Module.NewAppPath()})
-	hdTmpl, _ := template.RenderText(template.PrototypeHandlerTemplate, template.Project{Name: pkg.Name})
+	hdTmpl, _ := template.RenderText(template.PrototypeHandlerTemplate, template.Project{Name: pkg.Name, Module: pkg.Module.Module})
 	pdTmpl, _ := template.RenderText(template.PrototypeProviderTemplate, template.Project{Name: pkg.Name})
 	rpTmpl, _ := template.RenderText(template.PrototypeRepositoryTemplate, template.Project{Name: pkg.Name})
 	rtTmpl, _ := template.RenderText(template.PrototypeRouterTemplate, template.Project{Name: pkg.Name, Module: pkg.Module.Module})
 	ucTmpl, _ := template.RenderText(template.PrototypeUseCaseTemplate, template.Project{Name: pkg.Name})
-	mdTmpl, _ := template.RenderText(template.PrototypeModelTemplate, template.Project{Name: pkg.Name})
+	mdTmpl, _ := template.RenderText(template.PrototypeModelTemplate, template.Project{Name: pkg.Name, Module: pkg.Module.Module})
 
 	return map[string][]byte{
 		"datasource.go":                dsTmpl,

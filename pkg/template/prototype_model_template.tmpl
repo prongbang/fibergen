@@ -1,4 +1,71 @@
 package {{.PackageName}}
 
+import "{{.Module}}/pkg/core"
+
 type {{.ModelName}} struct {
+}
+
+type {{.ModelName}}Data struct {
+	*{{.ModelName}}
+}
+
+type Delete{{.ModelName}}Data struct {
+}
+
+type {{.ModelName}}Paged struct {
+	*core.Paging
+}
+
+type Lite{{.ModelName}} struct {
+}
+
+type Create{{.ModelName}}Request struct {
+	UserRequestInfo *core.UserRequestInfo `json:"-"`
+}
+
+type CreateList{{.ModelName}}Request struct {
+	UserRequestInfo *core.UserRequestInfo `json:"-"`
+	{{.ModelName}}s *[]Create{{.ModelName}}Request
+}
+
+type Update{{.ModelName}}Request struct {
+	UserRequestInfo *core.UserRequestInfo `json:"-"`
+}
+
+type UpdateList{{.ModelName}}Request struct {
+	UserRequestInfo *core.UserRequestInfo `json:"-"`
+	{{.ModelName}}s *[]Update{{.ModelName}}Request
+}
+
+type Delete{{.ModelName}}Request struct {
+	UserRequestInfo *core.UserRequestInfo `json:"-"`
+}
+
+type List{{.ModelName}}Request struct {
+	UserRequestInfo *core.UserRequestInfo `json:"-"`
+
+	*List{{.ModelName}}Criteria
+}
+
+type LiteList{{.ModelName}}Request struct {
+	UserRequestInfo *core.UserRequestInfo `json:"-"`
+
+	*LiteList{{.ModelName}}Criteria
+}
+
+type One{{.ModelName}}Request struct {
+	UserRequestInfo *core.UserRequestInfo `json:"-"`
+
+	*One{{.ModelName}}Criteria
+}
+
+type List{{.ModelName}}Criteria struct {
+	core.Params
+}
+
+type LiteList{{.ModelName}}Criteria struct {
+	core.Sorting
+}
+
+type One{{.ModelName}}Criteria struct {
 }
