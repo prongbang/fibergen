@@ -6,12 +6,13 @@ type Options struct {
 	Project string
 	Module  string
 	Feature string
-	Crud    string
+	Shared  string
 	Spec    string
 	Driver  string
 }
 
 type Spec struct {
+	Imports         []string
 	Driver          string
 	QueryColumns    string
 	Fields          []template.Field

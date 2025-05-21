@@ -287,17 +287,20 @@ func getProjectConfig(currentDir string, opt option.Options) []FileConfig {
 	}
 }
 
-// NewProject generates the project structure using the configuration
-func NewProject(fx filex.FileX, opt option.Options) error {
+type projectGenerator struct {
+	FileX filex.FileX
+}
+
+func (p *projectGenerator) Generate(opt option.Options) error {
 	opt.Project = strcase.ToKebab(opt.Project)
 
 	spinnerGenProject, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Create project \"%s\"", opt.Project))
 
-	currentDir, _ := fx.Getwd()
+	currentDir, _ := p.FileX.Getwd()
 	currentDir = fmt.Sprintf("%s/%s", currentDir, opt.Project)
 
 	// Create project directory
-	if err := fx.EnsureDir(currentDir); err != nil {
+	if err := p.FileX.EnsureDir(currentDir); err != nil {
 		return fmt.Errorf("failed to create project directory: %w", err)
 	}
 
@@ -308,7 +311,7 @@ func NewProject(fx filex.FileX, opt option.Options) error {
 	for _, config := range configs {
 		// Ensure directory exists
 		dir := filepath.Dir(config.Path)
-		if err := fx.EnsureDir(dir); err != nil {
+		if err := p.FileX.EnsureDir(dir); err != nil {
 			spinnerGenProject.Fail(fmt.Errorf("failed to create directory %s: %w", dir, err))
 			return fmt.Errorf("failed to create directory %s: %w", dir, err)
 		}
@@ -318,7 +321,7 @@ func NewProject(fx filex.FileX, opt option.Options) error {
 		}
 
 		// Write file
-		if err := WriteFile(fx, config.Path, config.Template, config.Data); err != nil {
+		if err := WriteFile(p.FileX, config.Path, config.Template, config.Data); err != nil {
 			spinnerGenProject.Fail(fmt.Errorf("failed to write file %s: %w", config.Path, err))
 			return fmt.Errorf("failed to write file %s: %w", config.Path, err)
 		}
@@ -327,4 +330,10 @@ func NewProject(fx filex.FileX, opt option.Options) error {
 	spinnerGenProject.Success()
 
 	return nil
+}
+
+func NewProjectGenerator(fileX filex.FileX) Generator {
+	return &projectGenerator{
+		FileX: fileX,
+	}
 }

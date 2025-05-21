@@ -2,18 +2,19 @@ package {{.PackageName}}
 
 import (
 	"context"
+	"{{ .Module }}/pkg/core"
 	"github.com/prongbang/goerror"
 )
 
 type UseCase interface {
 	FindOne(ctx context.Context, obj *One{{.ModelName}}Request) (*{{.ModelName}}, error)
-	FindList(ctx context.Context, obj *List{{.ModelName}}Request) (*[]{{.ModelName}}Data, int64, error)
+	FindList(ctx context.Context, obj *List{{.ModelName}}Request) (*[]Data{{.ModelName}}, int64, error)
 	FindLiteList(ctx context.Context, obj *LiteList{{.ModelName}}Request) (*[]Lite{{.ModelName}}, error)
 	Create(ctx context.Context, obj *Create{{.ModelName}}Request) (*{{.ModelName}}, error)
 	CreateList(ctx context.Context, obj *CreateList{{.ModelName}}Request) (*[]{{.ModelName}}, error)
 	Update(ctx context.Context, obj *Update{{.ModelName}}Request) (*{{.ModelName}}, error)
 	UpdateList(ctx context.Context, obj *UpdateList{{.ModelName}}Request) (*[]{{.ModelName}}, error)
-	Delete(ctx context.Context, obj *Delete{{.ModelName}}Request) (*Delete{{.ModelName}}Data, error)
+	Delete(ctx context.Context, obj *Delete{{.ModelName}}Request) (*core.Empty, error)
 }
 
 type useCase struct {
@@ -21,15 +22,15 @@ type useCase struct {
 }
 
 func (uc *useCase) FindOne(ctx context.Context, obj *One{{.ModelName}}Request) (*{{.ModelName}}, error) {
-	data, err := uc.Repo.FindOne(ctx, obj.One{{.ModelName}}Criteria)
+	data, err := uc.Repo.FindOne(ctx, &obj.One{{.ModelName}}Criteria)
 	if err != nil {
 		return nil, err
 	}
 	return data, nil
 }
 
-func (uc *useCase) FindList(ctx context.Context, obj *List{{.ModelName}}Request) (*[]{{.ModelName}}Data, int64, error) {
-	data, total, err := uc.Repo.FindList(ctx, obj.List{{.ModelName}}Criteria)
+func (uc *useCase) FindList(ctx context.Context, obj *List{{.ModelName}}Request) (*[]Data{{.ModelName}}, int64, error) {
+	data, total, err := uc.Repo.FindList(ctx, &obj.List{{.ModelName}}Criteria)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -37,7 +38,7 @@ func (uc *useCase) FindList(ctx context.Context, obj *List{{.ModelName}}Request)
 }
 
 func (uc *useCase) FindLiteList(ctx context.Context, obj *LiteList{{.ModelName}}Request) (*[]Lite{{.ModelName}}, error) {
-	data, err := uc.Repo.FindLiteList(ctx, obj.LiteList{{.ModelName}}Criteria)
+	data, err := uc.Repo.FindLiteList(ctx, &obj.LiteList{{.ModelName}}Criteria)
 	if err != nil {
 		return nil, err
 	}
@@ -127,7 +128,7 @@ func (uc *useCase) UpdateList(ctx context.Context, obj *UpdateList{{.ModelName}}
 	return &data, nil
 }
 
-func (uc *useCase) Delete(ctx context.Context, obj *Delete{{.ModelName}}Request) (*Delete{{.ModelName}}Data, error) {
+func (uc *useCase) Delete(ctx context.Context, obj *Delete{{.ModelName}}Request) (*core.Empty, error) {
 	data, err := uc.Repo.FindOne(ctx, &One{{.ModelName}}Criteria{Id: obj.Id})
 	if err != nil {
 		return nil, err
@@ -140,7 +141,7 @@ func (uc *useCase) Delete(ctx context.Context, obj *Delete{{.ModelName}}Request)
 	if err != nil {
 		return nil, err
 	}
-	return &Delete{{.ModelName}}Data{}, nil
+	return &core.Empty{}, nil
 }
 
 func NewUseCase(repo Repository) UseCase {

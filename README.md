@@ -23,7 +23,7 @@
 
 Latest version:
 ```shell
-go install github.com/prongbang/fibergen@v1.3.1
+go install github.com/prongbang/fibergen@v1.4.0
 ```
 
 For older projects:
@@ -48,82 +48,101 @@ Parameters:
 This creates the following structure:
 
 ```
-test_project/
+.
+├── Makefile
+├── cmd
+│     └── api
+│         └── main.go
+├── configuration
+│     ├── configuration.go
+│     ├── development.yml
+│     ├── environment.go
+│     └── production.yml
+├── deployments
+│     ├── Dockerfile
+│     └── api-prod.yml
+├── docs
+│     └── apispec
+│         ├── docs.go
+│         ├── swagger.json
+│         └── swagger.yaml
 ├── go.mod
 ├── go.sum
+├── internal
+│     ├── app
+│     │     ├── api
+│     │     │     ├── api.go
+│     │     │     ├── example
+│     │     │     │     ├── datasource.go
+│     │     │     │     ├── example.go
+│     │     │     │     ├── handler.go
+│     │     │     │     ├── permission.go
+│     │     │     │     ├── provider.go
+│     │     │     │     ├── repository.go
+│     │     │     │     ├── router.go
+│     │     │     │     └── usecase.go
+│     │     │     └── routers.go
+│     │     └── app.go
+│     ├── database
+│     │     ├── db.go
+│     │     ├── drivers.go
+│     │     ├── mariadb.go
+│     │     ├── mongodb.go
+│     │     ├── wire.go
+│     │     └── wire_gen.go
+│     ├── middleware
+│     │     ├── api_key.go
+│     │     ├── jwt.go
+│     │     └── on_request.go
+│     ├── pkg
+│     │     ├── casbinx
+│     │     │     └── casbinx.go
+│     │     ├── response
+│     │     │     └── response.go
+│     │     └── validator
+│     │         └── validator.go
+│     ├── shared
+│     │     └── example
+│     │         ├── datasource.go
+│     │         ├── example.go
+│     │         ├── provider.go
+│     │         └── repository.go
+│     └── wire.go
+├── pkg
+│     ├── core
+│     │     ├── common.go
+│     │     ├── flag.go
+│     │     ├── handler.go
+│     │     ├── header.go
+│     │     ├── jwt.go
+│     │     ├── paging.go
+│     │     ├── params.go
+│     │     ├── request.go
+│     │     ├── response.go
+│     │     ├── router.go
+│     │     └── sorting.go
+│     ├── multipartx
+│     │     └── multipartx.go
+│     ├── requestx
+│     │     └── request.go
+│     ├── schema
+│     │     └── sql.go
+│     ├── streamx
+│     │     └── streamx.go
+│     ├── structx
+│     │     └── structx.go
+│     └── typex
+│         └── typex.go
+├── policy
+│     ├── model.conf
+│     └── policy.csv
+├── spec
+│     └── promotion.json
 ├── wire.go
-├── wire_gen.go
-└── internal/
-    ├── app/
-    │   ├── app.go
-    │   ├── grpc/
-    │   │   ├── featurename/
-    │   │   ├── grpc.go
-    │   │   └── servers.go
-    │   └── api/
-    │       ├── featurename/
-    │       ├── api.go
-    │       └── routers.go
-    └── database/
-        └── drivers.go
+└── wire_gen.go
 ```
 
-### 2. Mark Generation Points
-
-Add `+fibergen` markers to your code:
-
-**wire.go**
-```go
-//+build wireinject
-
-package api
-
-import (
-    "github.com/google/wire"
-    //+fibergen:import wire:package
-)
-
-func CreateAPI(dbDriver database.Drivers) API {
-    wire.Build(
-        New,
-        NewRouters,
-        //+fibergen:func wire:build
-    )
-    return nil
-}
-```
-
-**routers.go**
-```go
-package api
-
-import (
-    "github.com/gofiber/fiber/v2"
-    //+fibergen:import routers:package
-)
-
-type Routers interface {
-    core.Routers
-}
-
-type routers struct {
-    //+fibergen:struct routers
-}
-
-func (r *routers) Initials(app *fiber.App) {
-    //+fibergen:func initials
-}
-
-func NewRouters(
-    //+fibergen:func new:routers
-) Routers {
-    return &routers{
-        //+fibergen:return &routers
-    }
-}
-```
-
-### 3. Generate Features
+### 2. Generate Features Prototype
 
 Generate a new feature module:
 
@@ -133,17 +152,18 @@ fibergen -f user
 
 This creates:
 ```
-user/
+test-project/internal/app/api/promotion
 ├── datasource.go
 ├── handler.go
+├── permission.go
+├── promotion.go
 ├── provider.go
 ├── repository.go
 ├── router.go
-├── usecase.go
-└── user.go
+└── usecase.go
 ```
 
-## 🔄 CRUD Generation
+### 3. Generate Features CRUD
 
 Generate CRUD operations from JSON specifications:
 
@@ -161,127 +181,53 @@ Create `spec/auth.json`:
 ### 2. Generate CRUD
 
 ```shell
-fibergen -crud auth -s spec/auth.json
+fibergen -f auth -s spec/auth.json -d mariadb
 ```
 
 This generates complete CRUD operations based on your JSON structure.
 
-## 📁 Generated Structure
-
-Each feature generates the following components:
-
-### 1. DataSource Layer
-`datasource.go` - Database operations
-```go
-type DataSource interface {
-    // Generated methods
-}
-
-type dataSource struct {
-    DbDriver database.Drivers
-}
-
-func NewDataSource(dbDriver database.Drivers) DataSource {
-    return &dataSource{
-        DbDriver: dbDriver,
-    }
-}
+```
+test-project/internal/app/api/promotion
+├── datasource.go
+├── handler.go
+├── permission.go
+├── promotion.go
+├── provider.go
+├── repository.go
+├── router.go
+└── usecase.go
 ```
 
-### 2. Repository Layer
-`repository.go` - Business logic repository
-```go
-type Repository interface {
-    // Generated methods
-}
-
-type repository struct {
-    Ds DataSource
-}
-
-func NewRepository(ds DataSource) Repository {
-    return &repository{
-        Ds: ds,
-    }
-}
-```
-
-### 3. UseCase Layer
-`usecase.go` - Business logic
-```go
-type UseCase interface {
-    // Generated methods
-}
-
-type useCase struct {
-    Repo Repository
-}
-
-func NewUseCase(repo Repository) UseCase {
-    return &useCase{
-        Repo: repo,
-    }
-}
-```
-
-### 4. Handler Layer
-`handler.go` - HTTP handlers
-```go
-type Handler interface {
-    // Generated methods
-}
-
-type handler struct {
-    Uc UseCase
-}
-
-func NewHandler(uc UseCase) Handler {
-    return &handler{
-        Uc: uc,
-    }
-}
-```
-
-### 5. Router Configuration
-`router.go` - Route definitions
-```go
-type Router interface {
-    Initial(app *fiber.App)
-}
-
-type router struct {
-    Handle Handler
-}
-
-func (r *router) Initial(app *fiber.App) {
-    // Generated routes
-}
-
-func NewRouter(handle Handler) Router {
-    return &router{Handle: handle}
-}
-```
-
-## 🔧 Advanced Usage
-
-### Custom Markers
-
-You can use various markers to customize generation:
-
-- `//+fibergen:import wire:package` - Import packages
-- `//+fibergen:func wire:build` - Wire build functions
-- `//+fibergen:struct routers` - Struct fields
-- `//+fibergen:func initials` - Function implementations
-- `//+fibergen:func new:routers` - Constructor parameters
-- `//+fibergen:return &routers` - Return values
-
-### gRPC Support
-
-Generate gRPC services alongside REST APIs:
+### 4. Generate Shared Prototype
 
 ```shell
-in-progress
+fibergen -sh promotion
 ```
+This generates shared prototype
+
+```
+test-project/internal/shared/promotion
+├── datasource.go
+├── promotion.go
+├── provider.go
+└── repository.go
+```
+
+### 5. Generate Shared CRUD
+
+```shell
+fibergen -sh promotion -s spec/promotion.json -d maridb
+```
+This generates shared CRUD operations based on your JSON structure.
+
+```
+test-project/internal/shared/promotion
+├── datasource.go
+├── promotion.go
+├── provider.go
+└── repository.go
+```
+
 
 ## 🤝 Contributing
 

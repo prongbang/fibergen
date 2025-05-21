@@ -134,8 +134,8 @@ func init() {
 	runner := NewRunnerMock()
 	fx := NewFileXMock()
 	fxError := NewFileXMockError()
-	genX = generate.NewGenerator(fx, tl, tl, runner)
-	genXError = generate.NewGenerator(fxError, tl, tl, runner)
+	genX = generate.NewGenerator()
+	genXError = generate.NewGenerator()
 }
 
 func TestGenerateWriteFileError(t *testing.T) {

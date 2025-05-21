@@ -3,41 +3,37 @@ package generate
 import (
 	"fmt"
 	"github.com/prongbang/fibergen/pkg/option"
-	"github.com/prongbang/fibergen/pkg/tools"
-
-	"github.com/prongbang/fibergen/pkg/filex"
 )
 
 // Generator is the interface
 type Generator interface {
-	Generate(opt option.Options)
+	Generate(opt option.Options) error
 }
 
 type generator struct {
-	Fx            filex.FileX
-	Installer     tools.Installer
-	WireInstaller tools.Installer
-	WireRunner    tools.Runner
+	ProjectGenerator Generator
+	FeatureGenerator Generator
+	SharedGenerator  Generator
 }
 
-func (f *generator) Generate(opt option.Options) {
-	if opt.Project != "" && opt.Module != "" {
-		_ = NewProject(f.Fx, opt)
-	} else if opt.Feature != "" {
-		NewFeature(f.Fx, opt, f.WireInstaller, f.WireRunner)
-	} else if opt.Crud != "" {
-		NewFeatureCrud(f.Fx, opt, f.Installer, f.WireRunner)
-	} else {
-		fmt.Println("Not Supported")
+func (f *generator) Generate(opt option.Options) error {
+	switch {
+	case opt.Project != "" && opt.Module != "":
+		return f.ProjectGenerator.Generate(opt)
+	case opt.Feature != "":
+		return f.FeatureGenerator.Generate(opt)
+	case opt.Shared != "":
+		return f.SharedGenerator.Generate(opt)
+	default:
+		return fmt.Errorf("unsupported option combination: %+v", opt)
 	}
 }
 
 // NewGenerator is new instance with func
-func NewGenerator(fx filex.FileX, installer tools.Installer, wireInstaller tools.Installer, wireRunner tools.Runner) Generator {
+func NewGenerator(projectGenerator Generator, featureGenerator Generator, sharedGenerator Generator) Generator {
 	return &generator{
-		Fx:            fx,
-		Installer:     installer,
-		WireInstaller: wireInstaller,
-		WireRunner:    wireRunner,
+		ProjectGenerator: projectGenerator,
+		FeatureGenerator: featureGenerator,
+		SharedGenerator:  sharedGenerator,
 	}
 }

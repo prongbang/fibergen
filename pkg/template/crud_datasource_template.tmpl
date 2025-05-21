@@ -12,7 +12,7 @@ import (
 )
 
 type DataSource interface {
-	FindList(ctx context.Context, obj *List{{.ModelName}}Criteria) (*[]{{.ModelName}}Data, int64, error)
+	FindList(ctx context.Context, obj *List{{.ModelName}}Criteria) (*[]Data{{.ModelName}}, int64, error)
 	FindLiteList(ctx context.Context, obj *LiteList{{.ModelName}}Criteria) (*[]Lite{{.ModelName}}, error)
 	FindOne(ctx context.Context, obj *One{{.ModelName}}Criteria) (*{{.ModelName}}, error)
 	Create(ctx context.Context, obj *{{.ModelName}}) (*{{.ModelName}}, error)
@@ -26,8 +26,8 @@ type dataSource struct {
 	db dbre.DB[{{.ModelName}}]
 }
 
-func (d *dataSource) FindList(ctx context.Context, obj *List{{.ModelName}}Criteria) (*[]{{.ModelName}}Data, int64, error) {
-	result := &[]{{.ModelName}}Data{}
+func (d *dataSource) FindList(ctx context.Context, obj *List{{.ModelName}}Criteria) (*[]Data{{.ModelName}}, int64, error) {
+	result := &[]Data{{.ModelName}}{}
 	var total int64
 
 	queryBuilder := dbre.NewSQLQueryBuilder()

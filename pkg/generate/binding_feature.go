@@ -4,25 +4,34 @@ import (
 	"fmt"
 	"github.com/prongbang/fibergen/pkg/common"
 	"github.com/prongbang/fibergen/pkg/config"
+	"github.com/prongbang/fibergen/pkg/filex"
 	"github.com/prongbang/fibergen/pkg/option"
+	"github.com/pterm/pterm"
 	"strings"
 
 	"github.com/ettle/strcase"
-
-	"github.com/prongbang/fibergen/pkg/filex"
-	"github.com/pterm/pterm"
 )
 
-func AutoBinding(fx filex.FileX, pkg option.Package) {
+type bindingFeature struct {
+	FileX filex.FileX
+}
+
+func (b *bindingFeature) Bind(pkg option.Package) error {
 	changeToRoot := "../../../"
-	pwd, _ := fx.Getwd()
+	pwd, err := b.FileX.Getwd()
+	if err != nil {
+		return err
+	}
 
 	wirePath := ""
 	if pkg.Module.AppPath == config.AppPath {
 		// Binding wire
 		// Change to root directory
-		_ = fx.Chdir(changeToRoot)
-		pwdRoot, _ := fx.Getwd()
+		_ = b.FileX.Chdir(changeToRoot)
+		pwdRoot, err := b.FileX.Getwd()
+		if err != nil {
+			return err
+		}
 
 		wirePath = "/" + pwdRoot + "/wire.go"
 	} else {
@@ -31,7 +40,7 @@ func AutoBinding(fx filex.FileX, pkg option.Package) {
 		wirePath = "/" + pwd + "/wire.go"
 	}
 
-	wireB := fx.ReadFile(wirePath)
+	wireB := b.FileX.ReadFile(wirePath)
 	wireText := wireB
 	wireImpPat1 := "//+fibergen:import wire:package"
 	wireImpPat2 := "// +fibergen:import wire:package"
@@ -52,7 +61,7 @@ func AutoBinding(fx filex.FileX, pkg option.Package) {
 	wireText = strings.Replace(wireText, wireBuildPat2, wireBuild, 1)
 
 	spinnerBindWire, _ := pterm.DefaultSpinner.Start("Binding file wire.go")
-	if err := fx.WriteFile(wirePath, []byte(wireText)); err == nil {
+	if err := b.FileX.WriteFile(wirePath, []byte(wireText)); err == nil {
 		spinnerBindWire.Success()
 	} else {
 		spinnerBindWire.Fail()
@@ -60,9 +69,9 @@ func AutoBinding(fx filex.FileX, pkg option.Package) {
 
 	// Binding routers
 	// Change to api directory
-	_ = fx.Chdir(pwd)
+	_ = b.FileX.Chdir(pwd)
 	routerPath := "/" + pwd + "/routers.go"
-	routerB := fx.ReadFile(routerPath)
+	routerB := b.FileX.ReadFile(routerPath)
 	routerText := routerB
 	routerImpPat1 := "//+fibergen:import routers:package"
 	routerImpPat2 := "// +fibergen:import routers:package"
@@ -110,7 +119,7 @@ func AutoBinding(fx filex.FileX, pkg option.Package) {
 	routerText = strings.Replace(routerText, routerBindPat2, routerBind, 1)
 
 	spinnerBindRouter, _ := pterm.DefaultSpinner.Start("Binding file routers.go")
-	if err := fx.WriteFile(routerPath, []byte(routerText)); err == nil {
+	if err := b.FileX.WriteFile(routerPath, []byte(routerText)); err == nil {
 		spinnerBindRouter.Success()
 	} else {
 		spinnerBindRouter.Fail()
@@ -118,6 +127,13 @@ func AutoBinding(fx filex.FileX, pkg option.Package) {
 
 	// Change to root directory
 	if changeToRoot != "" {
-		_ = fx.Chdir(changeToRoot)
+		return b.FileX.Chdir(changeToRoot)
+	}
+	return nil
+}
+
+func NewFeatureBinding(fileX filex.FileX) Binding {
+	return &bindingFeature{
+		FileX: fileX,
 	}
 }

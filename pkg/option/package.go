@@ -6,8 +6,7 @@ import (
 
 // Package is struct
 type Package struct {
-	Imports []string
-	Name    string
-	Module  mod.Mod
-	Spec    Spec
+	Name   string
+	Module mod.Mod
+	Spec   Spec
 }

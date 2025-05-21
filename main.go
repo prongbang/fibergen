@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
+	"github.com/prongbang/fibergen/pkg/creator"
+	"github.com/prongbang/fibergen/pkg/filex"
 	"github.com/prongbang/fibergen/pkg/generate"
-	"log"
 	"os"
 	"strings"
 	"time"
@@ -11,7 +12,6 @@ import (
 	"github.com/ettle/strcase"
 	"github.com/prongbang/fibergen/pkg/arch"
 	"github.com/prongbang/fibergen/pkg/command"
-	"github.com/prongbang/fibergen/pkg/filex"
 	"github.com/prongbang/fibergen/pkg/option"
 	"github.com/prongbang/fibergen/pkg/tools"
 	"github.com/urfave/cli/v2"
@@ -21,6 +21,7 @@ type Flags struct {
 	ProjectName string
 	ModuleName  string
 	FeatureName string
+	SharedName  string
 	Crud        string
 	Spec        string
 	Driver      string
@@ -37,6 +38,13 @@ func (f Flags) Module() string {
 func (f Flags) Feature() string {
 	if f.FeatureName != "" {
 		return strcase.ToSnake(strings.ReplaceAll(f.FeatureName, " ", ""))
+	}
+	return ""
+}
+
+func (f Flags) Shared() string {
+	if f.SharedName != "" {
+		return strcase.ToSnake(strings.ReplaceAll(f.SharedName, " ", ""))
 	}
 	return ""
 }
@@ -76,9 +84,10 @@ func main() {
 				Destination: &flags.FeatureName,
 			},
 			&cli.StringFlag{
-				Name:        "crud",
-				Usage:       "-crud auth",
-				Destination: &flags.Crud,
+				Name:        "shared",
+				Aliases:     []string{"sh"},
+				Usage:       "-sh auth",
+				Destination: &flags.SharedName,
 			},
 			&cli.StringFlag{
 				Name:        "spec",
@@ -98,7 +107,7 @@ func main() {
 				Project: flags.Project(),
 				Module:  flags.Module(),
 				Feature: flags.Feature(),
-				Crud:    flags.Crud,
+				Shared:  flags.Shared(),
 				Spec:    flags.Spec,
 				Driver:  flags.Driver,
 			}
@@ -106,23 +115,24 @@ func main() {
 			arc := arch.New()
 			wireInstaller := tools.NewWireInstaller(cmd)
 			wireRunner := tools.NewWireRunner(cmd)
-			gen := generate.NewGenerator(
-				filex.NewFileX(),
-				tools.New(
-					wireInstaller,
-					tools.NewSqlcInstaller(cmd, arc),
-					tools.NewDbmlInstaller(cmd, arc),
-				),
+			fileX := filex.NewFileX()
+			creatorX := creator.New(fileX)
+			installer := tools.New(
 				wireInstaller,
-				wireRunner,
+				tools.NewSqlcInstaller(cmd, arc),
+				tools.NewDbmlInstaller(cmd, arc),
 			)
-			gen.Generate(opt)
-
-			return nil
+			featureBinding := generate.NewFeatureBinding(fileX)
+			sharedBinding := generate.NewSharedBinding(fileX)
+			projectGenerator := generate.NewProjectGenerator(fileX)
+			featureGenerator := generate.NewFeatureGenerator(fileX, creatorX, installer, wireInstaller, wireRunner, featureBinding)
+			sharedGenerator := generate.NewSharedGenerator(fileX, creatorX, installer, wireInstaller, wireRunner, sharedBinding)
+			gen := generate.NewGenerator(projectGenerator, featureGenerator, sharedGenerator)
+			return gen.Generate(opt)
 		},
 	}
 
 	if err := app.Run(os.Args); err != nil {
-		log.Fatal(err)
+		fmt.Println("[fibergen]", err.Error())
 	}
 }

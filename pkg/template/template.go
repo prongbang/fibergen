@@ -103,6 +103,9 @@ var CrudModelTemplate string
 //go:embed crud_provider_template.tmpl
 var CrudProviderTemplate string
 
+//go:embed crud_shared_provider_template.tmpl
+var CrudSharedProviderTemplate string
+
 //go:embed crud_repository_template.tmpl
 var CrudRepositoryTemplate string
 
@@ -205,6 +208,9 @@ var PrototypeModelTemplate string
 
 //go:embed prototype_provider_template.tmpl
 var PrototypeProviderTemplate string
+
+//go:embed prototype_shared_provider_template.tmpl
+var PrototypeSharedProviderTemplate string
 
 //go:embed prototype_repository_template.tmpl
 var PrototypeRepositoryTemplate string

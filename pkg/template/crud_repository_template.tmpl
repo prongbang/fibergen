@@ -6,7 +6,7 @@ import (
 
 type Repository interface {
 	FindOne(ctx context.Context, obj *One{{.ModelName}}Criteria) (*{{.ModelName}}, error)
-	FindList(ctx context.Context, obj *List{{.ModelName}}Criteria) (*[]{{.ModelName}}Data, int64, error)
+	FindList(ctx context.Context, obj *List{{.ModelName}}Criteria) (*[]Data{{.ModelName}}, int64, error)
 	FindLiteList(ctx context.Context, obj *LiteList{{.ModelName}}Criteria) (*[]Lite{{.ModelName}}, error)
 	Create(ctx context.Context, obj *{{.ModelName}}) (*{{.ModelName}}, error)
 	CreateList(ctx context.Context, obj *[]{{.ModelName}}) (*[]{{.ModelName}}, error)
@@ -23,7 +23,7 @@ func (r *repository) FindOne(ctx context.Context, obj *One{{.ModelName}}Criteria
 	return r.Ds.FindOne(ctx, obj)
 }
 
-func (r *repository) FindList(ctx context.Context, obj *List{{.ModelName}}Criteria) (*[]{{.ModelName}}Data, int64, error) {
+func (r *repository) FindList(ctx context.Context, obj *List{{.ModelName}}Criteria) (*[]Data{{.ModelName}}, int64, error) {
 	return r.Ds.FindList(ctx, obj)
 }
 

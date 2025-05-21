@@ -5,14 +5,11 @@ import "{{.Module}}/pkg/core"
 type {{.ModelName}} struct {
 }
 
-type {{.ModelName}}Data struct {
-	*{{.ModelName}}
+type Data{{.ModelName}} struct {
+	{{.ModelName}}
 }
 
-type Delete{{.ModelName}}Data struct {
-}
-
-type {{.ModelName}}Paged struct {
+type Paged{{.ModelName}} struct {
 	*core.Paging
 }
 
@@ -44,19 +41,19 @@ type Delete{{.ModelName}}Request struct {
 type List{{.ModelName}}Request struct {
 	UserRequestInfo *core.UserRequestInfo `json:"-"`
 
-	*List{{.ModelName}}Criteria
+	List{{.ModelName}}Criteria
 }
 
 type LiteList{{.ModelName}}Request struct {
 	UserRequestInfo *core.UserRequestInfo `json:"-"`
 
-	*LiteList{{.ModelName}}Criteria
+	LiteList{{.ModelName}}Criteria
 }
 
 type One{{.ModelName}}Request struct {
 	UserRequestInfo *core.UserRequestInfo `json:"-"`
 
-	*One{{.ModelName}}Criteria
+	One{{.ModelName}}Criteria
 }
 
 type List{{.ModelName}}Criteria struct {

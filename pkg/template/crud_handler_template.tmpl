@@ -46,7 +46,7 @@ func (h *handler) FindOne(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Param query body List{{.ModelName}}Request true "query"
-// @Success 200 {object} core.Success{data={{.ModelName}}Paged}
+// @Success 200 {object} core.Success{data=Paged{{.ModelName}}}
 // @Failure 400 {object} core.Error
 // @Security JWTAuth
 // @Router /v1/{{.RouteName}}/many [post]
