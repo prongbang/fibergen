@@ -102,13 +102,13 @@ This creates the following structure:
 │     │     │     └── response.go
 │     │     └── validator
 │     │         └── validator.go
-│     ├── shared
-│     │     └── example
-│     │         ├── datasource.go
-│     │         ├── example.go
-│     │         ├── provider.go
-│     │         └── repository.go
-│     └── wire.go
+│     └── shared
+│           └── example
+│               ├── datasource.go
+│               ├── example.go
+│               ├── provider.go
+│               └── repository.go
+│     
 ├── pkg
 │     ├── core
 │     │     ├── common.go
