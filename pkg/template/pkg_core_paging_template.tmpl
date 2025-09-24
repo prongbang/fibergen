@@ -95,10 +95,3 @@ func GetPageQuery(page int64, limit int64) *PageQuery {
 	pageQuery.Offset = (page - 1) * limit
 	return pageQuery
 }
-
-func ToQueryLimit(page int64, limit int64) *dbre.Limit {
-	queryLimit := &dbre.Limit{}
-	queryLimit.PageSize = limit
-	queryLimit.Offset = (page - 1) * limit
-	return queryLimit
-}

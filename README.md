@@ -24,7 +24,7 @@
 
 Latest version:
 ```shell
-go install github.com/prongbang/fibergen@v1.4.0
+go install github.com/prongbang/fibergen@v1.4.1
 ```
 
 For older projects:
@@ -108,7 +108,7 @@ This creates the following structure:
 │               ├── example.go
 │               ├── provider.go
 │               └── repository.go
-│     
+│
 ├── pkg
 │     ├── core
 │     │     ├── common.go
