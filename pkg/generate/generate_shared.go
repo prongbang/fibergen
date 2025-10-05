@@ -32,10 +32,20 @@ func sharedCrudTemplates(pkg option.Package) map[string][]byte {
 		appPath = config.InternalPath
 	}
 
-	dsTmpl, _ := template.RenderText(template.CrudDatasourceTemplate, template.Project{Name: pkg.Name, PrimaryField: pkg.Spec.PrimaryField, Module: pkg.Module.Module, Path: appPath})
+	// Use template by ORM
+	dataSourceTmpl := template.CrudDatasourceSqlBuilderTemplate
+	modelTmpl := template.CrudModelTemplate
+	repoTmpl := template.CrudRepositoryTemplate
+	if pkg.Spec.Orm == "bun" {
+		dataSourceTmpl = template.CrudDatasourceBunTemplate
+		modelTmpl = template.CrudModelBunTemplate
+		repoTmpl = template.CrudRepositoryBunTemplate
+	}
+
+	dsTmpl, _ := template.RenderText(dataSourceTmpl, template.Project{Name: pkg.Name, Alias: pkg.Spec.Alias, Fields: pkg.Spec.Fields, PrimaryField: pkg.Spec.PrimaryField, Module: pkg.Module.Module, Path: appPath, Driver: pkg.Spec.Driver})
+	mdTmpl, _ := template.RenderText(modelTmpl, template.Project{Imports: pkg.Spec.Imports, Module: pkg.Module.Module, Fields: pkg.Spec.Fields, PrimaryField: pkg.Spec.PrimaryField, Name: pkg.Name})
+	rpTmpl, _ := template.RenderText(repoTmpl, template.Project{Name: pkg.Name, PrimaryField: pkg.Spec.PrimaryField, Module: pkg.Module.Module})
 	pdTmpl, _ := template.RenderText(template.CrudSharedProviderTemplate, template.Project{Name: pkg.Name})
-	rpTmpl, _ := template.RenderText(template.CrudRepositoryTemplate, template.Project{Name: pkg.Name, PrimaryField: pkg.Spec.PrimaryField})
-	mdTmpl, _ := template.RenderText(template.CrudModelTemplate, template.Project{Imports: pkg.Spec.Imports, Module: pkg.Module.Module, Fields: pkg.Spec.Fields, PrimaryField: pkg.Spec.PrimaryField, Name: pkg.Name})
 
 	return map[string][]byte{
 		"datasource.go":                dsTmpl,

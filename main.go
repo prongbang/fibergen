@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/prongbang/fibergen/pkg/creator"
-	"github.com/prongbang/fibergen/pkg/filex"
-	"github.com/prongbang/fibergen/pkg/generate"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/prongbang/fibergen/pkg/creator"
+	"github.com/prongbang/fibergen/pkg/filex"
+	"github.com/prongbang/fibergen/pkg/generate"
 
 	"github.com/ettle/strcase"
 	"github.com/prongbang/fibergen/pkg/arch"
@@ -25,6 +26,7 @@ type Flags struct {
 	Crud        string
 	Spec        string
 	Driver      string
+	Orm         string
 }
 
 func (f Flags) Project() string {
@@ -55,7 +57,7 @@ func main() {
 	app := &cli.App{
 		Name:      "fibergen",
 		Usage:     "Generate a Clean Architecture for REST API with support for the Fiber Web Framework in Golang",
-		Version:   "v1.0.6",
+		Version:   "v1.0.7",
 		Compiled:  time.Now(),
 		Copyright: "(c) 2023 prongbang",
 		Authors: []*cli.Author{
@@ -101,6 +103,11 @@ func main() {
 				Usage:       "-d mariadb",
 				Destination: &flags.Driver,
 			},
+			&cli.StringFlag{
+				Name:        "orm",
+				Usage:       "-orm bun,sqlbuilder",
+				Destination: &flags.Orm,
+			},
 		},
 		Action: func(*cli.Context) error {
 			opt := option.Options{
@@ -110,6 +117,7 @@ func main() {
 				Shared:  flags.Shared(),
 				Spec:    flags.Spec,
 				Driver:  flags.Driver,
+				Orm:     flags.Orm,
 			}
 			cmd := command.New()
 			arc := arch.New()

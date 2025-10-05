@@ -3,7 +3,10 @@ package generate
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
+
 	"github.com/ettle/strcase"
+	"github.com/prongbang/fibergen/pkg/common"
 	"github.com/prongbang/fibergen/pkg/config"
 	"github.com/prongbang/fibergen/pkg/creator"
 	"github.com/prongbang/fibergen/pkg/filex"
@@ -12,7 +15,6 @@ import (
 	"github.com/prongbang/fibergen/pkg/template"
 	"github.com/prongbang/fibergen/pkg/tools"
 	"github.com/prongbang/fibergen/pkg/typer"
-	"strings"
 )
 
 func featureTemplates(pkg option.Package) map[string][]byte {
@@ -41,14 +43,29 @@ func featureCrudTemplates(pkg option.Package) map[string][]byte {
 		appPath = config.InternalPath
 	}
 
-	dsTmpl, _ := template.RenderText(template.CrudDatasourceTemplate, template.Project{Name: pkg.Name, PrimaryField: pkg.Spec.PrimaryField, Module: pkg.Module.Module, Path: appPath})
+	// Use template by ORM
+	dataSourceTmpl := template.CrudDatasourceSqlBuilderTemplate
+	modelTmpl := template.CrudModelTemplate
+	usecaseTmpl := template.CrudUseCaseTemplate
+	repoTmpl := template.CrudRepositoryTemplate
+	routeTmpl := template.CrudRouterTemplate
+	if pkg.Spec.Orm == "bun" {
+		dataSourceTmpl = template.CrudDatasourceBunTemplate
+		modelTmpl = template.CrudModelBunTemplate
+		usecaseTmpl = template.CrudUseCaseBunTemplate
+		repoTmpl = template.CrudRepositoryBunTemplate
+		routeTmpl = template.CrudRouterBunTemplate
+	}
+
+	// Render
+	dsTmpl, _ := template.RenderText(dataSourceTmpl, template.Project{Name: pkg.Name, Alias: pkg.Spec.Alias, Fields: pkg.Spec.Fields, PrimaryField: pkg.Spec.PrimaryField, Module: pkg.Module.Module, Path: appPath, Driver: pkg.Spec.Driver})
+	rpTmpl, _ := template.RenderText(repoTmpl, template.Project{Name: pkg.Name, PrimaryField: pkg.Spec.PrimaryField, Module: pkg.Module.Module})
+	ucTmpl, _ := template.RenderText(usecaseTmpl, template.Project{Name: pkg.Name, Module: pkg.Module.Module, Fields: pkg.Spec.Fields})
+	mdTmpl, _ := template.RenderText(modelTmpl, template.Project{Imports: pkg.Spec.Imports, Module: pkg.Module.Module, Fields: pkg.Spec.Fields, PrimaryField: pkg.Spec.PrimaryField, Name: pkg.Name})
+	rtTmpl, _ := template.RenderText(routeTmpl, template.Project{Name: pkg.Name, Module: pkg.Module.Module})
 	hdTmpl, _ := template.RenderText(template.CrudHandlerTemplate, template.Project{Name: pkg.Name, Module: pkg.Module.Module})
 	pdTmpl, _ := template.RenderText(template.CrudProviderTemplate, template.Project{Name: pkg.Name})
 	pmTmpl, _ := template.RenderText(template.CrudPermissionTemplate, template.Project{Name: pkg.Name})
-	rpTmpl, _ := template.RenderText(template.CrudRepositoryTemplate, template.Project{Name: pkg.Name, PrimaryField: pkg.Spec.PrimaryField})
-	rtTmpl, _ := template.RenderText(template.CrudRouterTemplate, template.Project{Name: pkg.Name, Module: pkg.Module.Module})
-	ucTmpl, _ := template.RenderText(template.CrudUseCaseTemplate, template.Project{Name: pkg.Name, Module: pkg.Module.Module, Fields: pkg.Spec.Fields})
-	mdTmpl, _ := template.RenderText(template.CrudModelTemplate, template.Project{Imports: pkg.Spec.Imports, Module: pkg.Module.Module, Fields: pkg.Spec.Fields, PrimaryField: pkg.Spec.PrimaryField, Name: pkg.Name})
 
 	return map[string][]byte{
 		"datasource.go":                dsTmpl,
@@ -123,32 +140,10 @@ func generateSpec(fileX filex.FileX, opt option.Options) (option.Spec, error) {
 	imports := []string{}
 	spec := option.Spec{
 		Driver: opt.Driver,
+		Orm:    opt.Orm,
 	}
-	alias := strings.ToLower(opt.Feature)[:1]
-	queryColumns := []string{}
-	insertValues := []string{}
-	insertFields := []string{}
-	insertQuestions := []string{}
-	updateSets := []string{}
-	fields := []template.Field{
-		{
-			Name:    "CreatedBy",
-			Type:    "string",
-			JsonTag: "createdBy",
-			DbTag:   "created_by",
-			Update:  false,
-			Create:  false,
-		},
-		{
-			Name:    "UpdatedBy",
-			Type:    "string",
-			JsonTag: "updatedBy",
-			DbTag:   "updated_by",
-			Update:  false,
-			Create:  false,
-		},
-	}
-	columns := []string{}
+	alias := common.Abbrev(opt.Feature)
+	fields := []template.Field{}
 	for key, value := range result {
 		snakeTag := strcase.ToSnake(key)
 		camelTag := strcase.ToCamel(key)
@@ -169,14 +164,8 @@ func generateSpec(fileX filex.FileX, opt option.Options) (option.Spec, error) {
 			}
 		}
 
-		// Columns
-		columns = append(columns, snakeTag)
-
 		// Fields
-		fields = append(fields, template.Field{PrimaryKey: isPrimaryKey, Name: vars, Type: typeValue, JsonTag: camelTag, DbTag: snakeTag, Update: true, Create: true})
-
-		// Query
-		queryColumns = append(queryColumns, fmt.Sprintf("%s.%s", alias, snakeTag))
+		fields = append(fields, template.Field{PrimaryKey: isPrimaryKey, Alias: alias, CamelCase: camelTag, SnakeCase: snakeTag, PascalCase: vars, Name: vars, Type: typeValue, JsonTag: camelTag, DbTag: snakeTag, Update: true, Create: true})
 
 		// Pk
 		if isPrimaryKey {
@@ -185,28 +174,11 @@ func generateSpec(fileX filex.FileX, opt option.Options) (option.Spec, error) {
 				Type:    typeValue,
 				JsonTag: "id",
 			}
-		} else {
-			// Insert
-			insertValues = append(insertValues, fmt.Sprintf("\tdata.%s,\n", vars))
-			insertFields = append(insertFields, snakeTag)
-			insertQuestions = append(insertQuestions, "?")
-
-			// Update
-			operate := typer.Operate(typeValue)
-			operand := typer.Value(typeValue)
-			updateSets = append(updateSets, fmt.Sprintf(`if data.%s %s %s {
-		set += ", %s=:%s"
-		params["%s"] = data.%s
-	}`, vars, operate, operand, snakeTag, snakeTag, snakeTag, vars))
 		}
 	}
-	spec.QueryColumns = strings.Join(queryColumns, ", ")
-	spec.InsertValues = strings.Join(insertValues, "")
-	spec.InsertFields = strings.Join(insertFields, ", ")
-	spec.InsertQuestions = strings.Join(insertQuestions, ", ")
-	spec.UpdateSets = strings.Join(updateSets, "\n\t")
+
+	spec.Alias = alias
 	spec.Fields = fields
-	spec.Columns = columns
 	spec.Imports = imports
 	return spec, nil
 }

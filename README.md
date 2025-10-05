@@ -24,7 +24,7 @@
 
 Latest version:
 ```shell
-go install github.com/prongbang/fibergen@v1.4.1
+go install github.com/prongbang/fibergen@v1.4.2
 ```
 
 For older projects:
@@ -181,8 +181,16 @@ Create `spec/auth.json`:
 
 ### 2. Generate CRUD
 
+- SQL Builder
+
 ```shell
-fibergen -f auth -s spec/auth.json -d mariadb
+fibergen -f auth -s spec/auth.json -d mariadb -orm sqlbuilder
+```
+
+- Bun
+
+```shell
+fibergen -f auth -s spec/auth.json -d mariadb -orm bun
 ```
 
 This generates complete CRUD operations based on your JSON structure.
@@ -216,9 +224,18 @@ test-project/internal/shared/promotion
 
 ### 5. Generate Shared CRUD
 
+- SQL Builder
+
 ```shell
-fibergen -sh promotion -s spec/promotion.json -d maridb
+fibergen -sh promotion -s spec/promotion.json -d maridb -orm sqlbuilder
 ```
+
+- Bun
+
+```shell
+fibergen -sh promotion -s spec/promotion.json -d maridb -orm bun
+```
+
 This generates shared CRUD operations based on your JSON structure.
 
 ```

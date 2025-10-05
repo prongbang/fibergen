@@ -54,11 +54,7 @@ func (h *handler) FindList(c *fiber.Ctx) error {
 	request := &List{{.ModelName}}Request{}
 	return h.ApiHandler.Do(c, request, true, func(ctx context.Context, requestInfo *core.RequestInfo) (interface{}, error) {
 		request.UserRequestInfo = requestInfo.UserRequestInfo
-		data, total, err := h.Uc.FindList(ctx, request)
-		if err != nil {
-			return nil, err
-		}
-		return &core.Paging{List: data, PageInfo: *core.GetPageResult(request.Page, request.Limit, total)}, err
+		return h.Uc.FindPaged(ctx, request)
 	})
 }
 

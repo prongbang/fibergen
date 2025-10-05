@@ -1,0 +1,262 @@
+package {{.PackageName}}
+
+import (
+	"context"
+	"fmt"
+
+	"github.com/prongbang/goerror"
+	"github.com/prongbang/sqlbuilder"
+	"{{.Module}}/internal/pkg/response"
+	"{{.Module}}/pkg/core"
+	"{{.Module}}/internal/database"
+)
+
+type DataSource interface {
+	FindList(ctx context.Context, obj *List{{.ModelName}}Criteria) (*[]Data{{.ModelName}}, int64, error)
+	FindLiteList(ctx context.Context, obj *LiteList{{.ModelName}}Criteria) (*[]Lite{{.ModelName}}, error)
+	FindOne(ctx context.Context, obj *One{{.ModelName}}Criteria) (*{{.ModelName}}, error)
+	Create(ctx context.Context, obj *Create{{.ModelName}}Request) (*{{.ModelName}}, error)
+	CreateList(ctx context.Context, obj *[]Create{{.ModelName}}Request) (*[]{{.ModelName}}, error)
+	Update(ctx context.Context, obj *Update{{.ModelName}}Request) (*{{.ModelName}}, error)
+	UpdateList(ctx context.Context, obj *[]Update{{.ModelName}}Request) (*[]{{.ModelName}}, error)
+	Delete(ctx context.Context, obj *Delete{{.ModelName}}Request) (*core.Empty, error)
+}
+
+type dataSource struct {
+	Driver database.Drivers
+}
+
+func (d *dataSource) FindList(ctx context.Context, obj *List{{.ModelName}}Criteria) (*[]Data{{.ModelName}}, int64, error) {
+	conn := d.Driver.{{.DriverName}}()
+	result := &[]Data{{.ModelName}}{}
+	var total int64
+
+	queryBuilder := sqlbuilder.New()
+	queryBuilder.AddQuery(`SELECT
+    {{- $len := len .Fields -}}
+    {{- range $i, $f := .Fields }}
+        {{$f.Alias}}.{{$f.SnakeCase}}{{if lt $i (sub $len 1)}},{{end}}
+    {{- end }}
+	FROM {{.TableName}} {{.Alias}}`)
+
+	// Where
+	queryBuilder.WhereAnd("1 = 1")
+
+	// Query: count
+	countStatement := fmt.Sprintf("SELECT COUNT(1) FROM (%s) AS t", queryBuilder.ToSQL())
+	err := conn.GetContext(ctx, &total, countStatement, queryBuilder.Args()...)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	// Query: list
+	if total > 0 {
+		// Sort
+		sort, err := sqlbuilder.NewSort(&sqlbuilder.SortParam{
+			FieldMap: map[string]string{
+			{{- $len := len .Fields -}}
+            {{- range $i, $f := .Fields }}
+                "{{$f.CamelCase}}": "{{$f.Alias}}.{{$f.SnakeCase}}",
+            {{- end }}
+			},
+			Current: &sqlbuilder.Sort{By: obj.Sort, Direction: obj.Order},
+			Default: &sqlbuilder.Sort{By: "id", Direction: sqlbuilder.ASC},
+		})
+		if err != nil {
+			return nil, 0, err
+		}
+		if sort != nil {
+			queryBuilder.WithSort(sort)
+		}
+
+		// Paged
+		queryBuilder.WithPagination(obj.Page, obj.Limit)
+
+		err = conn.SelectContext(ctx, result, queryBuilder.ToSQL(), queryBuilder.Args()...)
+		if err != nil {
+			return nil, 0, err
+		}
+	}
+
+	return result, total, nil
+}
+
+func (d *dataSource) FindLiteList(ctx context.Context, obj *LiteList{{.ModelName}}Criteria) (*[]Lite{{.ModelName}}, error) {
+	conn := d.Driver.{{.DriverName}}()
+	result := &[]Lite{{.ModelName}}{}
+
+	queryBuilder := sqlbuilder.New()
+	queryBuilder.AddQuery(`SELECT
+    {{- $len := len .Fields -}}
+    {{- range $i, $f := .Fields }}
+        {{$f.Alias}}.{{$f.SnakeCase}}{{if lt $i (sub $len 1)}},{{end}}
+    {{- end }}
+	FROM {{.TableName}} {{.Alias}}`)
+
+	// Where
+	queryBuilder.WhereAnd("1 = 1")
+
+	err := conn.SelectContext(ctx, result, queryBuilder.ToSQL(), queryBuilder.Args()...)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (d *dataSource) FindOne(ctx context.Context, obj *One{{.ModelName}}Criteria) (*{{.ModelName}}, error) {
+	conn := d.Driver.{{.DriverName}}()
+	result := &[]{{.ModelName}}{}
+
+    queryBuilder := sqlbuilder.New()
+	queryBuilder.AddQuery(`SELECT
+    {{- $len := len .Fields -}}
+    {{- range $i, $f := .Fields }}
+        {{$f.Alias}}.{{$f.SnakeCase}}{{if lt $i (sub $len 1)}},{{end}}
+    {{- end }}
+	FROM {{.TableName}} {{.Alias}}`)
+
+	// Where
+    queryBuilder.WhereAnd("{{.Alias}}.id = ?", obj.Id)
+
+    err := conn.SelectContext(ctx, result, queryBuilder.ToSQL(), queryBuilder.Args()...)
+	if err != nil {
+		return nil, err
+	}
+	if len(*result) > 0 {
+		return &(*result)[0], nil
+	}
+
+    return nil, goerror.NewNotFound()
+}
+
+func (d *dataSource) Create(ctx context.Context, obj *Create{{.ModelName}}Request) (*{{.ModelName}}, error) {
+	conn := d.Driver.{{.DriverName}}()
+
+    valuesMap := sqlbuilder.Map{
+    {{- range $i, $f := .Fields }}
+        {{- if not $f.PrimaryKey }}
+        "{{$f.SnakeCase}}": obj.{{$f.PascalCase}},
+        {{- end }}
+    {{- end }}
+    }
+
+	queryBuilder := sqlbuilder.New()
+	queryBuilder.Insert("{{.TableName}}").ValuesMap(valuesMap)
+
+	result, err := conn.ExecContext(ctx, queryBuilder.ToSQL(), queryBuilder.Args()...)
+	if err != nil {
+		return nil, response.NewInsertError()
+	}
+
+	obj.Id, err = result.LastInsertId()
+	if err != nil {
+		return nil, response.NewLastInsertIdError(err)
+	}
+
+	return obj, nil
+}
+
+func (d *dataSource) CreateList(ctx context.Context, obj *[]Create{{.ModelName}}Request) (*[]{{.ModelName}}, error) {
+	conn := d.Driver.{{.DriverName}}()
+
+	columns := []string{
+{{- range $i, $f := .Fields }}
+    {{- if not $f.PrimaryKey }}
+        "{{$f.SnakeCase}}",
+    {{- end }}
+{{- end }}
+	}
+	values := [][]interface{}{}
+	for _, v := range *obj {
+		values = append(values, []interface{}{
+		{{- range $i, $f := .Fields }}
+		    {{- if not $f.PrimaryKey }}
+            v.{{$f.PascalCase}},
+            {{- end }}
+        {{- end }}
+		})
+	}
+
+	queryBuilder := sqlbuilder.New()
+	queryBuilder.BatchInsert("{{.TableName}}", columns, values)
+
+	_, err := conn.ExecContext(ctx, queryBuilder.ToSQL(), queryBuilder.Args()...)
+	if err != nil {
+		return nil, response.NewInsertError()
+	}
+
+	return obj, nil
+}
+
+func (d *dataSource) Update(ctx context.Context, obj *Update{{.ModelName}}Request) (*{{.ModelName}}, error) {
+    conn := d.Driver.{{.DriverName}}()
+
+	queryBuilder := sqlbuilder.New()
+	queryBuilder.Update("{{.TableName}}")
+
+	// Set
+{{- range $i, $f := .Fields }}
+    {{- if not $f.PrimaryKey }}
+    if obj.{{$f.PascalCase}} != nil {
+   	    queryBuilder.Set("{{$f.SnakeCase}}", obj.{{$f.PascalCase}})
+   	}
+    {{- end }}
+{{- end }}
+
+	// Where
+	queryBuilder.WhereAnd("id = ?", obj.Id)
+
+	_, err := conn.ExecContext(ctx, queryBuilder.ToSQL(), queryBuilder.Args()...)
+	if err != nil {
+		return nil, response.NewUpdateError()
+	}
+
+	return obj, nil
+}
+
+func (d *dataSource) UpdateList(ctx context.Context, obj *[]Update{{.ModelName}}Request) (*[]{{.ModelName}}, error) {
+	conn := d.Driver.{{.DriverName}}()
+
+	updatesMap := []map[string]interface{}{}
+	for _, v := range *obj {
+		updatesMap = append(updatesMap, sqlbuilder.Map{
+        {{- range $i, $f := .Fields }}
+            {{- if not $f.PrimaryKey }}
+            "{{$f.SnakeCase}}": v.{{$f.PascalCase}},
+            {{- end }}
+        {{- end }}
+		})
+	}
+
+	uniqueKey := "id"
+	queryBuilder := sqlbuilder.New()
+	queryBuilder.BatchUpdate("{{.TableName}}", updatesMap, uniqueKey)
+
+	_, err := conn.ExecContext(ctx, queryBuilder.ToSQL(), queryBuilder.Args()...)
+	if err != nil {
+		return nil, response.NewUpdateError()
+	}
+
+	return obj, nil
+}
+
+func (d *dataSource) Delete(ctx context.Context, obj *Delete{{.ModelName}}Request) (*core.Empty, error) {
+	conn := d.Driver.{{.DriverName}}()
+
+	queryBuilder := sqlbuilder.New()
+	queryBuilder.DeleteFrom("{{.TableName}}").WhereAnd("id = ?", obj.Id)
+
+	_, err := conn.ExecContext(ctx, queryBuilder.ToSQL(), queryBuilder.Args()...)
+	if err != nil {
+		return nil, response.NewDeleteError()
+	}
+
+	return &core.Empty{}, nil
+}
+
+func NewDataSource(driver database.Drivers) DataSource {
+	return &dataSource{
+		Driver: driver,
+	}
+}

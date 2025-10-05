@@ -9,17 +9,14 @@ type Options struct {
 	Shared  string
 	Spec    string
 	Driver  string
+	Orm     string
 }
 
 type Spec struct {
-	Imports         []string
-	Driver          string
-	QueryColumns    string
-	Fields          []template.Field
-	PrimaryField    template.PrimaryField
-	Columns         []string
-	InsertValues    string
-	InsertFields    string
-	InsertQuestions string
-	UpdateSets      string
+	Imports      []string
+	Driver       string
+	Orm          string
+	Alias        string
+	Fields       []template.Field
+	PrimaryField template.PrimaryField
 }

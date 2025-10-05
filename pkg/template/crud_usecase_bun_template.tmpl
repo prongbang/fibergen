@@ -23,15 +23,19 @@ type useCase struct {
 }
 
 func (uc *useCase) FindOne(ctx context.Context, obj *One{{.ModelName}}Request) (*{{.ModelName}}, error) {
-	return uc.Repo.FindOne(ctx, &obj.One{{.ModelName}}Criteria)
+	data, err := uc.Repo.FindOne(ctx, &obj.One{{.ModelName}}Criteria)
+	if err != nil {
+		return nil, err
+	}
+	return data, nil
 }
 
 func (uc *useCase) FindList(ctx context.Context, obj *List{{.ModelName}}Request) (*[]Data{{.ModelName}}, int64, error) {
-	return uc.Repo.FindList(ctx, &obj.List{{.ModelName}}Criteria)
-}
-
-func (uc *useCase) FindLiteList(ctx context.Context, obj *LiteList{{.ModelName}}Request) (*[]Lite{{.ModelName}}, error) {
-	return uc.Repo.FindLiteList(ctx, &obj.LiteList{{.ModelName}}Criteria)
+	data, total, err := uc.Repo.FindList(ctx, &obj.List{{.ModelName}}Criteria)
+	if err != nil {
+		return nil, 0, err
+	}
+	return data, total, nil
 }
 
 func (uc *useCase) FindPaged(ctx context.Context, obj *List{{.ModelName}}Request) (*Paged{{.ModelName}}, error) {
@@ -42,41 +46,111 @@ func (uc *useCase) FindPaged(ctx context.Context, obj *List{{.ModelName}}Request
 	return &Paged{{.ModelName}}{List: data, PageInfo: *core.GetPageResult(obj.Page, obj.Limit, total)}, err
 }
 
+func (uc *useCase) FindLiteList(ctx context.Context, obj *LiteList{{.ModelName}}Request) (*[]Lite{{.ModelName}}, error) {
+	data, err := uc.Repo.FindLiteList(ctx, &obj.LiteList{{.ModelName}}Criteria)
+	if err != nil {
+		return nil, err
+	}
+	return data, nil
+}
+
 {{- $fields := .Fields }}
 func (uc *useCase) Create(ctx context.Context, obj *Create{{.ModelName}}Request) (*{{.ModelName}}, error) {
-	obj.CreatedBy = obj.UserRequestInfo.Id
-	return uc.Repo.Create(ctx, obj)
+	data := &{{.ModelName}}{
+    {{- range $field := $fields }}
+    {{- if $field.Update }}
+        {{ $field.Name }}: obj.{{ $field.Name }},
+    {{- end }}
+    {{- end }}
+        CreatedBy: obj.UserRequestInfo.Id,
+    }
+
+	_, err := uc.Repo.Create(ctx, data)
+	if err != nil {
+		return nil, err
+	}
+	return data, nil
 }
 
 func (uc *useCase) CreateList(ctx context.Context, obj *CreateList{{.ModelName}}Request) (*[]{{.ModelName}}, error) {
-    for i := range obj.{{.ModelName}}s {
-        obj.{{.ModelName}}s[i].CreatedBy = obj.UserRequestInfo.Id
+    data := []{{.ModelName}}{}
+    for _, record := range obj.{{.ModelName}}s {
+        data = append(data, {{.ModelName}}{
+        {{- range $field := $fields }}
+        {{- if $field.Update }}
+            {{ $field.Name }}: record.{{ $field.Name }},
+        {{- end }}
+        {{- end }}
+            CreatedBy: obj.UserRequestInfo.Id,
+        })
     }
-	return uc.Repo.CreateList(ctx, &obj.{{.ModelName}}s)
+
+	_, err := uc.Repo.CreateList(ctx, &data)
+	if err != nil {
+		return nil, err
+	}
+	return &data, nil
 }
 
 func (uc *useCase) Update(ctx context.Context, obj *Update{{.ModelName}}Request) (*{{.ModelName}}, error) {
 	data, err := uc.Repo.FindOne(ctx, &One{{.ModelName}}Criteria{Id: obj.Id})
-	if data == nil || err != nil {
+	if err != nil {
+		return nil, err
+	}
+	if data == nil {
 		return nil, goerror.NewNotFound()
 	}
-	obj.UpdatedBy = &obj.UserRequestInfo.Id
-	return uc.Repo.Update(ctx, obj)
+
+{{- range $field := $fields }}
+{{- if $field.Update }}
+    data.{{ $field.Name }} = obj.{{ $field.Name }}
+{{- end }}
+{{- end }}
+	data.UpdatedBy = obj.UserRequestInfo.Id
+
+	_, err = uc.Repo.Update(ctx, data)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
 }
 
 func (uc *useCase) UpdateList(ctx context.Context, obj *UpdateList{{.ModelName}}Request) (*[]{{.ModelName}}, error) {
-    for i := range obj.{{.ModelName}}s {
-        obj.{{.ModelName}}s[i].UpdatedBy = &obj.UserRequestInfo.Id
+    data := []{{.ModelName}}{}
+    for _, record := range obj.{{.ModelName}}s {
+        data = append(data, {{.ModelName}}{
+        {{- range $field := $fields }}
+        {{- if $field.Update }}
+            {{ $field.Name }}: record.{{ $field.Name }},
+        {{- end }}
+        {{- end }}
+            UpdatedBy: obj.UserRequestInfo.Id,
+        })
     }
-	return uc.Repo.UpdateList(ctx, &obj.{{.ModelName}}s)
+
+	_, err := uc.Repo.UpdateList(ctx, &data)
+	if err != nil {
+		return nil, err
+	}
+
+	return &data, nil
 }
 
 func (uc *useCase) Delete(ctx context.Context, obj *Delete{{.ModelName}}Request) (*core.Empty, error) {
 	data, err := uc.Repo.FindOne(ctx, &One{{.ModelName}}Criteria{Id: obj.Id})
-	if data == nil || err != nil {
+	if err != nil {
+		return nil, err
+	}
+	if data == nil {
 		return nil, goerror.NewNotFound()
 	}
-	return uc.Repo.Delete(ctx, obj)
+
+	err = uc.Repo.Delete(ctx, obj.Id)
+	if err != nil {
+		return nil, err
+	}
+	return &core.Empty{}, nil
 }
 
 func NewUseCase(repo Repository) UseCase {

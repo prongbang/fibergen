@@ -3,10 +3,11 @@ package template
 import (
 	"bytes"
 	_ "embed"
-	"github.com/ettle/strcase"
-	"github.com/prongbang/fibergen/pkg/common"
 	"strings"
 	"text/template"
+
+	"github.com/ettle/strcase"
+	"github.com/prongbang/fibergen/pkg/common"
 )
 
 // API
@@ -91,8 +92,23 @@ var MultipartXTemplate string
 
 // CRUD
 
-//go:embed crud_datasource_template.tmpl
-var CrudDatasourceTemplate string
+//go:embed crud_datasource_bun_template.tmpl
+var CrudDatasourceBunTemplate string
+
+//go:embed crud_router_bun_template.tmpl
+var CrudRouterBunTemplate string
+
+//go:embed crud_model_bun_template.tmpl
+var CrudModelBunTemplate string
+
+//go:embed crud_repository_bun_template.tmpl
+var CrudRepositoryBunTemplate string
+
+//go:embed crud_usecase_bun_template.tmpl
+var CrudUseCaseBunTemplate string
+
+//go:embed crud_datasource_sqlbuilder_template.tmpl
+var CrudDatasourceSqlBuilderTemplate string
 
 //go:embed crud_handler_template.tmpl
 var CrudHandlerTemplate string
@@ -274,7 +290,8 @@ type Any map[string]interface{}
 
 func RenderText[T any](tmpl string, data T) ([]byte, error) {
 	funcs := template.FuncMap{
-		"split": strings.Split,
+		"split":    strings.Split,
+		"contains": strings.Contains,
 		"sub": func(a, b int) int {
 			return a - b
 		},
@@ -293,12 +310,16 @@ func RenderText[T any](tmpl string, data T) ([]byte, error) {
 
 type Field struct {
 	PrimaryKey bool
+	Alias      string
 	Name       string
 	Type       string
 	JsonTag    string
 	DbTag      string
 	Update     bool
 	Create     bool
+	CamelCase  string
+	SnakeCase  string
+	PascalCase string
 }
 
 type PrimaryField struct {
@@ -314,8 +335,17 @@ type Project struct {
 	Name         string
 	Path         string
 	ListQuery    string
+	Alias        string
 	SortFields   map[string]string
 	PrimaryField PrimaryField
+	Driver       string
+}
+
+func (w Project) DriverName() string {
+	if w.Driver == "mariadb" {
+		return "GetMariaDB"
+	}
+	return "GetUnknownDB"
 }
 
 func (w Project) PackageName() string {

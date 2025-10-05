@@ -2,18 +2,17 @@ package {{.PackageName}}
 
 import (
 	"context"
-	"{{ .Module }}/pkg/core"
 )
 
 type Repository interface {
 	FindOne(ctx context.Context, obj *One{{.ModelName}}Criteria) (*{{.ModelName}}, error)
 	FindList(ctx context.Context, obj *List{{.ModelName}}Criteria) (*[]Data{{.ModelName}}, int64, error)
 	FindLiteList(ctx context.Context, obj *LiteList{{.ModelName}}Criteria) (*[]Lite{{.ModelName}}, error)
-	Create(ctx context.Context, obj *Create{{.ModelName}}Request) (*{{.ModelName}}, error)
-	CreateList(ctx context.Context, obj *[]Create{{.ModelName}}Request) (*[]{{.ModelName}}, error)
-	Update(ctx context.Context, obj *Update{{.ModelName}}Request) (*{{.ModelName}}, error)
-	UpdateList(ctx context.Context, obj *[]Update{{.ModelName}}Request) (*[]{{.ModelName}}, error)
-	Delete(ctx context.Context, obj *Delete{{.ModelName}}Request) (*core.Empty, error)
+	Create(ctx context.Context, obj *{{.ModelName}}) (*{{.ModelName}}, error)
+	CreateList(ctx context.Context, obj *[]{{.ModelName}}) (*[]{{.ModelName}}, error)
+	Update(ctx context.Context, obj *{{.ModelName}}) (*{{.ModelName}}, error)
+	UpdateList(ctx context.Context, obj *[]{{.ModelName}}) (*[]{{.ModelName}}, error)
+	Delete(ctx context.Context, id {{.PrimaryField.Type}}) error
 }
 
 type repository struct {
@@ -32,24 +31,24 @@ func (r *repository) FindLiteList(ctx context.Context, obj *LiteList{{.ModelName
 	return r.Ds.FindLiteList(ctx, obj)
 }
 
-func (r *repository) Create(ctx context.Context, obj *Create{{.ModelName}}Request) (*{{.ModelName}}, error) {
+func (r *repository) Create(ctx context.Context, obj *{{.ModelName}}) (*{{.ModelName}}, error) {
 	return r.Ds.Create(ctx, obj)
 }
 
-func (r *repository) CreateList(ctx context.Context, obj *[]Create{{.ModelName}}Request) (*[]{{.ModelName}}, error) {
+func (r *repository) CreateList(ctx context.Context, obj *[]{{.ModelName}}) (*[]{{.ModelName}}, error) {
 	return r.Ds.CreateList(ctx, obj)
 }
 
-func (r *repository) Update(ctx context.Context, obj *Update{{.ModelName}}Request) (*{{.ModelName}}, error) {
+func (r *repository) Update(ctx context.Context, obj *{{.ModelName}}) (*{{.ModelName}}, error) {
 	return r.Ds.Update(ctx, obj)
 }
 
-func (r *repository) UpdateList(ctx context.Context, obj *[]Update{{.ModelName}}Request) (*[]{{.ModelName}}, error) {
+func (r *repository) UpdateList(ctx context.Context, obj *[]{{.ModelName}}) (*[]{{.ModelName}}, error) {
 	return r.Ds.UpdateList(ctx, obj)
 }
 
-func (r *repository) Delete(ctx context.Context, obj *Delete{{.ModelName}}Request) (*core.Empty, error) {
-	return r.Ds.Delete(ctx, obj)
+func (r *repository) Delete(ctx context.Context, id {{.PrimaryField.Type}}) error {
+	return r.Ds.Delete(ctx, id)
 }
 
 func NewRepository(ds DataSource) Repository {
