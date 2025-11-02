@@ -24,7 +24,7 @@
 
 Latest version:
 ```shell
-go install github.com/prongbang/fibergen@v1.4.2
+go install github.com/prongbang/fibergen@v1.4.3
 ```
 
 For older projects:
