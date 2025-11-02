@@ -96,5 +96,7 @@ type LiteList{{.ModelName}}Criteria struct {
 }
 
 type One{{.ModelName}}Criteria struct {
-    {{ .PrimaryField.Name }} {{ .PrimaryField.Type }}
+    {{- if .PrimaryField.Name }}
+    {{ .PrimaryField.Name }} {{ .PrimaryField.Type }} `json:"{{.PrimaryField.JsonTag}}" validate:"required"`
+    {{- end }}
 }

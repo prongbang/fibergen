@@ -31,7 +31,12 @@ func (d *dataSource) FindList(ctx context.Context, obj *List{{.ModelName}}Criter
 	var total int64
 
 	queryBuilder := dbre.NewSQLQueryBuilder()
-	queryBuilder.AddQueryWithParam(`{{.ListQuery}}`)
+    queryBuilder.AddQuery(`SELECT
+    {{- $len := len .Fields -}}
+    {{- range $i, $f := .Fields }}
+        {{$f.Alias}}.{{$f.SnakeCase}}{{if lt $i (sub $len 1)}},{{end}}
+    {{- end }}
+    FROM {{.TableName}} {{.Alias}}`)
 
 	// Where
 	queryBuilder.AddQuery("WHERE 1=1")
@@ -48,9 +53,10 @@ func (d *dataSource) FindList(ctx context.Context, obj *List{{.ModelName}}Criter
 		// Sort
 		sortSQL, err := dbre.SortSQL(&dbre.SortParam{
 			SortFieldMapping: map[string]string{
-				{{- range $key, $value := .SortFields }}
-                "{{$key}}": "{{$value}}",
-                {{- end }}
+			{{- $len := len .Fields -}}
+            {{- range $i, $f := .Fields }}
+                "{{$f.CamelCase}}": "{{$f.Alias}}.{{$f.SnakeCase}}",
+            {{- end }}
 			},
 			Sort:        &dbre.Sort{SortBy: obj.Sort, SortDirection: obj.Order},
 			DefaultSort: &dbre.Sort{SortBy: "id", SortDirection: dbre.ASC},
@@ -84,7 +90,12 @@ func (d *dataSource) FindLiteList(ctx context.Context, obj *LiteList{{.ModelName
 	result := &[]Lite{{.ModelName}}{}
 
 	queryBuilder := dbre.NewSQLQueryBuilder()
-	queryBuilder.AddQueryWithParam(`{{.ListQuery}}`)
+    queryBuilder.AddQuery(`SELECT
+    {{- $len := len .Fields -}}
+    {{- range $i, $f := .Fields }}
+        {{$f.Alias}}.{{$f.SnakeCase}}{{if lt $i (sub $len 1)}},{{end}}
+    {{- end }}
+    FROM {{.TableName}} {{.Alias}}`)
 
 	// Where
 	queryBuilder.AddQuery("WHERE 1=1")
@@ -101,9 +112,8 @@ func (d *dataSource) FindOne(ctx context.Context, obj *One{{.ModelName}}Criteria
 	result := &[]{{.ModelName}}{}
     whereBuilder := dbre.NewWhereBuilder()
 
-    if core.IsNotEmpty(obj.Id) {
-        whereBuilder.Where("id = ?", obj.Id)
-    }
+    // Where
+	whereBuilder.Where("id = ?", obj.Id)
 
     result, err := d.db.ListWhere(ctx, whereBuilder.WhereCauses(), nil, nil)
 	if err != nil {
